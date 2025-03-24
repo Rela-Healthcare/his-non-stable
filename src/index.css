@@ -1,0 +1,100 @@
+* {
+  /* font-family: Lato, sans-serif; */
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+a {
+  text-decoration: none;
+  color: black;
+}
+
+/* Scroll-Bar style Customization  */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 0px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #3c4b64;
+}
+::-webkit-scrollbar-track {
+  background-color: #ffffff;
+}
+/* Overrite printer header footer */
+
+.MuiSvgIcon-root {
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  font-size: 1.5rem;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  flex-shrink: 0;
+  user-select: none;
+  position: absolute;
+  right: 0;
+  top: -4px;
+}
+/* tabs style customization  */
+.nav-tabs .nav-link {
+  background-color: #e9ecef;
+  color: #3c4b64 !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0px !important;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #3c4b64;
+  color: white !important;
+
+  border-radius: 0px !important;
+}
+/* Accordion style customization */
+.accordion-button:not(.collapsed) {
+  color: #000000;
+  background-color: #ffffff;
+  box-shadow: inset 0 calc(-1 * var(--bs-accordion-border-width)) 0
+    var(--bs-accordion-border-color);
+}
+.form-control,
+.form-select {
+  display: block !important;
+  width: 100% !important;
+  padding: 0.375rem 0.75rem !important;
+  font-size: 15px !important;
+  /* font-weight: 400 !important; */
+  /* line-height: none !important; */
+  color: none !important;
+  appearance: none !important;
+  background-color: var(--bs-body-bg) !important;
+  background-clip: none !important;
+}
+.react-datepicker-wrapper {
+  display: block !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+.select:hover,
+.select:focus {
+  box-shadow: 1px 2px 3px #3c4b64;
+}
+.ant-menu-item-active {
+  background-color: rgb(255, 255, 255) !important;
+  color: black !important;
+}
+.ant-menu-item:hover {
+  background-color: white !important;
+  color: black !important;
+}
+/* .ant-menu-item-active:hover {
+  background-color: rgb(255, 255, 255) !important;
+  color: black !important;
+} */
+:where(.css-dev-only-do-not-override-2i2tap).ant-menu-dark
+  .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-2i2tap).ant-menu-dark
+  > .ant-menu
+  .ant-menu-item-selected {
+  background-color: black !important;
+}

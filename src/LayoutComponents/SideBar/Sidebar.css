@@ -1,0 +1,50 @@
+.logo {
+  height: 65px;
+  width: 200px;
+}
+img {
+  height: 100%;
+  width: 100%;
+}
+.signout:active {
+  color: black;
+  font-weight: bolder;
+  transform: scale(1.1);
+  transition: 1s ease-in;
+}
+.signout:hover {
+  color: black;
+  background-color: white;
+  border-radius: 10px;
+  /* transform: scale(1.1);
+  transition: 1s ease-in; */
+}
+.ant-btn-icon-only{
+  width:32px !important;
+  height: 32px !important;
+  margin-bottom: 0.5rem;
+}
+.header-name {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+}
+.header-username {
+  font-size: 16px;
+  top: 20px;
+}
+@media (max-width: 975px) {
+  .header-name {
+    font-size: 20px;
+    /* font-weight: bold; */
+  }
+  .header-username {
+    font-size: 14px;
+    top: 23px;
+  }
+}
+@media (max-width: 650px) {
+  .header-username {
+    display: none;
+  }
+}

@@ -1,0 +1,23 @@
+.mother {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: rgb(207,226,255);
+  color: rgb(0, 0, 0);
+  /* display: flex;
+  justify-content: flex-start;
+  align-items: center; */
+  gap: calc(100% / 4);
+  height: 45px;
+  padding: 5px;
+  z-index: 99999;
+  border-bottom: 1px solid white;
+}
+
+h4 {
+  font-size: inherit;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}

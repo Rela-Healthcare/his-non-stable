@@ -1,0 +1,477 @@
+{
+    "sno": "1",
+    "uhidNo": "12018167617",
+    "episodeNo": "OP677849",
+    "billNo": "OP-162928",
+    "patientName": "Ms Gokila Kasinathan",
+    "doctor": "MEFTEC",
+    "billDate": "27/12/2023 12:47:33 PM",
+    "doB_Gender": "31/10/2019 - Female",
+    "payor": "SELF",
+    "gstNo": "33AAECJ0310M1ZY",
+    "casherSignature": "meftec",
+    "totalGrossAmount": 110.000000,
+    "totalDiscount": 10.000000,
+    "totalNetAmount": 100.00,
+    "detail_Type": "SETTLEMENT DETAILS",
+    "payment_Type": "Payment Mode : Cash Rs.3800.00 /.",
+    "settleAmount": 3800.00,
+    "amountinWords": "0.00",
+    "billStatus": "",
+    "creditNote": "0",
+    "invoiceLine1": [
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "ADVANCE PAEDIATRICS",
+            "services": "PICU-Followup Pack",
+            "qty": "1.00",
+            "unitPrice": "2000.00",
+            "groupTotal": "2000.0000",
+            "resultTime": ""
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "ADVANCE PAEDIATRICS",
+            "services": "PICU-Followup Pack",
+            "qty": "1.00",
+            "unitPrice": "2000.00",
+            "groupTotal": "2000.0000",
+            "resultTime": ""
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "ALT (Alanine Transaminase)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Complete Blood Count (CBC)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Electrolytes (Na, K, Cl, HCO3)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Serum Creatinine",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "ALT (Alanine Transaminase)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Complete Blood Count (CBC)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Electrolytes (Na, K, Cl, HCO3)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Serum Creatinine",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}{
+    "PayorType": "SELF",
+    "BillDate": "27/12/2023 12:47:33 PM",
+    "BillNo": "OP-162928",
+    "EpisodeNo": "OP677849",
+    "GSTNo": "33AAECJ0310M1ZY",
+    "TotalGrossAmount": 110,
+    "TotalDiscount": 10,
+    "TotalNetAmount": 100,
+    "PaymentType": "Payment Mode : Cash Rs.3800.00 /.",
+    "SettleAmount": 3800,
+    "InvoiceList": [
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "ADVANCE PAEDIATRICS",
+            "services": "PICU-Followup Pack",
+            "qty": "1.00",
+            "unitPrice": "2000.00",
+            "groupTotal": "2000.0000",
+            "resultTime": ""
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "ADVANCE PAEDIATRICS",
+            "services": "PICU-Followup Pack",
+            "qty": "1.00",
+            "unitPrice": "2000.00",
+            "groupTotal": "2000.0000",
+            "resultTime": ""
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "ALT (Alanine Transaminase)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Complete Blood Count (CBC)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Electrolytes (Na, K, Cl, HCO3)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Serum Creatinine",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "ALT (Alanine Transaminase)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Complete Blood Count (CBC)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Electrolytes (Na, K, Cl, HCO3)",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        },
+        {
+            "dateofService": "27/12/2023",
+            "service_Name": "LABORATORY",
+            "services": "Serum Creatinine",
+            "qty": "1.00",
+            "unitPrice": "0.00",
+            "groupTotal": "0.0000",
+            "resultTime": "4 Hours"
+        }
+    ],
+    "CashierSignature": "meftec"
+}
+
+
+
+
+{
+    "sno": "1",
+    "uhid": "12018167617",
+    "patientName": "Ms  Gokila Kasinathan",
+    "dob": "31/10/2019",
+    "age": "4",
+    "gender": "FEMALE",
+    "regid": "677849",
+    "visitNo": "OP677849",
+    "visitDate": "27/12/2023",
+    "billNum": "162928",
+    "internalNo": "747329",
+    "billNo": "OP23-162928",
+    "billDate": "27/12/2023",
+    "billAmount": "100.00",
+    "selfAmount": "100.00",
+    "partyAmount": "0.00",
+    "doctorId": "532",
+    "doctorName": "MEFTEC",
+    "userId": "MEFTEC",
+    "isCancelled": "False",
+    "partyCode": "SELF",
+    "billStatus": "",
+    "partyName": "SELF"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+{
+    "sno": 0,
+    "msgDescp": "Done",
+    "referenceNumber": 167565,
+    "visitId": "OP677870",
+    "surrogatedID": 747332,
+    "mobileno": "6380719807",
+    "emailid": "prasanna@email.com",
+    "age": 4,
+    "appId": 0,
+    "docid": 532
+}
+
+{
+    "sno": "1",
+    "uhid": "12018167565",
+    "patientName": "Master Prsanna Rajendran",
+    "dob": "16/04/2019",
+    "gender": "Male",
+    "age": "4 Yrs 8 Mths 29 Days ",
+    "yrs": "4 Yrs ",
+    "mths": "8 Yrs ",
+    "days": "29 Yrs ",
+    "mobileNo": "6380719807",
+    "email": "prasanna@email.com"
+}
+
+
+[
+    {
+        "sno": "1",
+        "uhid": "12018167565",
+        "patientName": "Master Prsanna Rajendran",
+        "dob": "16/04/2019",
+        "gender": "Male",
+        "age": "4 Yrs 8 Mths 29 Days ",
+        "yrs": "4 Yrs ",
+        "mths": "8 Yrs ",
+        "days": "29 Yrs ",
+        "mobileNo": "6380719807",
+        "email": "prasanna@email.com"
+    }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://192.168.15.3/NewHIS/api/his/get_web_PatientDtl?Type=op&search=167565
+[
+    {
+        "sno": "1",
+        "uhid": "12018167565",
+        "patientName": "Master Prsanna Rajendran",
+        "dob": "16/04/2019",
+        "gender": "Male",
+        "age": "4 Yrs 8 Mths 29 Days ",
+        "yrs": "4 Yrs ",
+        "mths": "8 Yrs ",
+        "days": "29 Yrs ",
+        "mobileNo": "6380719807",
+        "email": "prasanna@email.com"
+    }
+]
+
+
+post url: http://192.168.15.3/NewHIS/api/his/Insert_ExsistsOPDMaster_Porc
+req: {
+    "ExistsOPBillRecepitLine": [
+        {
+            "ServiceID": 10792,
+            "Unit": 1,
+            "Rate": 12000,
+            "DiscType": 1,
+            "Discount": 8,
+            "Amount": 11040,
+            "PriorityID": "",
+            "Remarks": "test"
+        }
+    ],
+    "OPReceipt_Payment_Line": [
+        {
+            "PayMode": "C",
+            "Amount": 11040,
+            "RefNo": "REF"
+        }
+    ],
+    "PatientID": 167565,
+    "Gender": "M",
+    "MobileNo": "6380719807",
+    "EmailId": "prasanna@email.com",
+    "UserID": "ITAdmin",
+    "docId": 532,
+    "appointmentId": 0,
+    "RefSource": 17,
+    "VistType": 3,
+    "PatientType": "s",
+    "PayorID": 0,
+    "Remarks": "test",
+    "InternalDocId": 0,
+    "ExternalDocId": 0,
+    "GrossAmount": 0,
+    "DiscountAmount": 0,
+    "GLAmount": 0,
+    "PatientResponsibility": 100,
+    "NetAmount": 100,
+    "APPStartDate": "2023-12-28 16:0:00.000",
+    "Package": "string",
+    "AppRemarks": "string",
+    "AppRefSource": "string"
+}
+res: {
+    "sno": 0,
+    "msgDescp": "Done",
+    "referenceNumber": 167565,
+    "visitId": "OP677876",
+    "surrogatedID": 747338,
+    "mobileno": "6380719807",
+    "emailid": "prasanna@email.com",
+    "age": 4,
+    "appId": 0,
+    "docid": 532
+
+
+
+
+}
+
+http://180.235.120.78/relalive/api/HIS/updatePOSPayment
+
+{"RefID":"","TransactionID":"20231222033056","PaymentMode":"","StatusCode":"","StatusMsg":"","PaymentStatus":"Pending","Remarks":"","IsActiveflg":0,"CreatedCode":"MEFTEC","CardType":"","CardNumber":"","CardHolderName":"","ApprovalCode":"","PaymentID":0,"RefType":"","PatientID":"12018167653","PatientName":"Mrs Gokila Prasanna","DoctorID":0,"TransactionDate":"2023-12-22 03:30","TransactionAmount":"1","PaymentMethod":"cards-swipe","CreatedDate":"2023-12-22 03:30"}
+
+http://180.235.120.78/relalive/api/HIS/updatePOSPayment
+
+http://192.168.15.3/React_Demo/api/his/Get_Web_DepositeDtl_Reprint?FromDate=2023-11-07&ToDate=2023-12-30&Uhid=0 => get Deposit dashboard lists.
+
+http://180.235.120.78/Report_Rdlc/api/his/Deposit_Reprint?reportType=&patid=22991&receiptNumber=RCS23-080148 => deposit reciept
+
+http://192.168.15.3/React_Demo/api/his/Insert_AppointmentSlot  (Insert Appointment Slot Details
+
+{
+  "DoctorId": 532,
+  "FromDate": "01-01-2024",
+  "ToDate": "01-01-2024",
+  "SessionStartTime": "04:00 PM",
+  "SessionEndingTime": "04:30 PM",
+  "UserId": "MEFTEC"
+}
+
+
+http://192.168.15.3/React_Demo/api/his/User_PrinterType?BarcodeType=RG&Username=MEFTEC&PrinterID=71
+
+
+        "patientName": "suji 2",
+        "gender": "F",
+        "email_ID": "test@mail.com",
+        "mobileNo": "9999988888",
+        "ins_Organization_nm": "Rela ins",
+        "dob": "9/1/1982 12:00:00 AM",
+        "designation": "IT Manager",
+        "registrationNo_TNMC": "112244",
+        "addressofIns_Organization": "CLC works",
+        "areaofInterestinCCID": "PCS ",
+        "createdDt": "1/5/2024 5:25:47 PM"
+
+POS Content//
+uhid => any unique number ?
+http://180.235.120.78/DataAegis_Live/?patientName=Name:xyz&uhid=:123&chargerate=1.00&email=2@e.com&mobileno=6380719807&processingid=6380719807&uname=MEFTECmeftec&paymode=card-swipe
+
+
+
+

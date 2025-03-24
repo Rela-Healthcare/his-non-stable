@@ -1,0 +1,57 @@
+.container {
+  display: flex;
+  margin: auto;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 15px;
+  width: 700px;
+  height: 330px;
+  margin: 350px auto;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
+.col1 {
+  width: 350px;
+  height: 330px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  background: url("../../assets/col.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.col2 {
+  width: 350px;
+}
+.mother {
+  background: url("../../assets/RelaHospital.jpeg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow-y: hidden;
+  height: 100vh;
+}
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+input[type="select"]:focus,
+.uneditable-input:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+  outline: 0 none;
+}
+
+select[type="text"]:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+  outline: 0 none;
+}

@@ -1,0 +1,34 @@
+.table > thead > * > * {
+  background-color: #3c4b64;
+  color: white;
+}
+
+tbody,
+td {
+  color: black;
+}
+
+.active > .page-link,
+.page-link.active {
+  z-index: 3;
+  color: black !important;
+  background-color: #3c4b64 !important;
+  border-color: #3c4b64 !important;
+}
+.page-link {
+  position: relative;
+  display: block;
+  padding: var(--bs-pagination-padding-y) var(--bs-pagination-padding-x);
+  font-size: var(--bs-pagination-font-size);
+  color: white;
+  text-decoration: none;
+  background-color: #3c4b64 !important;
+  border-color: #3c4b64 !important;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.react-bootstrap-table table {
+  table-layout: auto !important;
+  overflow: visible !important;
+}

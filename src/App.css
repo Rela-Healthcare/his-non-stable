@@ -1,0 +1,281 @@
+.App {
+  height: 100vh;
+  width: 100vw;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+.wrapper {
+  flex: 10%;
+  align-items: stretch;
+}
+.margins {
+  margin-top: 50px;
+}
+.app-layout {
+  display: flex;
+  justify-content: flex-end;
+  gap: 300px;
+}
+.react-datepicker__calendar-icon {
+  width: 30px;
+}
+* {
+  font-family: "Lato", sans-serif;
+}
+.select {
+  border: 1px solid #000000;
+  border-radius: 4px;
+  cursor: pointer;
+  color: black;
+  font-weight: 600;
+  padding: 5px;
+  height: 40px;
+  margin: 15px 5px;
+}
+
+.selected {
+  border: 1px solid #000000;
+  border-radius: 4px;
+  cursor: pointer;
+  color: black;
+  font-weight: 600;
+  padding: 5px;
+  height: 40px;
+  /* margin: 5px 0px; */
+}
+
+.select:hover {
+  /* transform: scale(0.5); */
+  transition: 0.1s;
+}
+.selected:hover {
+  /* transform: scale(0.5); */
+  transition: 0.1s;
+}
+
+.select:focus {
+  outline: none;
+  box-shadow: none !important;
+  border-color: #3c4b64;
+}
+.selected:focus {
+  outline: none;
+  box-shadow: none !important;
+  border-color: #3c4b64;
+}
+.input {
+  height: 40px;
+  width: 400px;
+  overflow: hidden;
+  font-weight: 600;
+}
+
+option {
+  font-weight: 600;
+}
+.input:focus {
+  outline: none;
+  box-shadow: none !important;
+  border-color: #3c4b64;
+}
+form {
+  margin: 0 auto;
+}
+
+.primary {
+  background-color: #3c4b64;
+  border: 1px solid #3c4b64;
+}
+.primary:hover {
+  background-color: #3c4b64;
+  border: 1px solid #3c4b64;
+}
+
+.primary:active {
+  background-color: #3c4b64;
+  border: 1px solid #3c4b64;
+}
+.primary:focus {
+  background-color: #3c4b64;
+  border: 1px solid #3c4b64;
+}
+.btn-primary {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: #3c4b64;
+  --bs-btn-border-color: #3c4b64;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: #3c4b64;
+  --bs-btn-hover-border-color: #3c4b64;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: #3c4b64;
+  --bs-btn-active-border-color: #3c4b64;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #ffffff;
+  --bs-btn-disabled-bg: #3c4b64;
+  --bs-btn-disabled-border-color: #3c4b64;
+  font-weight: 600;
+  margin: 0px 5px;
+}
+.btn-primary:hover {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: #3c4b64;
+  --bs-btn-border-color: #3c4b64;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: #3c4b64;
+  --bs-btn-hover-border-color: #3c4b64;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: #3c4b64;
+  --bs-btn-active-border-color: #3c4b64;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #ffffff;
+  --bs-btn-disabled-bg: #3c4b64;
+  --bs-btn-disabled-border-color: #3c4b64;
+  font-weight: 600;
+  margin: 0px 5px;
+}
+.btn-primary:active {
+  /* --bs-btn-color: #3c4b64;
+  /* --bs-btn-bg: #ffffff; */
+  /* --bs-btn-border-color: #ffffff;
+  --bs-btn-hover-color: #3c4b64; */
+  /* --bs-btn-hover-bg: #ffffff; */
+  /* --bs-btn-hover-border-color: #ffffff;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;  */
+  --bs-btn-active-bg: #fff;
+  --bs-btn-active-color: #3c4b64;
+  --bs-btn-active-border-color: #3c4b64;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  /* --bs-btn-disabled-color: #3c4b64;
+  --bs-btn-disabled-bg: #fff;
+  --bs-btn-disabled-border-color: #fff; */
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+link,
+label,
+a,
+li,
+ul {
+  font-weight: 700;
+  text-decoration: none !important;
+  list-style: none;
+}
+.accordion-button:not(.collapsed) {
+  height: 20px;
+}
+a li:hover {
+  transform: scale(1.5);
+}
+
+.nav-link {
+  color: white;
+  padding: none;
+  border-radius: none;
+}
+.nav-item,
+.nav-tabs {
+  margin: none;
+  border-radius: none;
+}
+
+.form-check-input:checked {
+  background-color: #3c4b64;
+  border-color: #3c4b64;
+  font-weight: 600;
+}
+.mandatory::after {
+  content: "*";
+  color: red;
+  margin-left: 2px;
+}
+
+.rotate {
+  animation: rotate 1s linear;
+  transform-origin: center;
+}
+
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 1500px) {
+  .input {
+    height: 40px;
+    width: 325px;
+    overflow: hidden;
+  }
+}
+@media (max-width: 990px) {
+  .input {
+    height: 40px;
+    width: 325px;
+    overflow: hidden;
+  }
+}
+@media (max-width: 495px) {
+  .input {
+    height: 40px;
+    width: 300px;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 414px) {
+  .input {
+    width: 250px;
+    overflow: hidden;
+  }
+}
+@media (max-width: 414px) {
+  .input {
+    width: 250px;
+    overflow: hidden;
+  }
+}
+@media (max-width: 360px) {
+  .input {
+    width: 250px;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 300px) {
+  .input {
+    width: 225px;
+    overflow: hidden;
+  }
+}
+@media (max-width: 287px) {
+  .input {
+    width: 225px;
+    overflow: hidden;
+  }
+}
+@media (max-width: 275px) {
+  .input {
+    width: 190px;
+    overflow: hidden;
+  }
+}

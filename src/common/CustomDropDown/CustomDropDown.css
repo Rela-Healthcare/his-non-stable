@@ -1,0 +1,8 @@
+.mandatory::after {
+  content: "*";
+  color: red;
+  margin-left: 2px;
+}
+.mandatory {
+  color: black;
+}
