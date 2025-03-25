@@ -17,7 +17,6 @@ import {
   faHospital,
   faIdCard,
   faLink,
-  faCancel,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 import {OPModuleAgent} from '../../../agent/agent';
@@ -50,6 +49,24 @@ const AllPatientData = () => {
   const [searchInput, setSearchInput] = useState('');
   const [depositLinkModalOpen, setDepositLinkModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+
+  const [tableData, setTableData] = useState([]);
+  const handleDepositLinkStatus = (sno) => {
+    setTableData((prevData) =>
+      prevData.map((row) =>
+        row.sno === sno ? {...row, buttonText: 'Re-send Link'} : row
+      )
+    );
+  };
+
+  useEffect(() => {
+    setTableData(
+      (filteredData.length > 0 ? filteredData : data).map((row) => ({
+        ...row,
+        buttonText: 'Send Link',
+      }))
+    );
+  }, [data, filteredData]);
 
   const handleOpenModal = (row) => {
     setSelectedRow(row);
@@ -99,11 +116,10 @@ const AllPatientData = () => {
         )
       ).data;
       if (getOutPatientListResponse) {
-        // //console.log(getOutPatientListResponse);
         setData(getOutPatientListResponse);
       }
     } catch (error) {
-      //console.error(error);
+      console.error(error);
     }
   };
 
@@ -141,37 +157,6 @@ const AllPatientData = () => {
       navigate('/op-search/epat-casesheet');
     } catch (error) {}
   };
-
-  // const fetchInvoiceData = async (billNum) => {
-  //   try {
-  //     const invoiceResponse = await axios.get(
-  //       `http://192.168.15.3/Test_HIS/api/his/GetInvoiceReprint_out_NEW?BillNo=${billNum}`
-  //     );
-  //     dispatch(
-  //       dashBoardFormData({
-  //         name: "BillInfo",
-  //         value: {
-  //           PayorType: invoiceResponse.data.payor,
-  //           BillDate: invoiceResponse.data.billDate,
-  //           BillNo: invoiceResponse.data.billNum,
-  //           EpisodeNo: invoiceResponse.data.episodeNo,
-  //           GSTNo: invoiceResponse.data.gstNo,
-  //           TotalGrossAmount: invoiceResponse.data.totalGrossAmount,
-  //           TotalDiscount: invoiceResponse.data.totalDiscount,
-  //           TotalNetAmount: invoiceResponse.data.totalNetAmount,
-  //           PaymentType: invoiceResponse.data.payment_Type,
-  //           SettleAmount: invoiceResponse.data.settleAmount,
-  //           InvoiceList: invoiceResponse.data.invoiceLine1,
-  //           CashierSignature: invoiceResponse.data.casherSignature,
-  //         },
-  //       })
-  //     );
-
-  //     navigate("/op-search/epat-invoice");
-  //   } catch (error) {
-
-  //   }
-  // };
 
   const fetchInvoiceData = async (billNum) => {
     try {
@@ -489,8 +474,7 @@ const AllPatientData = () => {
       },
     },
     {
-      dataField: 'sno',
-      isDummyField: true,
+      dataField: 'deposit_link',
       text: 'Deposit Link',
       formatter: (cell, row) => (
         <>
@@ -499,6 +483,11 @@ const AllPatientData = () => {
             aria-label="Open Deposit Link Modal">
             <FontAwesomeIcon icon={faLink} />
           </a>
+          {row.buttonText === 'Re-send Link' && (
+            <Button size="sm" variant="link">
+              Verify
+            </Button>
+          )}
         </>
       ),
       style: {
@@ -507,43 +496,6 @@ const AllPatientData = () => {
         fontWeight: 'bolder',
       },
     },
-    // {
-    //   dataField: 'sno',
-    //   isDummyField: true,
-    //   text: 'Deposit Link',
-    //   formatter: (cell, row) => {
-    //     const phoneNumber = row.mobile;
-    //     console.log('Phone', phoneNumber);
-    //     const depositLink = `https://yourwebsite.com/op-search/epat-whatsapplink/${row.regId}`;
-
-    //     const whatsappMessage = encodeURIComponent(
-    //       `Hello, here is your deposit link: ${depositLink}`
-    //     );
-
-    //     const whatsappURL = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
-
-    //     return (
-    //       // <a href={whatsappURL} target="_blank" rel="noopener noreferrer">
-    //       //   <FontAwesomeIcon icon={faLink} />
-    //       // </a>
-    //       <>
-    //         <a onClick={() => setDepositLinkModalOpen(true)}>
-    //           <FontAwesomeIcon icon={faLink} />
-    //         </a>
-
-    //         <DepositLinkModal
-    //           isVisible={depositLinkModalOpen}
-    //           onClose={() => setDepositLinkModalOpen(false)}
-    //         />
-    //       </>
-    //     );
-    //   },
-    //   style: {
-    //     width: '1px',
-    //     backgroundColor: 'whitesmoke',
-    //     fontWeight: 'bolder',
-    //   },
-    // },
   ];
 
   const tableStyle = {
@@ -667,7 +619,14 @@ const AllPatientData = () => {
                     hover
                     striped
                     keyField="sno"
-                    data={filteredData.length > 0 ? filteredData : data}
+                    // data={filteredData.length > 0 ? filteredData : data}
+                    data={
+                      tableData.length > 0
+                        ? tableData
+                        : filteredData.length > 0
+                        ? filteredData
+                        : data
+                    }
                     columns={columns2}
                     {...paginationTableProps}
                     style={tableStyle}
@@ -680,6 +639,7 @@ const AllPatientData = () => {
         </>
       )}
       <DepositLinkModal
+        handleDepositLinkStatus={handleDepositLinkStatus}
         width={1000}
         isVisible={depositLinkModalOpen}
         onClose={() => setDepositLinkModalOpen(false)}

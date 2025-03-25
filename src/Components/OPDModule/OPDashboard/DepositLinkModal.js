@@ -1,40 +1,132 @@
-import React, {useState} from 'react';
-import {Modal, Button, Space} from 'antd';
+import React, {useEffect, useState} from 'react';
+import {Modal, Space} from 'antd';
+import {Button} from 'react-bootstrap';
 import DepositForm from '../Deposit/DepositForm';
-import {useDispatch, useSelector} from 'react-redux';
-import {depositInformation} from '../../../features/OPDModule/DepositAllocation/DepositSlice';
 import {toast} from 'react-toastify';
+import {OPModuleAgent} from '../../../agent/agent';
+import {generateProcessingId} from '../../../utils/utils';
 
-const DepositLinkModal = ({isVisible, onClose, rowData, width}) => {
-  const dispatch = useDispatch();
-  const paymentData = useSelector((state) => state.paymentInfo.formData);
+const DepositLinkModal = ({
+  isVisible,
+  onClose,
+  rowData,
+  width,
+  handleDepositLinkStatus,
+}) => {
   const [isSent, setIsSent] = useState(false);
+  const [formData, setFormData] = useState({
+    patientName: '',
+    mobileNo: '',
+    depositAmount: '',
+    depositRemarks: '',
+    depositType: '',
+    paymentMethod: '',
+    cardType: '',
+  });
+  const uhid = rowData?.uhid || '011039';
 
-  const sendWhatsAppMessage = (phoneNumber, message) => {
-    const encodedMessage = encodeURIComponent(message);
-    const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    window.open(url, '_blank');
+  const resetForm = () => {
+    setFormData({
+      mobileNo: '',
+      depositAmount: '',
+      depositRemarks: '',
+      depositType: '',
+      paymentMethod: '',
+      cardType: '',
+    });
   };
 
-  const handleSendLink = () => {
-    setIsSent(true);
-    setTimeout(() => {
-      console.log('Deposit link sent!');
+  useEffect(() => {
+    const fetchDepositData = async () => {
+      if (uhid && uhid.length >= 6) {
+        try {
+          const response = await OPModuleAgent.getDepositInfo(uhid.slice(-6));
+          const data = response?.data?.[0] || {};
+          setFormData((prev) => ({
+            ...prev,
+            patientName: data.patientName || '',
+            depositRemarks: data.depositRemarks || '',
+            depositType: data.depositType || '',
+          }));
+        } catch (error) {
+          console.error('Error fetching deposit info:', error);
+        }
+      } else {
+        console.log('UHID should be at least 6 characters long.');
+      }
+    };
+    fetchDepositData();
+  }, [uhid]);
+
+  const generatePaymentURL = ({
+    patientName,
+    uhid,
+    chargeRate,
+    email,
+    mobileNo,
+    processingId,
+    uname = 'MEFTECmeftec',
+    payMode = 'cash-remote-deposit',
+  }) => {
+    const baseURL = 'https://www.relainstitute.in/DataAegis_Live/';
+    const queryParams = new URLSearchParams({
+      patientName,
+      uhid,
+      chargerate: chargeRate,
+      email,
+      mobileno: mobileNo,
+      processingid: processingId,
+      uname,
+      paymode: payMode,
+    });
+
+    return `${baseURL}?${queryParams.toString()}`;
+  };
+
+  const handleSendLink = async () => {
+    const isFormDataValid = isDisableButton();
+    if (isFormDataValid) {
+      toast.error('Please fill all the required fields.');
+      return;
+    }
+    const {patientName, mobileNo, depositAmount} = formData;
+
+    try {
+      generatePaymentURL({
+        patientName,
+        uhid: rowData?.uhid || '000000',
+        chargeRate: depositAmount,
+        email: rowData?.email,
+        mobileNo,
+        processingId: generateProcessingId(mobileNo),
+      });
+
+      setIsSent(true);
       toast.success('Deposit link sent successfully!');
-      sendWhatsAppMessage('918610130371', 'Hello! This is a test message.');
+      handleDepositLinkStatus(rowData.sno);
+      resetForm();
       onClose();
-    }, 1000);
+    } catch (error) {
+      console.error('❌ Error generating payment link:', error);
+      toast.error('Failed to generate payment link.');
+    }
   };
 
-  const handleCardTypeChange = (e) => {
-    //console.log(e.target.value);
-    const {value} = e.target;
-    dispatch(
-      depositInformation({
-        name: 'CardType',
-        value,
-      })
-    );
+  const isDisableButton = () => {
+    const {mobileNo, depositAmount, depositType, paymentMethod, cardType} =
+      formData ?? {};
+
+    if (
+      mobileNo &&
+      depositAmount &&
+      depositType &&
+      paymentMethod &&
+      ((paymentMethod === 'R' && cardType) || paymentMethod !== 'R')
+    ) {
+      return false;
+    }
+
+    return true;
   };
 
   return (
@@ -44,17 +136,23 @@ const DepositLinkModal = ({isVisible, onClose, rowData, width}) => {
       onCancel={onClose}
       width={width ? width : ''}
       footer={() => (
-        <Button type="primary" onClick={handleSendLink}>
-          {isSent ? 'Re-Send Link' : 'Send Link'}
-        </Button>
+        <>
+          <Button type="default" onClick={resetForm}>
+            Reset
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSendLink}
+            disabled={isDisableButton()}>
+            {isSent ? 'Re-Send Link' : 'Send Link'}
+          </Button>
+        </>
       )}>
       <Space direction="vertical" style={{width: '100%', padding: '10px'}}>
         <DepositForm
-          uhid={rowData?.uhid}
-          dispatch={dispatch}
-          depositInformation={depositInformation}
-          paymentData={paymentData}
-          handleCardTypeChange={handleCardTypeChange}
+          uhid={uhid}
+          formData={formData}
+          setFormData={setFormData}
         />
       </Space>
     </Modal>

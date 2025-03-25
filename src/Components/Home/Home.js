@@ -407,59 +407,6 @@ const Home = () => {
     }
   };
 
-  // const handlePOS = async () => {
-  //   const generateProcessingId = () => {
-  //     return (
-  //       patientData.MobileNo.toString().substring(7) +
-  //       new Date().getHours().toString().padStart(2, '0') +
-  //       new Date().getMinutes().toString().padStart(2, '0') +
-  //       new Date().getSeconds().toString().padStart(2, '0')
-  //     );
-  //   };
-
-  //   const generatedUhid = generateProcessingId(); // Generate the UHID here
-
-  //   if (
-  //     patientData.patientInfo &&
-  //     patientData.additionalInfo &&
-  //     patientData.kinInfo
-  //   ) {
-  //     let amountToSend = Math.round(parseFloat(finalAmount));
-
-  //     // Log to confirm the correct amount is calculated
-  //     console.log('Final Amount for POS:', finalAmount);
-  //     console.log('Amount to Send for POS:', amountToSend);
-
-  //     // Validate the amount
-  //     if (!isNaN(amountToSend) && amountToSend > 0) {
-  //       // Log the payment details being sent
-  //       console.log(`Sending Payment Details for POS:
-  //               Patient Name: ${patientData.PatientName},
-  //               UHID: ${generatedUhid},
-  //               Amount: ${amountToSend}`);
-
-  //       // Open the payment URL
-  //       window.open(
-  //         `http://180.235.120.78/DataAegis_Live/?patientName=${encodeURIComponent(
-  //           patientData.PatientName
-  //         )}&uhid=${generatedUhid}&chargerate=${amountToSend}&email=${encodeURIComponent(
-  //           patientData.EmailId
-  //         )}&mobileno=${encodeURIComponent(
-  //           patientData.MobileNo
-  //         )}&processingid=${generateProcessingId()}&uname=${userName}&paymode=${
-  //           paymentData.CardType
-  //         }`,
-  //         '_blank'
-  //       ); // Closing parentheses for window.open
-  //     } else {
-  //       alert('Invalid amount specified.');
-  //       console.log('Invalid amount detected for POS:', amountToSend);
-  //     }
-  //   } else {
-  //     alert('Fill all the details!');
-  //   }
-  // };
-
   const handlePOS = async () => {
     if (
       !patientData?.PatientName ||

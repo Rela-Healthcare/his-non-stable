@@ -48,14 +48,14 @@
 //       };
 //     }
 //   },
-  
+
 //   delete: async (url, body) => {
 //     try {
 //       const response = await axios.delete(baseURL + url, {
 //         headers: {
-//           'Content-Type': 'application/json', 
+//           'Content-Type': 'application/json',
 //         },
-//         data: body 
+//         data: body
 //       });
 //       console.log(response.data);
 //       return {
@@ -70,34 +70,28 @@
 //     }
 //   },
 
-
 // };
 
+import axios from 'axios';
 
-import axios from "axios";
+const baseURL1 = 'https://www.relainstitute.in/NewHIS_Live/api/HIS/';
 
-
-
-const baseURL1 = "https://www.relainstitute.in/NewHIS_Live/api/HIS/";
-
-const baseURL2 = "http://192.168.15.3/Test_HIS/api/his/";
+const baseURL2 = 'http://192.168.15.3/Test_HIS/api/his/';
 
 const requests = {
-  
-  
   get: async (url, useBaseURL2 = false) => {
     const baseURL = useBaseURL2 ? baseURL2 : baseURL1;
     try {
       const response = await axios.get(baseURL + url);
-      console.log("API Response:", response.data); // Debugging line
+      console.log('API Response:', response.data); // Debugging line
       return {
         data: response.data,
-        status: "success",
+        status: 'success',
       };
     } catch (error) {
       return {
         data: error,
-        status: "error",
+        status: 'error',
       };
     }
   },
@@ -108,17 +102,15 @@ const requests = {
       console.log(response.data);
       return {
         data: response.data,
-        status: "success",
+        status: 'success',
       };
     } catch (error) {
       return {
         data: error,
-        status: "error",
+        status: 'error',
       };
     }
   },
-
-
 
   put: async (url, body, useBaseURL2 = false) => {
     const baseURL = useBaseURL2 ? baseURL2 : baseURL1;
@@ -127,177 +119,179 @@ const requests = {
       console.log(response.data);
       return {
         data: response.data,
-        status: "success",
+        status: 'success',
       };
     } catch (error) {
       return {
         data: error,
-        status: "error",
+        status: 'error',
       };
     }
   },
-  
+
   delete: async (url, body, useBaseURL2 = false) => {
     const baseURL = useBaseURL2 ? baseURL2 : baseURL1;
     try {
       const response = await axios.delete(baseURL + url, {
         headers: {
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
         },
-        data: body 
+        data: body,
       });
       console.log(response.data);
       return {
         data: response.data,
-        status: "success",
+        status: 'success',
       };
     } catch (error) {
       return {
-        data: error.response ? error.response.data : "An unexpected error occurred.",
-        status: "error",
+        data: error.response
+          ? error.response.data
+          : 'An unexpected error occurred.',
+        status: 'error',
       };
     }
   },
 };
 
-
 export const OPModuleAgent = {
+  //Login
+  hislogin: (loginpayload) => requests.post(`getHISLogin`, loginpayload),
 
-//Login
- hislogin: (loginpayload) => requests.post(`getHISLogin`, loginpayload),
+  //PriceList
+  getpackagePriceList: () => requests.get(`PackagePriceList`),
+  getservicePriceList: () =>
+    requests.get(`ServicePriceList?NationalityCode=${0}`),
 
+  //Logs
+  getSMSapplog: (Fdate, tdate) =>
+    requests.get(`Get_SMSLogDetails?Fdate=${Fdate}&tDate=${tdate}`),
 
- //PriceList
- getpackagePriceList: () => requests.get(`PackagePriceList`),
- getservicePriceList: () => requests.get(`ServicePriceList?NationalityCode=${0}`),
-
-
- //Logs
- getSMSapplog: (Fdate, tdate) => 
-  requests.get(`Get_SMSLogDetails?Fdate=${Fdate}&tDate=${tdate}`),
-
- getwhatsapplog: (fromDate, toDate) => 
-  requests.get(`Get_WhatsappLog?Fdate=${fromDate}&tDate=${toDate}`),
- getpaymentlog: (fromDate, toDate) => 
-  requests.get(`Get_PaymentLog?fromDate=${fromDate}&toDate=${toDate}`),
- 
+  getwhatsapplog: (fromDate, toDate) =>
+    requests.get(`Get_WhatsappLog?Fdate=${fromDate}&tDate=${toDate}`),
+  getpaymentlog: (fromDate, toDate) =>
+    requests.get(`Get_PaymentLog?fromDate=${fromDate}&toDate=${toDate}`),
 
   // New functions using the second baseURL
-  getAppointmentSearch: (fromDate, toDate) => 
-    requests.get(`GetAppointmentPatientSearch?FromDate=${fromDate}&ToDate=${toDate}`),
-  
-  getDepositReport: (fromDate, toDate, uhid) => 
-    requests.get(`GetDepositreports?FromDate=${fromDate}&ToDate=${toDate}&Uhid=${uhid}`),
-  
+  getAppointmentSearch: (fromDate, toDate) =>
+    requests.get(
+      `GetAppointmentPatientSearch?FromDate=${fromDate}&ToDate=${toDate}`
+    ),
 
-  getCreditNoteReport: (fromDate, toDate) => 
+  getDepositReport: (fromDate, toDate, uhid) =>
+    requests.get(
+      `GetDepositreports?FromDate=${fromDate}&ToDate=${toDate}&Uhid=${uhid}`
+    ),
+
+  getCreditNoteReport: (fromDate, toDate) =>
     requests.get(`GetCreditNoteReport?FromDate=${fromDate}&ToDate=${toDate}`),
-  
-  getRegistrationReport: (fromDate, toDate) => 
-    requests.get(`GetRegistrationReport?FromDate=${fromDate}&ToDate=${toDate}&PatientType=${0}&NationalityId=${0}&VisitType=${0}`),
-  
-  getInvoice: (fromDate, toDate) => 
+
+  getRegistrationReport: (fromDate, toDate) =>
+    requests.get(
+      `GetRegistrationReport?FromDate=${fromDate}&ToDate=${toDate}&PatientType=${0}&NationalityId=${0}&VisitType=${0}`
+    ),
+
+  getInvoice: (fromDate, toDate) =>
     requests.get(`GetInvoice?FromDate=${fromDate}&ToDate=${toDate}`),
-  
-  getCashCollectionReport: (fromDate, toDate) => 
-    requests.get(`GetCashCollectionreport?FromDate=${fromDate}&ToDate=${toDate}&InstutionId=${1}`),
-  
-  getConcessionReport: (fromDate, toDate) => 
-    requests.get(`Get_Concession_report?FromDate=${fromDate}&ToDate=${toDate}&BillType=${0}`),
-  
-  getBillCancellationReport: (fromDate, toDate) => 
+
+  getCashCollectionReport: (fromDate, toDate) =>
+    requests.get(
+      `GetCashCollectionreport?FromDate=${fromDate}&ToDate=${toDate}&InstutionId=${1}`
+    ),
+
+  getConcessionReport: (fromDate, toDate) =>
+    requests.get(
+      `Get_Concession_report?FromDate=${fromDate}&ToDate=${toDate}&BillType=${0}`
+    ),
+
+  getBillCancellationReport: (fromDate, toDate) =>
     requests.get(`Get_Bill_cancellation?FromDate=${fromDate}&ToDate=${toDate}`),
 
   //
 
-  getSalutations: () => requests.get("salutations"),
+  getSalutations: () => requests.get('salutations'),
 
-  getMobileCodeList: () => requests.get("mobileCode"),
+  getMobileCodeList: () => requests.get('mobileCode'),
 
-  getMaritalStatusList: () => requests.get("maritalStatus"),
+  getMaritalStatusList: () => requests.get('maritalStatus'),
 
-  getOccupationList: () => requests.get("occupationData"),
+  getOccupationList: () => requests.get('occupationData'),
 
-  getNationalityList: () => requests.get("nationality"),
+  getNationalityList: () => requests.get('nationality'),
 
-  getIdTypeList: () => requests.get("idType"),
+  getIdTypeList: () => requests.get('idType'),
 
-  getRelationTypeList: () => requests.get("get_Web_Relationship"),
+  getRelationTypeList: () => requests.get('get_Web_Relationship'),
 
-  getBloodGroupList: () => requests.get("MasterBloodGroup"),
+  getBloodGroupList: () => requests.get('MasterBloodGroup'),
 
-  getReligionList: () => requests.get("Get_MasReligion_Data"),
+  getReligionList: () => requests.get('Get_MasReligion_Data'),
 
-  getLanguageList: () => requests.get("Get_MasLang_Data"),
+  getLanguageList: () => requests.get('Get_MasLang_Data'),
 
-  getCountriesList: () => requests.get("countries"),
+  getCountriesList: () => requests.get('countries'),
 
-  getStateList: () => requests.get("state"),
+  getStateList: () => requests.get('state'),
 
   getCityStateCountryListByPinCode: (pinCode) =>
-    requests.post("GetDatabyPinCode", {
+    requests.post('GetDatabyPinCode', {
       PinCode: pinCode,
       StateCode: 0,
       CountryCode: 0,
     }),
-  
+
   getAreaListByPincode: (pinCode) => requests.get(`area?pinCode=${pinCode}`),
 
   //2. Visit Creation endpoints
-  
-  getDepartments: () => requests.get("departments"),
 
-  getRefSrcList: () => requests.get("get_Ref_Source"),
+  getDepartments: () => requests.get('departments'),
 
-  getInternalDoctorList: () => requests.get("get_Web_DoctorData"),
-  getExternalDoctorList: () => requests.get("Get_ExternalDoc_Data"),
+  getRefSrcList: () => requests.get('get_Ref_Source'),
+
+  getInternalDoctorList: () => requests.get('get_Web_DoctorData'),
+  getExternalDoctorList: () => requests.get('Get_ExternalDoc_Data'),
 
   //get details with query params attached url
   getDoctorListByDepartment: (departmentId) =>
     requests.get(`departmentWiseDoctor?DepID=${departmentId}`),
-  
+
   //appointment masterupdatedetailslot
 
-  getMasterSlot: () => requests.get("GetAppMasterSlot",true),
-  getDetailSlot: () => requests.get("GetAppDetailSlot",true),
+  getMasterSlot: () => requests.get('GetAppMasterSlot', true),
+  getDetailSlot: () => requests.get('GetAppDetailSlot', true),
 
-  
-  deleteDetailslotDatewise: (deletePayload) => 
-    requests.delete(`Delete_AppDetailSlotDateWise`, deletePayload,true), 
+  deleteDetailslotDatewise: (deletePayload) =>
+    requests.delete(`Delete_AppDetailSlotDateWise`, deletePayload, true),
 
-
-  updatedetailslot: (updatedPayload) => 
-    requests.put(`UpdateTimeDetailtbl_v1`, updatedPayload,true), 
-
+  updatedetailslot: (updatedPayload) =>
+    requests.put(`UpdateTimeDetailtbl_v1`, updatedPayload, true),
 
   GetDoctorseqSlotGap: (DoctorId) =>
-    requests.get(`Get_DoctorseqSlotGap?DoctorId=${DoctorId}`,true),
+    requests.get(`Get_DoctorseqSlotGap?DoctorId=${DoctorId}`, true),
 
   GetUpdateTime: (sessionId) =>
     requests.get(`GetUpdateTime?SessionId=${sessionId}`),
-
 
   // SaveAppointmentHeader: (HeaderDetail) =>
   //  requests.post(`Slot_New_Hdr`, HeaderDetail),
 
   SaveMasterHeader: (AppointmentHeader) =>
-    requests.post(`SaveAppMasterSlot`, AppointmentHeader,true),
-
+    requests.post(`SaveAppMasterSlot`, AppointmentHeader, true),
 
   SaveAppointmentMaster: (masterDetail) =>
-    requests.post(`Save_AppDetail_new`, masterDetail,true),
-
+    requests.post(`Save_AppDetail_new`, masterDetail, true),
 
   SlotBlockingandUnblocking: (BlockandUnblockPayload) =>
-    requests.post(`SlotBlockandUnblock`, BlockandUnblockPayload,true),
-
+    requests.post(`SlotBlockandUnblock`, BlockandUnblockPayload, true),
 
   // SaveAppointmentMaster: (masterDetail) =>
   //   requests.post(`Slot_New_Dtl`, masterDetail),
 
-  
   AvailableSlotConsultant: (DoctorId, fromDate, toDate) =>
-    requests.get(`AvailableConsultantSlot?DoctorId=${DoctorId}&FromDate=${fromDate}&ToDate=${toDate}`,true),
+    requests.get(
+      `AvailableConsultantSlot?DoctorId=${DoctorId}&FromDate=${fromDate}&ToDate=${toDate}`,
+      true
+    ),
 
   //appointment master end
 
@@ -305,28 +299,28 @@ export const OPModuleAgent = {
   //   requests.get(`AppAvailableSlotTimeDtl?APPDate=${date}&ConsId=${docId}&Slottype=0`),
 
   getAppointmentDetails: (appointmentpayload) =>
-    requests.post(`AvailableSlot_ampm_seq`,appointmentpayload),
+    requests.post(`AvailableSlot_ampm_seq`, appointmentpayload),
 
   getPayorsList: (payors) =>
     requests.get(`GetInsurance_Corporate?PanelType=${payors}`),
 
   //3. Service Ceration Endpoints
-  getServiceGroupList: () => requests.get("get_services"),
-  getOccupationData: () => requests.get("OccupationData"),
-  getPriorityList: () => requests.get("get_priority"),
-  getServicesList: (serviceGroupCode) => requests.get(`Get_ChargeMaster_v1?Code=${serviceGroupCode}`),
+  getServiceGroupList: () => requests.get('get_services'),
+  getOccupationData: () => requests.get('OccupationData'),
+  getPriorityList: () => requests.get('get_priority'),
+  getServicesList: (serviceGroupCode) =>
+    requests.get(`Get_ChargeMaster_v1?Code=${serviceGroupCode}`),
 
   //Save OPD Visit, Patient Creation, Service Addition Endpoints
-  saveOPDModule: (payload) => requests.post("Insert_OPDMaster_Porc", payload),
+  saveOPDModule: (payload) => requests.post('Insert_OPDMaster_Porc', payload),
 
   //Insert_ExsistsOPDMaster_Porc
   saveExistingOPDModule: (existingPayload) =>
-    requests.post("Insert_ExsistsOPDMaster_Porc", existingPayload,true),
+    requests.post('Insert_ExsistsOPDMaster_Porc', existingPayload, true),
 
   getExistingPatientDetails: (searchInput) =>
     requests.get(`web_PatientDtl?Type=op&search=${searchInput}`),
 
-  
   getExistingPatientByPatientId: (patientId) =>
     requests.get(`Get_ExisPat_Detail?patientid=${patientId}`),
 
@@ -341,67 +335,75 @@ export const OPModuleAgent = {
     requests.get(`opList?Type=op&search=${searchInput}`),
 
   getOutPatientList: (searchInput, fromDate, toDate) =>
-    requests.get(`getInvoice_Reprint_List?FromDate=${fromDate}&ToDate=${toDate}&type=op&search=${searchInput}` ),
+    requests.get(
+      `getInvoice_Reprint_List?FromDate=${fromDate}&ToDate=${toDate}&type=op&search=${searchInput}`
+    ),
 
-  getAppointmentPatientsearchDetails: (fromDate, toDate) => requests.get(`GetAppointmentPatientSearch?FromDate=${fromDate}&ToDate=${toDate}`),
-
-
+  getAppointmentPatientsearchDetails: (fromDate, toDate) =>
+    requests.get(
+      `GetAppointmentPatientSearch?FromDate=${fromDate}&ToDate=${toDate}`
+    ),
 
   //Depaosit Dashboard
-  getDepositDetailsList: (fromDate, toDate) => requests.get(`Get_Web_DepositeDtl_Reprint?FromDate=${fromDate}&ToDate=${toDate}&Uhid=${0}`,true),
+  getDepositDetailsList: (fromDate, toDate) =>
+    requests.get(
+      `Get_Web_DepositeDtl_Reprint?FromDate=${fromDate}&ToDate=${toDate}&Uhid=${0}`,
+      true
+    ),
 
-    //Test API  refund
-  getrefundDetailsList: (Uhid) => requests.get(`Get_RefundReport?&Uhid=${Uhid}`,true),
-
+  //Test API  refund
+  getrefundDetailsList: (Uhid) =>
+    requests.get(`Get_RefundReport?&Uhid=${Uhid}`, true),
 
   //Live  API   (Refund)
-  getRefundReport: (fromDate, toDate) => 
+  getRefundReport: (fromDate, toDate) =>
     requests.get(`GetRefundReport?FromDate=${fromDate}&ToDate=${toDate}`),
-  
+
   // DepositCancel
   SaveDepositCancellation: (DepositCancellation) =>
-    requests.post(`Save_DepositCancellation`, DepositCancellation,true),
+    requests.post(`Save_DepositCancellation`, DepositCancellation, true),
 
   // refundCancel
   SaveRefundCancellation: (RefundCancellation) =>
-    requests.post(`Save_RefundCancellation`, RefundCancellation,true),
+    requests.post(`Save_RefundCancellation`, RefundCancellation, true),
 
- // Type_change
- SaveDepositType_Change: (DepositType_Change) =>
-  requests.post(`Save_DepositType_Change`, DepositType_Change,true),
+  // Type_change
+  SaveDepositType_Change: (DepositType_Change) =>
+    requests.post(`Save_DepositType_Change`, DepositType_Change, true),
 
- //Save refund
- SaveRefund: (SaveRefund) =>
-  requests.post(`Save_Refund`, SaveRefund,true),
- 
-//Mobiledeposit
-SaveMobileDeposit: (Save_MobileDeposit) =>
-  requests.post(`Save_MobileDeposit`, Save_MobileDeposit,true),
+  //Save refund
+  SaveRefund: (SaveRefund) => requests.post(`Save_Refund`, SaveRefund, true),
 
-//Deposit
-saveDepositInfo: (saveInfo) => requests.post(`Deposit_Dep`, saveInfo,true),
+  //Mobiledeposit
+  SaveMobileDeposit: (Save_MobileDeposit) =>
+    requests.post(`Save_MobileDeposit`, Save_MobileDeposit, true),
 
+  //Deposit
+  saveDepositInfo: (saveInfo) => requests.post(`Deposit_Dep`, saveInfo, true),
 
-
-  getInvoiceDetails: (billNum) =>  requests.get(`GetInvoiceReprint_out_NEW?BillNo=${billNum}`),
-  
-
-
-
+  getInvoiceDetails: (billNum) =>
+    requests.get(`GetInvoiceReprint_out_NEW?BillNo=${billNum}`),
 
   //getCaseSheet duplicate for the exisiting patient
-  getCaseSheetInfo: (registrationID) => requests.get(`getPatientRegistrationPdf?RegId=${registrationID}`),
-  getWebCheckinInfo: (searchText) => requests.get(`Get_appointmentList?Search=${searchText}`),
+  getCaseSheetInfo: (registrationID) =>
+    requests.get(`getPatientRegistrationPdf?RegId=${registrationID}`),
+  getWebCheckinInfo: (searchText) =>
+    requests.get(`Get_appointmentList?Search=${searchText}`),
 
   //deposit information needs to be added.
-  getDepositInfo: (searchText) => requests.get(`Get_Web_PatDepositeDtl?patientid=${searchText}`),
- 
+  getDepositInfo: (searchText) =>
+    requests.get(`Get_Web_PatDepositeDtl?patientid=${searchText}`),
 
-  updatePOSPayment: (saveInfo) => requests.post(`updatePOSPayment`, saveInfo,true),
-  verifyPaymentInfo: (processingId) => requests.post(`getTransactionStatus?processingid=${processingId}`),
+  updatePOSPayment: (saveInfo) =>
+    requests.post(`updatePOSPayment`, saveInfo, true),
+  verifyPaymentInfo: (processingId) =>
+    requests.post(`getTransactionStatus?processingid=${processingId}`),
 
   //getAll Appointments status!
-  getAppointmentStatus: (fromDate, toDate) =>requests.get(`getAppList_All?FromDate=${fromDate}&ToDate=${toDate}`),
+  getAppointmentStatus: (fromDate, toDate) =>
+    requests.get(`getAppList_All?FromDate=${fromDate}&ToDate=${toDate}`),
 
   //enable appointment slots
-  saveAppointmentSlot: (slotInfo) =>requests.post(`Insert_AppointmentSlot`, slotInfo)};
+  saveAppointmentSlot: (slotInfo) =>
+    requests.post(`Insert_AppointmentSlot`, slotInfo),
+};

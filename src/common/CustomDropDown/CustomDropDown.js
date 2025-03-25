@@ -151,7 +151,6 @@ const CustomDropDown = (props) => {
 
   const handleClick = () => {
     setIsDropDownOpen(true);
-    //to enable list to be open when the input field is clicked.
   };
 
   return (
@@ -162,7 +161,7 @@ const CustomDropDown = (props) => {
         className={props.className}
         onChange={handleInputChange}
         placeholder={props.placeholder}
-        value={props.value ? props.value : inputValue}
+        value={props.value}
         // value={inputValue.columnName}
         // defaultValue={props.defaultValue}
         onInput={() => setIsDropDownOpen(true)}

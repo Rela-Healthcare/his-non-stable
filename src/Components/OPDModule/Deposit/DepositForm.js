@@ -1,129 +1,113 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {Row, Col, Form} from 'react-bootstrap';
 import CustomDropDown from '../../../common/CustomDropDown/CustomDropDown';
-import {useDispatch} from 'react-redux';
-import {OPModuleAgent} from '../../../agent/agent';
+import {useSelector} from 'react-redux';
 
 const FormField = ({
   label,
   type = 'text',
+  name,
   value,
   onChange,
   placeholder,
   disabled = false,
-  options,
+  options = [],
+  required = false,
 }) => (
   <Col xs={12} sm={12} md={6} lg={4}>
     <Form.Group>
-      <Form.Label>{label}</Form.Label>
+      <Form.Label>
+        {label} {required && <span className="text-danger">*</span>}
+      </Form.Label>
       {type === 'select' ? (
-        <Form.Select className="select" value={value} onChange={onChange}>
+        <Form.Select
+          className="select"
+          name={name}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}>
           <option disabled value="">
             Select one
           </option>
-          {options &&
-            options.map((option, index) => (
-              <option key={index} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+          {options.map((option, index) => (
+            <option key={`${index}-${option.value}`} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </Form.Select>
       ) : (
         <Form.Control
           className="select"
           type={type}
+          name={name}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           disabled={disabled}
+          required={required}
         />
       )}
     </Form.Group>
   </Col>
 );
 
-const DepositForm = ({
-  uhid,
-  depositInformation,
-  paymentData,
-  handleCardTypeChange,
-}) => {
-  const dispatch = useDispatch();
-  const [depositData, setDepositData] = useState({});
+const DepositForm = ({uhid, formData, setFormData}) => {
+  const paymentData = useSelector((state) => state.paymentInfo.formData);
+
+  // Handle form input changes
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setFormData((prev) => ({...prev, [name]: value}));
+  };
 
   useEffect(() => {
-    const getDepositData = async (uhid) => {
-      uhid = uhid.toString().slice(-6);
-      if (!uhid || uhid.length < 6) return;
-      try {
-        const fetchResponse = (
-          await OPModuleAgent.getDepositInfo(parseInt(uhid))
-        ).data;
-        setDepositData(fetchResponse?.[0] || {});
-      } catch (error) {
-        console.error('Error fetching deposit info:', error);
-        setDepositData({});
-      }
-    };
-
-    getDepositData(uhid);
-  }, [uhid]);
+    setFormData((prev) => ({
+      ...prev,
+      paymentMethod: paymentData?.paymentMethod,
+    }));
+  }, [paymentData.paymentMethod, setFormData]);
 
   return (
-    <>
+    <Form>
       <Row style={{marginBottom: '20px'}}>
-        <FormField label="UHID" value={uhid} disabled />
+        <FormField label="UHID" name="uhid" value={uhid} disabled />
         <FormField
           label="Patient Name"
-          value={depositData.patientName}
+          name="patientName"
+          value={formData?.patientName}
           disabled
         />
         <FormField
-          label="Available Deposit Amount"
-          type="number"
-          value={depositData.avlAmt}
-          disabled
+          label="Mobile No."
+          name="mobileNo"
+          value={formData?.mobileNo}
+          onChange={handleChange}
+          required
         />
       </Row>
+
       <Row style={{marginBottom: '20px'}}>
         <FormField
           label="Deposit Amount"
           type="number"
+          name="depositAmount"
           placeholder="Enter Deposit Amount"
-          onChange={(event) =>
-            dispatch(
-              depositInformation({
-                name: 'amountTobeAdded',
-                value: Math.max(0, parseInt(event.target.value, 10) || 0),
-              })
-            )
-          }
+          value={formData?.depositAmount}
+          onChange={handleChange}
         />
         <FormField
           label="Deposit Remarks"
+          name="depositRemarks"
           placeholder="Deposit Remarks"
-          value={depositData.depositRemarks}
-          onChange={(event) =>
-            dispatch(
-              depositInformation({
-                name: 'depositRemarks',
-                value: event.target.value,
-              })
-            )
-          }
+          value={formData?.depositRemarks}
+          onChange={handleChange}
         />
         <FormField
           label="Deposit Type"
           type="select"
-          value={depositData.depositType}
-          onChange={(event) =>
-            dispatch(
-              depositInformation({
-                name: 'depositType',
-                value: event.target.value,
-              })
-            )
-          }
+          name="depositType"
+          value={formData?.depositType}
+          onChange={handleChange}
           options={[
             {value: '1', label: 'OP'},
             {value: '2', label: 'IP'},
@@ -133,25 +117,29 @@ const DepositForm = ({
           ]}
         />
       </Row>
+
       <Row style={{marginBottom: '20px'}}>
-        <Col sm={4}>
-          <Form.Group>
-            <CustomDropDown
-              name="paymentMethod"
-              additionalname="paymentModeCode"
-              label="Payment Mode"
-              type="select"
-              className="select"
-              options={paymentData.paymentMethodList}
-            />
-          </Form.Group>
-        </Col>
-        {paymentData.paymentMethod === 'R' && (
+        <FormField
+          label="Payment Mode"
+          type="select"
+          required
+          name="paymentMethod"
+          value={formData?.paymentMethod}
+          onChange={handleChange}
+          options={paymentData.paymentMethodList.map(
+            ({columnCode, columnName}) => ({
+              value: columnCode,
+              label: columnName,
+            })
+          )}
+        />
+        {formData?.paymentMethod === 'R' && (
           <FormField
             label="Card Type"
             type="select"
-            value={depositData.cardType}
-            onChange={handleCardTypeChange}
+            name={'cardType'}
+            value={formData?.cardType}
+            onChange={handleChange}
             options={paymentData.CardList.map((value) => ({
               value: value.label,
               label: value.label,
@@ -159,7 +147,7 @@ const DepositForm = ({
           />
         )}
       </Row>
-    </>
+    </Form>
   );
 };
 
