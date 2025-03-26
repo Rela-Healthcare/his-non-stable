@@ -161,7 +161,7 @@ const CustomDropDown = (props) => {
         className={props.className}
         onChange={handleInputChange}
         placeholder={props.placeholder}
-        value={props.value}
+        value={props.value ? props.value : inputValue}
         // value={inputValue.columnName}
         // defaultValue={props.defaultValue}
         onInput={() => setIsDropDownOpen(true)}

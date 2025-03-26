@@ -1,23 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { Form, Accordion, Col, Row } from "react-bootstrap";
-import DatePicker from "react-datepicker";
-import { useDispatch, useSelector } from "react-redux";
-import { OPModuleAgent } from "../../../../agent/agent";
-import CustomDropDown from "../../../../common/CustomDropDown/CustomDropDown";
-import CustomFormInput from "../../../../common/CustomFormInput/CustomFormInput";
-import {patientInformation,dropDownInformation,resetInformation} from "../../../../features/OPDModule/PatientCreation/PatientCreationSlice";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faCircleCheck,faCircleXmark} from "@fortawesome/free-solid-svg-icons";
-
+import React, {useState, useEffect} from 'react';
+import {Form, Accordion, Col, Row} from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import {useDispatch, useSelector} from 'react-redux';
+import {OPModuleAgent} from '../../../../agent/agent';
+import CustomDropDown from '../../../../common/CustomDropDown/CustomDropDown';
+import CustomFormInput from '../../../../common/CustomFormInput/CustomFormInput';
+import {
+  patientInformation,
+  dropDownInformation,
+  resetInformation,
+} from '../../../../features/OPDModule/PatientCreation/PatientCreationSlice';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCircleCheck, faCircleXmark} from '@fortawesome/free-solid-svg-icons';
 
 const PatientCreation = () => {
-
-  useEffect(() => {dispatch(resetInformation());}, []);
+  useEffect(() => {
+    dispatch(resetInformation());
+  }, []);
 
   const dispatch = useDispatch();
-  const formData = useSelector((state) => state.patientCreation.formData);
+  const formData = useSelector(
+    (state) => state?.patientCreation?.formData || {}
+  );
   const [startDate, setStartDate] = useState(new Date());
-
 
   useEffect(() => {
     validatePatientInfo();
@@ -25,90 +30,89 @@ const PatientCreation = () => {
     validateKinInfo();
   }, [formData]);
 
- // const isFormValid = (fields) => fields.every((field) => field !== "");
+  // const isFormValid = (fields) => fields.every((field) => field !== "");
 
   const validatePatientInfo = () => {
     if (
-      formData.SalutationName !== "" &&
-      formData.PatientName !== "" &&
-      formData.DOB !== "" &&
-      formData.Age !== "" &&
-      formData.Gender !== "" &&
-      formData.Nationality !== "" &&
-      formData.IDtype !== "" &&
-      formData.IDNo !== "" &&
-      formData.MaritalStatus !== "" &&
-      formData.MobileNo !== "" &&
-      formData.EmailId !== "" &&
-      formData.Occupation !== ""
+      formData?.SalutationName !== '' &&
+      formData?.PatientName !== '' &&
+      formData?.DOB !== '' &&
+      formData?.Age !== '' &&
+      formData?.Gender !== '' &&
+      formData?.Nationality !== '' &&
+      formData?.IDtype !== '' &&
+      formData?.IDNo !== '' &&
+      formData?.MaritalStatus !== '' &&
+      formData?.MobileNo !== '' &&
+      formData?.EmailId !== '' &&
+      formData?.Occupation !== ''
     ) {
       dispatch(
         patientInformation({
-          name: "patientInfo",
+          name: 'patientInfo',
           value: true,
         })
       );
     } else {
       dispatch(
         patientInformation({
-          name: "patientInfo",
+          name: 'patientInfo',
           value: false,
         })
       );
     }
   };
-  
 
   const validateAdditionalInfo = () => {
     if (
-      formData.Pincode !== "" &&
-      formData.Country !== "" &&
-      formData.State !== "" &&
-      formData.City !== "" &&
-      formData.Area !== "" &&
-      formData.Address !== "" &&
-      formData.religion !== "" &&
-      formData.Language !== "" &&
-      formData.BloodGroup !== "" &&
-      formData.specialAssistanceNeeded === "1" //check for any value (yes or no)
+      formData?.Pincode !== '' &&
+      formData?.Country !== '' &&
+      formData?.State !== '' &&
+      formData?.City !== '' &&
+      formData?.Area !== '' &&
+      formData?.Address !== '' &&
+      formData?.religion !== '' &&
+      formData?.Language !== '' &&
+      formData?.BloodGroup !== '' &&
+      formData?.specialAssistanceNeeded === '1' //check for any value (yes or no)
     ) {
-      if (formData.specialAssistanceDetailsIfYes !== "") {
+      if (formData?.specialAssistanceDetailsIfYes !== '') {
         dispatch(
           patientInformation({
-            name: "additionalInfo",
+            name: 'additionalInfo',
             value: true,
           })
         );
       } else {
         dispatch(
           patientInformation({
-            name: "additionalInfo",
+            name: 'additionalInfo',
             value: false,
           })
         );
       }
     } else if (
-      formData.Pincode !== "" &&
-      formData.Country !== "" &&
-      formData.State !== "" &&
-      formData.City !== "" &&
-      formData.Area !== "" &&
-      formData.Address !== "" &&
-      formData.religion !== "" &&
-      formData.Language !== "" &&
-      formData.BloodGroup !== "" &&
-      formData.specialAssistanceNeeded === "0"
+      formData?.Pincode !== '' &&
+      formData?.Country !== '' &&
+      formData?.State !== '' &&
+      formData?.City !== '' &&
+      formData?.Area !== '' &&
+      formData?.Address !== '' &&
+      formData?.religion !== '' &&
+      formData?.Language !== '' &&
+      formData?.BloodGroup !== '' &&
+      formData?.specialAssistanceNeeded === '0'
     ) {
       dispatch(
         patientInformation({
-          name: "additionalInfo",
+          name: 'additionalInfo',
           value: true,
         })
       );
     } else {
       dispatch(
         patientInformation({
-          name: "additionalInfo",
+          name: 'additionalInfo',
           value: false,
         })
       );
@@ -116,295 +120,355 @@ const PatientCreation = () => {
   };
   const validateKinInfo = () => {
     if (
-      formData.kin_Pincode !== "" &&
-      formData.kinCountry !== "" &&
-      formData.kinState !== "" &&
-      formData.kinCity !== "" &&
-      formData.kinArea !== "" &&
-      formData.kinAddress !== "" &&
-      formData.RelationType !== "" &&
-      formData.RelationName !== "" &&
-      formData.RelationMobileNo !== ""
+      formData?.kin_Pincode !== '' &&
+      formData?.kinCountry !== '' &&
+      formData?.kinState !== '' &&
+      formData?.kinCity !== '' &&
+      formData?.kinArea !== '' &&
+      formData?.kinAddress !== '' &&
+      formData?.RelationType !== '' &&
+      formData?.RelationName !== '' &&
+      formData?.RelationMobileNo !== ''
     ) {
       dispatch(
         patientInformation({
-          name: "kinInfo",
+          name: 'kinInfo',
           value: true,
         })
       );
     } else {
       dispatch(
         patientInformation({
-          name: "kinInfo",
+          name: 'kinInfo',
           value: false,
         })
       );
     }
   };
 
-
   // Automatically select country , state and city based on Pincode
   useEffect(() => {
-    if (formData.Pincode) {
+    if (formData?.Pincode) {
       autoSelectStateAndCity();
     }
-  }, [formData.Pincode]);
+  }, [formData?.Pincode]);
 
-
-      async function  autoSelectStateAndCity(){
-        if (formData.Pincode){
-          try{
-            const response =await OPModuleAgent.getCityStateCountryListByPinCode(formData.Pincode);
-          
-          // access the response data 
-          const responseData = response.data;
-          
-          // Log the API response to verify the structure
-          console.log("API Response:",responseData);
-          
-          // Check if the response contains valid stateName and cityName
-          if (responseData && responseData.stateName && responseData.cityName && responseData.countryName) {
-            const {countryName, stateName, cityName, countryCode,stateCode, cityCode } = responseData;
-
-            // Dispatching the fetched data to Redux for state and city
-            dispatch(patientInformation({ name: "Country", value: countryName }));
-            dispatch(patientInformation({ name: "State", value: stateName }));
-            dispatch(patientInformation({ name: "City", value: cityName }));
-            dispatch(patientInformation({ name: "CountryCode", value: countryCode }));
-            dispatch(patientInformation({ name: "StateCode", value: stateCode }));
-            dispatch(patientInformation({ name: "CityCode", value: cityCode }));
-          } else {
-            console.error("API response is missing stateName or cityName", responseData);
-            // Optionally reset fields or show an error message
-            dispatch(patientInformation({ name: "Country", value: "" }));
-            dispatch(patientInformation({ name: "State", value: "" }));
-            dispatch(patientInformation({ name: "City", value: "" }));
-          }
-        } catch (error) {
-          console.error("Error fetching state and city data:", error);
-        }
-      } else {
-        console.log("Pincode is empty or invalid");
-      }
-    }
-
-
-    // Fetch areas based on Pincode
-    useEffect(() => {
-      if (formData.Pincode) {
-        areaListData();
-      }
-    }, [formData.Pincode]);
-
-    async function areaListData() {
+  async function autoSelectStateAndCity() {
+    if (formData?.Pincode) {
       try {
-        const areaResponse = (await OPModuleAgent.getAreaListByPincode(formData.Pincode)).data;
-        dispatch(dropDownInformation({ name: "areaList", value: areaResponse }));
+        const response = await OPModuleAgent.getCityStateCountryListByPinCode(
+          formData?.Pincode
+        );
+
+        // access the response data
+        const responseData = response.data;
+
+        // Log the API response to verify the structure
+        console.log('API Response:', responseData);
+
+        // Check if the response contains valid stateName and cityName
+        if (
+          responseData &&
+          responseData?.stateName &&
+          responseData?.cityName &&
+          responseData?.countryName
+        ) {
+          const {
+            countryName,
+            stateName,
+            cityName,
+            countryCode,
+            stateCode,
+            cityCode,
+          } = responseData;
+
+          // Dispatching the fetched data to Redux for state and city
+          dispatch(patientInformation({name: 'Country', value: countryName}));
+          dispatch(patientInformation({name: 'State', value: stateName}));
+          dispatch(patientInformation({name: 'City', value: cityName}));
+          dispatch(
+            patientInformation({name: 'CountryCode', value: countryCode})
+          );
+          dispatch(patientInformation({name: 'StateCode', value: stateCode}));
+          dispatch(patientInformation({name: 'CityCode', value: cityCode}));
+        } else {
+          console.error(
+            'API response is missing stateName or cityName',
+            responseData
+          );
+          // Optionally reset fields or show an error message
+          dispatch(patientInformation({name: 'Country', value: ''}));
+          dispatch(patientInformation({name: 'State', value: ''}));
+          dispatch(patientInformation({name: 'City', value: ''}));
+        }
       } catch (error) {
-        console.error("Error fetching area data:", error);
+        console.error('Error fetching state and city data:', error);
       }
+    } else {
+      console.log('Pincode is empty or invalid');
     }
-//-----------end country state city data fetch -----------//
-
-
-
-//----------    kinCountry , kinState, kinCity  code start     -----------//
-
-// This effect runs when the kin's Pincode changes
-useEffect(() => {
-  if (formData.kin_Pincode) {
-    autoSelectKinStateAndCity();
   }
-}, [formData.kin_Pincode]); // Only trigger when `kin_Pincode` changes
 
-async function autoSelectKinStateAndCity() {
-  if (formData.kin_Pincode) {
+  // Fetch areas based on Pincode
+  useEffect(() => {
+    if (formData?.Pincode) {
+      areaListData();
+    }
+  }, [formData?.Pincode]);
+
+  async function areaListData() {
     try {
-      const response = await OPModuleAgent.getCityStateCountryListByPinCode(formData.kin_Pincode);
-      const responseData = response.data;
-
-      if (responseData && responseData.stateName && responseData.cityName && responseData.countryName) {
-        const { countryName, stateName, cityName, countryCode, stateCode, cityCode } = responseData;
-
-        // Dispatch the response to update Redux state for kin's country, state, and city
-        dispatch(patientInformation({ name: "kinCountry", value: countryName }));
-        dispatch(patientInformation({ name: "kinState", value: stateName }));
-        dispatch(patientInformation({ name: "kinCity", value: cityName }));
-        dispatch(patientInformation({ name: "kinCountryCode", value: countryCode }));
-        dispatch(patientInformation({ name: "kinStateCode", value: stateCode }));
-        dispatch(patientInformation({ name: "kinCityCode", value: cityCode }));
-      } else {
-        console.error("API response is missing kin's stateName, cityName, or countryName", responseData);
-        // Optionally reset fields if the API response is incomplete
-        dispatch(patientInformation({ name: "kinCountry", value: "" }));
-        dispatch(patientInformation({ name: "kinState", value: "" }));
-        dispatch(patientInformation({ name: "kinCity", value: "" }));
-      }
+      const areaResponse = (
+        await OPModuleAgent.getAreaListByPincode(formData?.Pincode)
+      ).data;
+      dispatch(dropDownInformation({name: 'areaList', value: areaResponse}));
     } catch (error) {
-      console.error("Error fetching kin's state and city data:", error);
+      console.error('Error fetching area data:', error);
     }
-  } else {
-    console.log("Kin's Pincode is empty or invalid");
   }
-}
+  //-----------end country state city data fetch -----------//
 
+  //----------    kinCountry , kinState, kinCity  code start     -----------//
 
-useEffect(() => {
-  // Check if the "Same as Above" checkbox is checked
-  if (formData.takeContact === "1") {
-    // Populate kin's details from the patient's information
-    dispatch(patientInformation({ name: "kin_Pincode", value: formData.Pincode }));
-    dispatch(patientInformation({ name: "kin_StateCode", value: formData.StateCode }));
-    dispatch(patientInformation({ name: "kinState", value: formData.State }));
-    dispatch(patientInformation({ name: "kin_CountryCode", value: formData.CountryCode }));
-    dispatch(patientInformation({ name: "kinCountry", value: formData.Country }));
-    dispatch(patientInformation({ name: "kin_CityCode", value: formData.CityCode }));
-    dispatch(patientInformation({ name: "kinCity", value: formData.City }));
-    dispatch(patientInformation({ name: "kin_AreaCode", value: formData.AreaCode }));
-    dispatch(patientInformation({ name: "kinArea", value: formData.Area }));
-    dispatch(patientInformation({ name: "kinAddress", value: formData.Address }));
-
-    // Call autoSelectKinStateAndCity when Pincode is available
-    if (formData.Pincode) {
+  // This effect runs when the kin's Pincode changes
+  useEffect(() => {
+    if (formData?.kin_Pincode) {
       autoSelectKinStateAndCity();
     }
-  } else {
-    // Reset kin's details when checkbox is unchecked
-    dispatch(patientInformation({ name: "kin_Pincode", value: "" }));
-    dispatch(patientInformation({ name: "kin_StateCode", value: "" }));
-    dispatch(patientInformation({ name: "kinState", value: "" }));
-    dispatch(patientInformation({ name: "kin_CountryCode", value: "" }));
-    dispatch(patientInformation({ name: "kinCountry", value: "" }));
-    dispatch(patientInformation({ name: "kin_CityCode", value: "" }));
-    dispatch(patientInformation({ name: "kinCity", value: "" }));
-    dispatch(patientInformation({ name: "kin_AreaCode", value: "" }));
-    dispatch(patientInformation({ name: "kinArea", value: "" }));
-    dispatch(patientInformation({ name: "kinAddress", value: "" }));
+  }, [formData?.kin_Pincode]); // Only trigger when `kin_Pincode` changes
+
+  async function autoSelectKinStateAndCity() {
+    if (formData?.kin_Pincode) {
+      try {
+        const response = await OPModuleAgent.getCityStateCountryListByPinCode(
+          formData?.kin_Pincode
+        );
+        const responseData = response.data;
+
+        if (
+          responseData &&
+          responseData?.stateName &&
+          responseData?.cityName &&
+          responseData?.countryName
+        ) {
+          const {
+            countryName,
+            stateName,
+            cityName,
+            countryCode,
+            stateCode,
+            cityCode,
+          } = responseData;
+
+          // Dispatch the response to update Redux state for kin's country, state, and city
+          dispatch(
+            patientInformation({name: 'kinCountry', value: countryName})
+          );
+          dispatch(patientInformation({name: 'kinState', value: stateName}));
+          dispatch(patientInformation({name: 'kinCity', value: cityName}));
+          dispatch(
+            patientInformation({name: 'kinCountryCode', value: countryCode})
+          );
+          dispatch(
+            patientInformation({name: 'kinStateCode', value: stateCode})
+          );
+          dispatch(patientInformation({name: 'kinCityCode', value: cityCode}));
+        } else {
+          console.error(
+            "API response is missing kin's stateName, cityName, or countryName",
+            responseData
+          );
+          // Optionally reset fields if the API response is incomplete
+          dispatch(patientInformation({name: 'kinCountry', value: ''}));
+          dispatch(patientInformation({name: 'kinState', value: ''}));
+          dispatch(patientInformation({name: 'kinCity', value: ''}));
+        }
+      } catch (error) {
+        console.error("Error fetching kin's state and city data:", error);
+      }
+    } else {
+      console.log("Kin's Pincode is empty or invalid");
+    }
   }
-}, [formData.takeContact, formData.Pincode]); // Monitor changes to both `takeContact` and `Pincode`
 
+  useEffect(() => {
+    // Check if the "Same as Above" checkbox is checked
+    if (formData?.takeContact === '1') {
+      // Populate kin's details from the patient's information
+      dispatch(
+        patientInformation({name: 'kin_Pincode', value: formData?.Pincode})
+      );
+      dispatch(
+        patientInformation({name: 'kin_StateCode', value: formData?.StateCode})
+      );
+      dispatch(patientInformation({name: 'kinState', value: formData?.State}));
+      dispatch(
+        patientInformation({
+          name: 'kin_CountryCode',
+          value: formData?.CountryCode,
+        })
+      );
+      dispatch(
+        patientInformation({name: 'kinCountry', value: formData?.Country})
+      );
+      dispatch(
+        patientInformation({name: 'kin_CityCode', value: formData?.CityCode})
+      );
+      dispatch(patientInformation({name: 'kinCity', value: formData?.City}));
+      dispatch(
+        patientInformation({name: 'kin_AreaCode', value: formData?.AreaCode})
+      );
+      dispatch(patientInformation({name: 'kinArea', value: formData?.Area}));
+      dispatch(
+        patientInformation({name: 'kinAddress', value: formData?.Address})
+      );
 
-// Fetch kin's area based on kin_Pincode
-useEffect(() => {
-  if (formData.kin_Pincode) {
-    fetchKinAreaList();
+      // Call autoSelectKinStateAndCity when Pincode is available
+      if (formData?.Pincode) {
+        autoSelectKinStateAndCity();
+      }
+    } else {
+      // Reset kin's details when checkbox is unchecked
+      dispatch(patientInformation({name: 'kin_Pincode', value: ''}));
+      dispatch(patientInformation({name: 'kin_StateCode', value: ''}));
+      dispatch(patientInformation({name: 'kinState', value: ''}));
+      dispatch(patientInformation({name: 'kin_CountryCode', value: ''}));
+      dispatch(patientInformation({name: 'kinCountry', value: ''}));
+      dispatch(patientInformation({name: 'kin_CityCode', value: ''}));
+      dispatch(patientInformation({name: 'kinCity', value: ''}));
+      dispatch(patientInformation({name: 'kin_AreaCode', value: ''}));
+      dispatch(patientInformation({name: 'kinArea', value: ''}));
+      dispatch(patientInformation({name: 'kinAddress', value: ''}));
+    }
+  }, [formData?.takeContact, formData?.Pincode]); // Monitor changes to both `takeContact` and `Pincode`
+
+  // Fetch kin's area based on kin_Pincode
+  useEffect(() => {
+    if (formData?.kin_Pincode) {
+      fetchKinAreaList();
+    }
+  }, [formData?.kin_Pincode]);
+
+  async function fetchKinAreaList() {
+    try {
+      const kinAreaResponse = (
+        await OPModuleAgent.getAreaListByPincode(formData?.kin_Pincode)
+      ).data;
+      dispatch(
+        dropDownInformation({name: 'kin_areaList', value: kinAreaResponse})
+      );
+    } catch (error) {
+      console.error('Error fetching kin area data:', error);
+    }
   }
-}, [formData.kin_Pincode]);
 
-async function fetchKinAreaList() {
-  try {
-    const kinAreaResponse = (await OPModuleAgent.getAreaListByPincode(formData.kin_Pincode)).data;
-    dispatch(dropDownInformation({ name: "kin_areaList", value: kinAreaResponse }));
-  } catch (error) {
-    console.error("Error fetching kin area data:", error);
-  }
-}
+  //kinCountry , kinState, kinCity  code end //
 
-//kinCountry , kinState, kinCity  code end //
-
-
-
-useEffect(() => {
-  fetchData(); 
-}, [formData.Pincode]);
+  useEffect(() => {
+    fetchData();
+  }, [formData?.Pincode]);
 
   async function fetchData() {
     try {
       const salutationsResponse = (await OPModuleAgent.getSalutations()).data;
       const departmentsResponse = (await OPModuleAgent.getDepartments()).data;
       const mobileCodeResponse = (await OPModuleAgent.getMobileCodeList()).data;
-      const maritalStatusResponse = (await OPModuleAgent.getMaritalStatusList()).data;
+      const maritalStatusResponse = (await OPModuleAgent.getMaritalStatusList())
+        .data;
       const occupationResponse = (await OPModuleAgent.getOccupationList()).data;
-      const nationalityResponse = (await OPModuleAgent.getNationalityList()).data;
+      const nationalityResponse = (await OPModuleAgent.getNationalityList())
+        .data;
       const idTypeResponse = (await OPModuleAgent.getIdTypeList()).data;
       const countriesResponse = (await OPModuleAgent.getCountriesList()).data;
       const stateResponse = (await OPModuleAgent.getStateList()).data;
 
-      const relationTyeResponse = (await OPModuleAgent.getRelationTypeList()).data;
+      const relationTyeResponse = (await OPModuleAgent.getRelationTypeList())
+        .data;
       const bloodGroupResponse = (await OPModuleAgent.getBloodGroupList()).data;
       const religionResponse = (await OPModuleAgent.getReligionList()).data;
       const languageResponse = (await OPModuleAgent.getLanguageList()).data;
-      const AreaListByPincodeResponse = (await OPModuleAgent.getAreaListByPincode()).data;
+      const AreaListByPincodeResponse = (
+        await OPModuleAgent.getAreaListByPincode()
+      ).data;
 
       dispatch(
         dropDownInformation({
-          name: "salutationList",
+          name: 'salutationList',
           value: salutationsResponse,
         })
       );
 
-
       dispatch(
         dropDownInformation({
-          name: "departmentList",
+          name: 'departmentList',
           value: departmentsResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "mobileCodeList",
+          name: 'mobileCodeList',
           value: mobileCodeResponse,
         })
       );
 
       dispatch(
         dropDownInformation({
-          name: "maritalStatusList",
+          name: 'maritalStatusList',
           value: maritalStatusResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "occupationList",
+          name: 'occupationList',
           value: occupationResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "nationalityList",
+          name: 'nationalityList',
           value: nationalityResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "idTypeList",
+          name: 'idTypeList',
           value: idTypeResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "countryList",
+          name: 'countryList',
           value: countriesResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "stateList",
+          name: 'stateList',
           value: stateResponse,
         })
       );
 
       dispatch(
         dropDownInformation({
-          name: "relationList",
+          name: 'relationList',
           value: relationTyeResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "bloodGroupList",
+          name: 'bloodGroupList',
           value: bloodGroupResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "religionList",
+          name: 'religionList',
           value: religionResponse,
         })
       );
       dispatch(
         dropDownInformation({
-          name: "langList",
+          name: 'langList',
           value: languageResponse,
         })
       );
@@ -417,83 +481,85 @@ useEffect(() => {
     setStartDate(date);
 
     // Format the date to 'yyyy-mm-dd' for the patient information
-    const formattedDate = date.toISOString().split("T")[0];
-    
+    const formattedDate = date.toISOString().split('T')[0];
+
     dispatch(
-        patientInformation({
-            name: "DOB",
-            value: formattedDate,
-        })
+      patientInformation({
+        name: 'DOB',
+        value: formattedDate,
+      })
     );
 
     // Calculate age using the new ageCalculator function
     const calculatedAge = ageCalculator(formattedDate);
     dispatch(
-        patientInformation({
-            name: "Age",
-            value: calculatedAge,
-        })
+      patientInformation({
+        name: 'Age',
+        value: calculatedAge,
+      })
     );
-};
+  };
 
-const ageCalculator = (dob) => {
-  const birthDate = new Date(dob); // Convert to Date object
-  const today = new Date(); // Get current date
-  let age = today.getFullYear() - birthDate.getFullYear(); // Calculate year difference
-  const monthDifference = today.getMonth() - birthDate.getMonth(); // Calculate month difference
+  const ageCalculator = (dob) => {
+    const birthDate = new Date(dob); // Convert to Date object
+    const today = new Date(); // Get current date
+    let age = today.getFullYear() - birthDate.getFullYear(); // Calculate year difference
+    const monthDifference = today.getMonth() - birthDate.getMonth(); // Calculate month difference
 
-  // If today is before the birthday this year, subtract one from age
-  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+    // If today is before the birthday this year, subtract one from age
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
-  }
+    }
 
-  return age; // Return the calculated age
-};
+    return age; // Return the calculated age
+  };
 
   const handleTakeContact = (event) => {
-
-    if (formData.takeContact === "1") {
+    if (formData?.takeContact === '1') {
       dispatch(
         patientInformation({
-          name: "takeContact",
-          value: "0",
+          name: 'takeContact',
+          value: '0',
         })
       );
     } else {
       dispatch(
         patientInformation({
-          name: "takeContact",
-          value: "1",
+          name: 'takeContact',
+          value: '1',
         })
       );
     }
   };
 
   const handleSpecialAssistanceChange = (event) => {
-    const { name, value } = event.target;
+    const {name, value} = event.target;
     dispatch(
       patientInformation({
         name,
         value,
       })
     );
-    if (value === "0") {
+    if (value === '0') {
       dispatch(
         patientInformation({
-          name: "specialAssistanceDetailsIfYes",
-          value: "",
+          name: 'specialAssistanceDetailsIfYes',
+          value: '',
         })
       );
       dispatch(
         patientInformation({
-          name: "specialAssistanceDetailsIfOthers",
-          value: "",
+          name: 'specialAssistanceDetailsIfOthers',
+          value: '',
         })
       );
     }
   };
   const handleSpecialAssistance = (event) => {
-    const { name, value } = event.target;
+    const {name, value} = event.target;
     dispatch(
       patientInformation({
         name,
@@ -502,7 +568,7 @@ const ageCalculator = (dob) => {
     );
   };
   const handleOtherSpecialAssistance = (event) => {
-    const { name, value } = event.target;
+    const {name, value} = event.target;
     dispatch(
       patientInformation({
         name,
@@ -513,7 +579,7 @@ const ageCalculator = (dob) => {
   //console.log(formData);
 
   const handleSalutationChange = (event) => {
-    const { name, value } = event.target;
+    const {name, value} = event.target;
     dispatch(
       patientInformation({
         name,
@@ -521,63 +587,58 @@ const ageCalculator = (dob) => {
       })
     );
 
-
     dispatch(
       patientInformation({
-        name: "patientTitle",
+        name: 'patientTitle',
         value: value,
       })
     );
 
+    // Update gender dropdown based on selected salutation
+    const genders = formData?.genderList[value] || [];
+    dispatch(
+      patientInformation({
+        name: 'Gender',
+        value: genders.length === 1 ? genders[0] : '',
+      })
+    );
 
-   // Update gender dropdown based on selected salutation
-   const genders = formData.genderList[value] || []; 
-   dispatch(
-     patientInformation({
-       name: "Gender",
-       value: genders.length === 1 ? genders[0] : "", 
-     })
-   );
- 
-
-   dispatch(
-    dropDownInformation({
-      name: "availableGenders",
-      value: genders,
-    })
-  );
+    dispatch(
+      dropDownInformation({
+        name: 'availableGenders',
+        value: genders,
+      })
+    );
   };
 
-  
   return (
     <>
       <Row mb={5}>
-        {" "}
-        <Accordion style={{ marginBottom: "10px" }}>
+        <Accordion style={{marginBottom: '10px'}}>
           <Accordion.Item eventKey="1">
             <Accordion.Header>
               <div>Personal Details </div>
-              {formData.patientInfo ? (
-                <div style={{ marginLeft: "7px" }}>
+              {formData?.patientInfo ? (
+                <div style={{marginLeft: '7px'}}>
                   <FontAwesomeIcon
                     icon={faCircleCheck}
                     style={{
-                      color: "green",
-                      width: "20px",
-                      height: "20px",
-                      textAlign: "center",
+                      color: 'green',
+                      width: '20px',
+                      height: '20px',
+                      textAlign: 'center',
                     }}
                   />
                 </div>
               ) : (
-                <div style={{ marginLeft: "7px" }}>
+                <div style={{marginLeft: '7px'}}>
                   <FontAwesomeIcon
                     icon={faCircleXmark}
                     style={{
-                      color: "red",
-                      width: "20px",
-                      height: "20px",
-                      textAlign: "center",
+                      color: 'red',
+                      width: '20px',
+                      height: '20px',
+                      textAlign: 'center',
                     }}
                   />
                 </div>
@@ -591,8 +652,7 @@ const ageCalculator = (dob) => {
                   sm={6}
                   md={6}
                   lg={6}
-                  xl={2}
-                ></Form.Group>
+                  xl={2}></Form.Group>
               </Row>
               <Row>
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={2} xl={2}>
@@ -601,13 +661,13 @@ const ageCalculator = (dob) => {
                     className="select"
                     name="SalutationName"
                     onChange={(event) => handleSalutationChange(event)}
-                    defaultValue={""}>
+                    defaultValue={''}>
                     <option value="" disabled>
                       Select Salutation
                     </option>
-                    {formData.salutationList.map((value) => (
+                    {formData?.salutationList?.map((value) => (
                       <option key={value.columnCode} value={value.columnCode}>
-                        {value.columnName}
+                        {value.columnName || 'Unknown'}
                       </option>
                     ))}
                   </Form.Select>
@@ -625,69 +685,73 @@ const ageCalculator = (dob) => {
                   />
                 </Form.Group>
 
+                <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
+                  <Form.Label
+                    style={{paddingLeft: '12px'}}
+                    className="mandatory">
+                    DOB
+                  </Form.Label>
+                  <div>
+                    <DatePicker
+                      className="select form-control"
+                      selected={startDate}
+                      onChange={handleStartDateChange}
+                      placeholderText="Date of Birth"
+                      dateFormat="MMMM d, yyyy"
+                      yearDropdownItemNumber={150}
+                      showYearDropdown
+                      showMonthDropdown
+                      scrollableYearDropdown
+                      scrollableMonthDropdown
+                      maxDate={new Date()}
+                      minDate={new Date('1900-01-01')}
+                    />
+                  </div>
+                </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
-                <Form.Label style={{ paddingLeft: "12px" }} className="mandatory">
-                    DOB
-                </Form.Label>
-                <div>
-                    <DatePicker
-                        className="select form-control"
-                        selected={startDate}
-                        onChange={handleStartDateChange}
-                        placeholderText="Date of Birth"
-                        dateFormat="MMMM d, yyyy"
-                        yearDropdownItemNumber={150}
-                        showYearDropdown
-                        showMonthDropdown
-                        scrollableYearDropdown
-                        scrollableMonthDropdown
-                        maxDate={new Date()}
-                        minDate={new Date("1900-01-01")}
-                    />
-                </div>
-            </Form.Group>
-
-            <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
-                <Form.Label>Age</Form.Label>
-                <Form.Control
+                  <Form.Label>Age</Form.Label>
+                  <Form.Control
                     className="select"
                     name="Age"
                     type="text"
                     required
                     readOnly
                     placeholder="Age"
-                    value={formData.Age} // This should reflect the calculated age
-                    disabled={formData.DOB !== "" ? false : true}
-                />
-            </Form.Group>
+                    value={formData?.Age} // This should reflect the calculated age
+                    disabled={formData?.DOB !== '' ? false : true}
+                  />
+                </Form.Group>
               </Row>
               <Row>
-                        
-          <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
-            <Form.Label className="mandatory">Gender</Form.Label>
-            <Form.Select
-              className="select"
-              name="Gender"
-              onChange={(event) =>
-                dispatch(
-                  patientInformation({
-                    name: "Gender",
-                    value: event.target.value,
-                  })
-                )
-              }
-              value={formData.Gender}>
-              <option value="" disabled>
-                Select Gender
-              </option>
-              {formData.availableGenders?.map((gender, index) => (
-                <option key={index} value={gender}>
-                  {gender === "M" ? "Male" : gender === "F" ? "Female" : "Third Gender"}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+                <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
+                  <Form.Label className="mandatory">Gender</Form.Label>
+                  <Form.Select
+                    className="select"
+                    name="Gender"
+                    onChange={(event) =>
+                      dispatch(
+                        patientInformation({
+                          name: 'Gender',
+                          value: event.target.value,
+                        })
+                      )
+                    }
+                    value={formData?.Gender}>
+                    <option value="" disabled>
+                      Select Gender
+                    </option>
+                    {formData?.availableGenders?.map((gender, index) => (
+                      <option key={index} value={gender}>
+                        {gender === 'M'
+                          ? 'Male'
+                          : gender === 'F'
+                          ? 'Female'
+                          : 'Third Gender'}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
                   <CustomDropDown
@@ -697,7 +761,7 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Patient Nationality"
-                    options={formData.nationalityList}
+                    options={formData?.nationalityList}
                   />
                 </Form.Group>
 
@@ -708,7 +772,7 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="ID Type"
-                    options={formData.idTypeList}
+                    options={formData?.idTypeList}
                   />
                 </Form.Group>
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
@@ -718,12 +782,13 @@ const ageCalculator = (dob) => {
                     label="ID No"
                     type="text"
                     required
-                    IDtype={formData.IDtype}
+                    IDtype={formData?.IDtype}
                     placeholder="Enter ID No"
                   />
                 </Form.Group>
               </Row>
               <Row>
+                {console.log('my-formdata', formData)}
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
                   <CustomDropDown
                     name="MaritalStatus"
@@ -731,11 +796,10 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Marital Status"
-                    options={formData.maritalStatusList}
+                    options={formData?.maritalStatusList}
                   />
                 </Form.Group>
-
-                <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
+                {/* <Form.Group as={Col} xs={12} sm={6} md={4} lg={3} xl={3}>
                   <CustomFormInput
                     className="select"
                     label="Mobile No"
@@ -765,39 +829,38 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Select occupation"
-                    options={formData.occupationList}
+                    options={formData?.occupationList}
                   />
-                </Form.Group>
+                </Form.Group> */}
               </Row>
-              {/* <Row></Row> */}
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
-        <Accordion style={{ marginBottom: "10px" }}>
+        {/* <Accordion style={{marginBottom: '10px'}}>
           <Accordion.Item eventKey="2">
             <Accordion.Header>
               <div>Additional Details</div>
-              {formData.additionalInfo ? (
-                <div style={{ marginLeft: "7px" }}>
+              {formData?.additionalInfo ? (
+                <div style={{marginLeft: '7px'}}>
                   <FontAwesomeIcon
                     icon={faCircleCheck}
                     style={{
-                      color: "green",
-                      width: "20px",
-                      height: "20px",
-                      textAlign: "center",
+                      color: 'green',
+                      width: '20px',
+                      height: '20px',
+                      textAlign: 'center',
                     }}
                   />
                 </div>
               ) : (
-                <div style={{ marginLeft: "7px" }}>
+                <div style={{marginLeft: '7px'}}>
                   <FontAwesomeIcon
                     icon={faCircleXmark}
                     style={{
-                      color: "red",
-                      width: "20px",
-                      height: "20px",
-                      textAlign: "center",
+                      color: 'red',
+                      width: '20px',
+                      height: '20px',
+                      textAlign: 'center',
                     }}
                   />
                 </div>
@@ -805,8 +868,7 @@ const ageCalculator = (dob) => {
             </Accordion.Header>
             <Accordion.Body>
               <Row>
-
-               <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
+                <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
                   <CustomFormInput
                     className="select"
                     label="Pincode"
@@ -814,9 +876,10 @@ const ageCalculator = (dob) => {
                     type="number"
                     required
                     pattern={/^[1-9]{1}[0-9]{5}$/}
-                    placeholder="Enter Pincode"/>
+                    placeholder="Enter Pincode"
+                  />
                 </Form.Group>
-               
+
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
                   <CustomDropDown
                     name="CountryCode"
@@ -825,10 +888,11 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Select Country"
-                    value={formData.Country} 
-                    options={formData.countryList}/>
+                    value={formData?.Country}
+                    options={formData?.countryList}
+                  />
                 </Form.Group>
-               
+
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={3}>
                   <CustomDropDown
                     name="StateCode"
@@ -837,11 +901,11 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Select State"
-                    value={formData.State} 
-                    options={formData.stateList}/>
+                    value={formData?.State}
+                    options={formData?.stateList}
+                  />
                 </Form.Group>
 
-          
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={3}>
                   <CustomDropDown
                     name="CityCode"
@@ -850,14 +914,15 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Select City"
-                    value={formData.City} 
-                    options={formData.cityList}
-                    disabled={formData.State !== "" ? false : true}/>
+                    value={formData?.City}
+                    options={formData?.cityList}
+                    disabled={formData?.State !== '' ? false : true}
+                  />
                 </Form.Group>
               </Row>
 
               <Row>
-              <Form.Group as={Col} xs={12} sm={6} md={4} lg={3}>
+                <Form.Group as={Col} xs={12} sm={6} md={4} lg={3}>
                   <CustomDropDown
                     name="AreaCode"
                     additionalname="Area"
@@ -865,12 +930,13 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Select Area"
-                    options={formData.areaList}
-                    disabled={formData.Pincode !== "" ? false : true}/>
-                </Form.Group> 
+                    options={formData?.areaList}
+                    disabled={formData?.Pincode !== '' ? false : true}
+                  />
+                </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
-                  {" "}
+                  {' '}
                   <CustomFormInput
                     className="select"
                     label="Address"
@@ -878,22 +944,23 @@ const ageCalculator = (dob) => {
                     type="text"
                     required
                     readOnly
-                    placeholder="Enter Address"/>
+                    placeholder="Enter Address"
+                  />
                 </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
-                  {" "}
+                  {' '}
                   <CustomDropDown
                     name="religion"
                     type="text"
                     label="Religion"
                     className="select"
                     placeholder="Select Religion"
-                    options={formData.religionList}
+                    options={formData?.religionList}
                   />
                 </Form.Group>
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
-                  {" "}
+                  {' '}
                   <CustomDropDown
                     name="Language"
                     additionalname="LanguageName"
@@ -901,42 +968,43 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Preffered Language"
-                    options={formData.langList}/>
+                    options={formData?.langList}
+                  />
                 </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
-                  {" "}
+                  {' '}
                   <CustomDropDown
                     name="BloodGroup"
                     label="BloodGroup"
                     type="text"
                     className="select"
                     placeholder="Select Blood Group"
-                    options={formData.bloodGroupList}/>
+                    options={formData?.bloodGroupList}
+                  />
                 </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={4} lg={2} xl={2}>
-                  {["radio"].map((type) => (
+                  {['radio'].map((type) => (
                     <div key={`default-${type}`} className="mb-3 ">
                       <Form.Label className="mandatory">
                         Special Assistance
                       </Form.Label>
                       <div
                         style={{
-                          display: "flex",
-                          gap: "10px",
-                          alignItems: "stretch",
-                          flexWrap: "wrap",
-                          alignContent: "stretch",
-                        }}
-                      >
+                          display: 'flex',
+                          gap: '10px',
+                          alignItems: 'stretch',
+                          flexWrap: 'wrap',
+                          alignContent: 'stretch',
+                        }}>
                         <Form.Check // prettier-ignore
                           type={type}
                           name="specialAssistanceNeeded"
                           id="SpecialAssistanceYes"
                           label="Yes"
                           value="1"
-                          checked={formData.specialAssistanceNeeded === "1"}
+                          checked={formData?.specialAssistanceNeeded === '1'}
                           onChange={handleSpecialAssistanceChange}
                         />
 
@@ -946,25 +1014,25 @@ const ageCalculator = (dob) => {
                           id="SpecialAssistanceNo"
                           label="No"
                           value="0"
-                          checked={formData.specialAssistanceNeeded === "0"}
+                          checked={formData?.specialAssistanceNeeded === '0'}
                           onChange={handleSpecialAssistanceChange}
                         />
                       </div>
                     </div>
                   ))}
                 </Form.Group>
-                {formData.specialAssistanceNeeded === "1" && (
+                {formData?.specialAssistanceNeeded === '1' && (
                   <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
-                    {" "}
+                    {' '}
                     <Form.Label className="mandatory">
                       Select Special Assistance
                     </Form.Label>
                     <Form.Select
                       className="select"
                       name="specialAssistanceDetailsIfYes"
-                      value={formData.specialAssistanceDetailsIfYes}
+                      value={formData?.specialAssistanceDetailsIfYes}
                       onChange={handleSpecialAssistance}>
-                      <option value={""}>Select Special Assistance</option>
+                      <option value={''}>Select Special Assistance</option>
                       <option value="Wheel Chair">WHEEL CHAIR</option>
                       <option value="Stretcher"> STRETCHER</option>
                       <option value="Not Applicable">NOT APPLICABLE</option>
@@ -973,8 +1041,8 @@ const ageCalculator = (dob) => {
                   </Form.Group>
                 )}
 
-                {formData.specialAssistanceNeeded === "1" &&
-                  formData.specialAssistanceDetailsIfYes === "Others" && (
+                {formData?.specialAssistanceNeeded === '1' &&
+                  formData?.specialAssistanceDetailsIfYes === 'Others' && (
                     <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
                       <Form.Label className="mandatory">
                         Spl.Assist Remarks
@@ -982,42 +1050,40 @@ const ageCalculator = (dob) => {
                       <Form.Control
                         className="select"
                         name="specialAssistanceDetailsIfOthers"
-                        value={formData.specialAssistanceDetailsIfOthers}
+                        value={formData?.specialAssistanceDetailsIfOthers}
                         onChange={handleOtherSpecialAssistance}
-                        placeholder="Please Specify if others"
-                      ></Form.Control>
+                        placeholder="Please Specify if others"></Form.Control>
                     </Form.Group>
                   )}
               </Row>
-           
             </Accordion.Body>
           </Accordion.Item>
-        </Accordion>
-        <Accordion style={{ marginBottom: "10px" }}>
+        </Accordion> */}
+        <Accordion style={{marginBottom: '10px'}}>
           <Accordion.Item eventKey="3">
             <Accordion.Header>
               <div>Next of Kin</div>
-              {formData.kinInfo ? (
-                <div style={{ marginLeft: "7px" }}>
+              {formData?.kinInfo ? (
+                <div style={{marginLeft: '7px'}}>
                   <FontAwesomeIcon
                     icon={faCircleCheck}
                     style={{
-                      color: "green",
-                      width: "20px",
-                      height: "20px",
-                      textAlign: "center",
+                      color: 'green',
+                      width: '20px',
+                      height: '20px',
+                      textAlign: 'center',
                     }}
                   />
                 </div>
               ) : (
-                <div style={{ marginLeft: "7px" }}>
+                <div style={{marginLeft: '7px'}}>
                   <FontAwesomeIcon
                     icon={faCircleXmark}
                     style={{
-                      color: "red",
-                      width: "20px",
-                      height: "20px",
-                      textAlign: "center",
+                      color: 'red',
+                      width: '20px',
+                      height: '20px',
+                      textAlign: 'center',
                     }}
                   />
                 </div>
@@ -1026,23 +1092,22 @@ const ageCalculator = (dob) => {
             <Accordion.Body>
               <Form.Group
                 as={Col}
-                style={{ display: "flex", alignItems: "center" }}
-                lg={3}
-              >
+                style={{display: 'flex', alignItems: 'center'}}
+                lg={3}>
                 <Form.Control
                   className="select"
-                  value={"Same as Above"}
+                  value={'Same as Above'}
                   disabled
                   style={{
-                    backgroundColor: "none",
-                    border: "none",
+                    backgroundColor: 'none',
+                    border: 'none',
                   }}
                 />
                 <Form.Check
                   name="Same as Above"
                   type="checkbox"
                   value="1"
-                  checked={formData.takeContact === "1"}
+                  checked={formData?.takeContact === '1'}
                   onChange={handleTakeContact}
                 />
               </Form.Group>
@@ -1055,7 +1120,7 @@ const ageCalculator = (dob) => {
                     label="Relation Type"
                     className="select"
                     placeholder="Select Relation Type"
-                    options={formData.relationList}
+                    options={formData?.relationList}
                   />
                 </Form.Group>
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
@@ -1077,25 +1142,24 @@ const ageCalculator = (dob) => {
                     type="number"
                     required
                     pattern={/^[1-9]{1}[0-9]{9}$/}
-                    placeholder="Relation Mobile No"/>
+                    placeholder="Relation Mobile No"
+                  />
                 </Form.Group>
-                
               </Row>
               <Row>
-              <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
+                <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
                   <CustomFormInput
                     className="select"
                     label="Kin Pincode"
                     name="kin_Pincode"
                     type="number"
-                    value={formData.kin_Pincode}
+                    value={formData?.kin_Pincode}
                     required
                     pattern={/^[1-9]{1}[0-9]{5}$/}
                     placeholder="Kin PinCode"
                   />
                 </Form.Group>
 
-            
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
                   <CustomDropDown
                     name="kin_CountryCode"
@@ -1104,8 +1168,9 @@ const ageCalculator = (dob) => {
                     type="text"
                     className="select"
                     placeholder="Select Kin's Country"
-                    options={formData.countryList}
-                    value={formData.kinCountry}/>
+                    options={formData?.countryList}
+                    value={formData?.kinCountry}
+                  />
                 </Form.Group>
 
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
@@ -1115,26 +1180,24 @@ const ageCalculator = (dob) => {
                     label="Kin State"
                     type="text"
                     className="select"
-                    value={formData.kinState}
+                    value={formData?.kinState}
                     placeholder="Select Kin's State"
-                    options={formData.stateList}
+                    options={formData?.stateList}
                   />
                 </Form.Group>
-              
               </Row>
               <Row>
-
-              <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
+                <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
                   <CustomDropDown
                     name="kin_CityCode"
                     additionalname="kinCity"
                     label="City"
                     type="text"
                     className="select"
-                    value={formData.kinCity}
+                    value={formData?.kinCity}
                     placeholder="Select City"
-                    options={formData.kin_cityList}
-                    disabled={formData.kinState !== "" ? false : true}
+                    options={formData?.kin_cityList}
+                    disabled={formData?.kinState !== '' ? false : true}
                   />
                 </Form.Group>
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={3}>
@@ -1144,10 +1207,10 @@ const ageCalculator = (dob) => {
                     label="Kin Area"
                     type="text"
                     className="select"
-                    value={formData.kinArea}
+                    value={formData?.kinArea}
                     placeholder="Select Kin's Area"
-                    options={formData.kin_areaList}
-                    disabled={formData.kin_Pincode !== "" ? false : true}
+                    options={formData?.kin_areaList}
+                    disabled={formData?.kin_Pincode !== '' ? false : true}
                   />
                 </Form.Group>
                 <Form.Group as={Col} xs={12} sm={6} md={6} lg={6}>
@@ -1157,7 +1220,7 @@ const ageCalculator = (dob) => {
                     name="kinAddress"
                     type="text"
                     required
-                    value={formData.kinAddress}
+                    value={formData?.kinAddress}
                     placeholder="Kin's Address"
                   />
                 </Form.Group>

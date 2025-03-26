@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Form, Row, Col, Container, Button} from 'react-bootstrap';
+import {Form, Row, Col, Button} from 'react-bootstrap';
 import {useSelector, useDispatch} from 'react-redux';
 import VisitCreation from '../OPDModule/NewPatient/VisitCreation/VisitCreation';
 import PatientCreation from '../OPDModule/NewPatient/PatientCreation/PatientCreation';
@@ -261,7 +261,7 @@ const Home = () => {
         );
       }
     } catch (error) {
-      //console.log("Error :", error);
+      console.error(error);
     }
   }
 
