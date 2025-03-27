@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Form, Accordion } from "react-bootstrap";
-import { useSelector, useDispatch } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faCircleCheck,faCircleXmark} from "@fortawesome/free-solid-svg-icons";
-import DatePicker from "react-datepicker";
-import CustomDropDown from "../../../../common/CustomDropDown/CustomDropDown";
-import CustomFormInput from "../../../../common/CustomFormInput/CustomFormInput";
-import {visitInformation,resetVisitInformation,dropDownInformation}
-from "../../../../features/OPDModule/AppointmentSchedule/AppointmentScheduleSlice";
-import { OPModuleAgent } from "../../../../agent/agent";
-
+import React, {useState, useEffect} from 'react';
+import {Row, Col, Form, Accordion} from 'react-bootstrap';
+import {useSelector, useDispatch} from 'react-redux';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCircleCheck, faCircleXmark} from '@fortawesome/free-solid-svg-icons';
+import DatePicker from 'react-datepicker';
+import CustomDropDown from '../../../../common/CustomDropDown/CustomDropDown';
+import CustomFormInput from '../../../../common/CustomFormInput/CustomFormInput';
+import {
+  visitInformation,
+  resetVisitInformation,
+  dropDownInformation,
+} from '../../../../features/OPDModule/AppointmentSchedule/AppointmentScheduleSlice';
+import {OPModuleAgent} from '../../../../agent/agent';
 
 const VisitCreation = () => {
   const dispatch = useDispatch();
   const visitData = useSelector(
     (state) => state.appointmentVisitSchedule.formData
   );
-  
+
   //console.log(visitData);
 
   useEffect(() => {
@@ -30,14 +32,14 @@ const VisitCreation = () => {
   useEffect(() => {
     departmentData();
     resetVisitInformation({
-      name: "DoctorList",
+      name: 'DoctorList',
       value: [],
     });
     // eslint-disable-next-line
   }, [visitData.Department]);
 
   useEffect(() => {
-    if (visitData.Department !== "") {
+    if (visitData.Department !== '') {
       doctorData();
     } else return;
     // eslint-disable-next-line
@@ -45,9 +47,9 @@ const VisitCreation = () => {
 
   useEffect(() => {
     if (
-      visitData.Department !== "" &&
-      visitData.docId !== "" &&
-      visitData.AppointmentDate !== ""
+      visitData.Department !== '' &&
+      visitData.docId !== '' &&
+      visitData.AppointmentDate !== ''
     ) {
       slotData();
     } else return;
@@ -55,7 +57,7 @@ const VisitCreation = () => {
   }, [visitData.Department, visitData.docId, visitData.AppointmentDate]);
 
   useEffect(() => {
-    if (visitData.PatientType !== "") {
+    if (visitData.PatientType !== '') {
       payorsData();
     } else return;
     // eslint-disable-next-line
@@ -70,48 +72,48 @@ const VisitCreation = () => {
   useEffect(() => {}, []);
   const validateVisitInfo = () => {
     if (
-      visitData.Department !== "" &&
-      visitData.docId !== "" &&
-      visitData.DoctorName !== "" &&
-      visitData.VisitType !== "" &&
-      visitData.AppointmentDate !== "" &&
-      visitData.SlotInfo !== "" &&
-      visitData.RefSource !== ""
+      visitData.Department !== '' &&
+      visitData.docId !== '' &&
+      visitData.DoctorName !== '' &&
+      visitData.VisitType !== '' &&
+      visitData.AppointmentDate !== '' &&
+      visitData.SlotInfo !== '' &&
+      visitData.RefSource !== ''
     ) {
-      if (visitData.PatientType === "s") {
+      if (visitData.PatientType === 's') {
         dispatch(
           visitInformation({
-            name: "PayorID",
-            value: "",
+            name: 'PayorID',
+            value: '',
           })
         );
         dispatch(
           visitInformation({
-            name: "PayorName",
-            value: "",
+            name: 'PayorName',
+            value: '',
           })
         );
         dispatch(
           visitInformation({
-            name: "visitInfo",
+            name: 'visitInfo',
             value: true,
           })
         );
       } else if (
-        visitData.PatientType !== "s" &&
-        visitData.PayorID !== "" &&
-        visitData.PayorName !== ""
+        visitData.PatientType !== 's' &&
+        visitData.PayorID !== '' &&
+        visitData.PayorName !== ''
       ) {
         dispatch(
           visitInformation({
-            name: "visitInfo",
+            name: 'visitInfo',
             value: true,
           })
         );
       } else {
         dispatch(
           visitInformation({
-            name: "visitInfo",
+            name: 'visitInfo',
             value: false,
           })
         );
@@ -119,7 +121,7 @@ const VisitCreation = () => {
     } else {
       dispatch(
         visitInformation({
-          name: "visitInfo",
+          name: 'visitInfo',
           value: false,
         })
       );
@@ -130,22 +132,22 @@ const VisitCreation = () => {
     setStartDate(date);
     const formattedDate = new Date(date.toDateString())
       .toLocaleDateString()
-      .split("/");
+      .split('/');
     // //console.log(startDate);
     dispatch(
       visitInformation({
-        name: "AppointmentDate",
+        name: 'AppointmentDate',
         value:
-          formattedDate[2] + "-" + formattedDate[0] + "-" + formattedDate[1],
+          formattedDate[2] + '-' + formattedDate[0] + '-' + formattedDate[1],
       })
     );
   };
 
   const handleSlotData = (event) => {
-    const { value } = event.target;
+    const {value} = event.target;
 
     // Split the time string into hours and minutes
-    const [hoursStr, minutesStr] = value.split(":");
+    const [hoursStr, minutesStr] = value.split(':');
 
     // Convert hours and minutes to numbers
     const hours = parseInt(hoursStr, 10);
@@ -156,14 +158,13 @@ const VisitCreation = () => {
     timeDate.setHours(hours);
     timeDate.setMinutes(minutes);
 
-
     // Convert the Date object to a string in the desired format
     const timeString = `${timeDate.getHours()}:${timeDate.getMinutes()}:00.000`;
 
     // Dispatch the timeString or the Date object, depending on your needs
     dispatch(
       visitInformation({
-        name: "SlotInfo",
+        name: 'SlotInfo',
         value: timeString,
       })
     );
@@ -174,7 +175,7 @@ const VisitCreation = () => {
       const departmentsResponse = (await OPModuleAgent.getDepartments()).data;
       dispatch(
         dropDownInformation({
-          name: "DepartmentList",
+          name: 'DepartmentList',
           value: departmentsResponse || [],
         })
       );
@@ -191,7 +192,7 @@ const VisitCreation = () => {
 
       dispatch(
         dropDownInformation({
-          name: "DoctorList",
+          name: 'DoctorList',
           value: doctorListByDepartmentResponse || [],
         })
       );
@@ -199,32 +200,30 @@ const VisitCreation = () => {
       //console.log("Error fetching Data:", error);
     }
   }
-  
-  
+
   async function slotData() {
     try {
       const appointmentSlotResponse = (
         await OPModuleAgent.getAppointmentDetails({
-          SlotDate: visitData.AppointmentDate, 
-          DoctorID: visitData.docId,           
-          SlotType: 0                           
+          SlotDate: visitData.AppointmentDate,
+          DoctorID: visitData.docId,
+          SlotType: 0,
         })
-      ).data;  // The response from the API
-  
+      ).data; // The response from the API
+
       // Dispatch the fetched data to Redux
       dispatch(
         visitInformation({
-          name: "SlotList",
+          name: 'SlotList',
           value: appointmentSlotResponse,
         })
       );
     } catch (error) {
       // Handle error if needed
-      console.log("Error fetching Data:", error);
+      console.log('Error fetching Data:', error);
     }
   }
-  
-  
+
   async function payorsData() {
     try {
       const payorsListResponse = (
@@ -233,7 +232,7 @@ const VisitCreation = () => {
 
       dispatch(
         dropDownInformation({
-          name: "PayorsList",
+          name: 'PayorsList',
           value: payorsListResponse || [],
         })
       );
@@ -242,21 +241,21 @@ const VisitCreation = () => {
     }
   }
 
-  
   async function fetchData() {
     try {
       const referralSourceResponse = (await OPModuleAgent.getRefSrcList()).data;
       dispatch(
         dropDownInformation({
-          name: "ReferralSourceList",
+          name: 'ReferralSourceList',
           value: referralSourceResponse || [],
         })
       );
-      const internalDocResponse = (await OPModuleAgent.getInternalDoctorList()).data;
+      const internalDocResponse = (await OPModuleAgent.getInternalDoctorList())
+        .data;
 
       dispatch(
         dropDownInformation({
-          name: "InternalDoctorList",
+          name: 'InternalDoctorList',
           value: internalDocResponse || [],
         })
       );
@@ -264,7 +263,7 @@ const VisitCreation = () => {
         .data;
       dispatch(
         dropDownInformation({
-          name: "ExternalDoctorList",
+          name: 'ExternalDoctorList',
           value: externalDocResponse || [],
         })
       );
@@ -272,7 +271,7 @@ const VisitCreation = () => {
       console.log(error);
     }
   }
- 
+
   return (
     <>
       <Accordion mb={3} defaultActiveKey="1">
@@ -280,26 +279,30 @@ const VisitCreation = () => {
           <Accordion.Header>
             <h5>Appointment Schedule & Visit</h5>
             {visitData.visitInfo ? (
-              <div style={{ marginLeft: "7px" }}>
+              <div style={{marginLeft: '7px'}}>
                 <FontAwesomeIcon
                   icon={faCircleCheck}
                   style={{
-                    color: "green",
-                    width: "20px",
-                    height: "20px",
-                    textAlign: "center",
+                    color: 'green',
+                    width: '20px',
+                    height: '20px',
+                    textAlign: 'center',
                   }}
                 />
               </div>
             ) : (
-              <div style={{ marginLeft: "7px" }}>
+              <div style={{marginLeft: '7px'}}>
                 <FontAwesomeIcon
                   icon={faCircleXmark}
                   style={{
-                    color: "red",
-                    width: "20px",
-                    height: "20px",
-                    textAlign: "center"}}/></div>)}
+                    color: 'red',
+                    width: '20px',
+                    height: '20px',
+                    textAlign: 'center',
+                  }}
+                />
+              </div>
+            )}
           </Accordion.Header>
 
           <Accordion.Body>
@@ -314,7 +317,8 @@ const VisitCreation = () => {
                   placeholder="Select Department"
                   options={visitData.DepartmentList}
                   value=""
-                  disabled={visitData.DepartmentList !== "" ? false : true}/>
+                  disabled={visitData.DepartmentList !== '' ? false : true}
+                />
               </Form.Group>
               <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
                 <CustomDropDown
@@ -325,10 +329,11 @@ const VisitCreation = () => {
                   className="select"
                   placeholder="Select Doctor"
                   options={visitData.DoctorList}
-                  disabled={visitData.Department !== "" ? false : true}/>
+                  disabled={visitData.Department !== '' ? false : true}
+                />
               </Form.Group>
               <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
-                {" "}
+                {' '}
                 <CustomDropDown
                   name="VisitType"
                   additionalname="PatientVisitType"
@@ -337,7 +342,8 @@ const VisitCreation = () => {
                   className="select"
                   placeholder="Select Visit Type"
                   options={visitData.VisitTypeList || []}
-                  disabled={visitData.VisitTypeList !== "" ? false : true}/>
+                  disabled={visitData.VisitTypeList !== '' ? false : true}
+                />
               </Form.Group>
             </Row>
             <Row>
@@ -346,10 +352,11 @@ const VisitCreation = () => {
                 <div>
                   <DatePicker
                     className="select form-control "
-                    selected={visitData.AppointmentDate !== "" && startDate}
-                    onChange={handleStartDateChange}             
+                    selected={visitData.AppointmentDate !== '' && startDate}
+                    onChange={handleStartDateChange}
                     minDate={new Date()}
-                    dateFormat="MMMM d, yyyy"/>
+                    dateFormat="MMMM d, yyyy"
+                  />
                 </div>
               </Form.Group>
 
@@ -361,15 +368,15 @@ const VisitCreation = () => {
                   placeholder="Appointment Time"
                   className="select"
                   onChange={handleSlotData}
-                  disabled={visitData.AppointmentDate !== "" ? false : true}
-                  defaultValue={""}>
+                  disabled={visitData.AppointmentDate !== '' ? false : true}
+                  defaultValue={''}>
                   <option value="" disabled defaultValue>
-                  Sequence No
+                    Sequence No
                   </option>
                   {visitData.SlotList.length > 0 &&
                     visitData.SlotList.map((event, index) => (
                       <option key={index} value={event.startDateTime}>
-                        {event.startDateTime}                
+                        {event.startDateTime}
                       </option>
                     ))}
                 </Form.Select>
@@ -381,12 +388,13 @@ const VisitCreation = () => {
                   type="text"
                   className="select"
                   placeholder="Select Patient Type"
-                  options={visitData.PatientTypeList}/>
+                  options={visitData.PatientTypeList}
+                />
               </Form.Group>
             </Row>
 
             <Row>
-              {" "}
+              {' '}
               <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
                 <CustomDropDown
                   name="PayorID"
@@ -396,11 +404,10 @@ const VisitCreation = () => {
                   className="select"
                   placeholder="Select Payors Name"
                   options={visitData.PayorsList}
-                  disabled={visitData.PatientType === "s" ? true : false}/>
+                  disabled={visitData.PatientType === 's' ? true : false}
+                />
               </Form.Group>
-
               <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
-                {" "}
                 <CustomDropDown
                   name="RefSource"
                   additionalname="RefSourceDetails"
@@ -408,9 +415,10 @@ const VisitCreation = () => {
                   type="text"
                   className="select"
                   placeholder="Select RefSource"
-                  options={visitData.ReferralSourceList}/>
+                  options={visitData.ReferralSourceList}
+                />
               </Form.Group>
-              {visitData.RefSource === 8 && (
+              {visitData.RefSource === 58 && (
                 <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
                   <Form.Label className="mandatory">Doctor Type</Form.Label>
                   <Form.Select
@@ -419,8 +427,11 @@ const VisitCreation = () => {
                     onChange={(event) =>
                       dispatch(
                         visitInformation({
-                          name: "RefSourceNameIfDoctor",
-                          value: event.target.value}))}>
+                          name: 'RefSourceNameIfDoctor',
+                          value: event.target.value,
+                        })
+                      )
+                    }>
                     <option value="" disabled>
                       Select One
                     </option>
@@ -429,7 +440,7 @@ const VisitCreation = () => {
                   </Form.Select>
                 </Form.Group>
               )}
-              {visitData.RefSourceNameIfDoctor === "1" && (
+              {visitData.RefSourceNameIfDoctor === '1' && (
                 <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
                   <CustomDropDown
                     name="InternalDoctorID"
@@ -442,7 +453,7 @@ const VisitCreation = () => {
                   />
                 </Form.Group>
               )}
-              {visitData.RefSourceNameIfDoctor === "0" && (
+              {visitData.RefSourceNameIfDoctor === '0' && (
                 <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
                   <CustomDropDown
                     name="ExternalDoctorID"
@@ -451,7 +462,19 @@ const VisitCreation = () => {
                     type="text"
                     className="select"
                     placeholder="Select RefSource"
-                    options={visitData.ExternalDoctorList}/>
+                    options={visitData.ExternalDoctorList}
+                  />
+                </Form.Group>
+              )}
+              {visitData.RefSource === 76 && (
+                <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
+                  <CustomFormInput
+                    name="StaffEmployeeID"
+                    label="Staff Employee ID"
+                    type="text"
+                    className="select"
+                    placeholder="Staff Employee ID"
+                  />
                 </Form.Group>
               )}
               <Form.Group as={Col} xs={12} sm={12} md={6} lg={4}>
@@ -460,10 +483,11 @@ const VisitCreation = () => {
                   label="Package Details"
                   type="text"
                   className="select"
-                  placeholder="Package Details"/>
+                  placeholder="Package Details"
+                />
               </Form.Group>
             </Row>
-            
+
             <Row></Row>
           </Accordion.Body>
         </Accordion.Item>

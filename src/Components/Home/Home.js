@@ -228,7 +228,6 @@ const Home = () => {
     AppRefSource: visitData.RefSource,
   };
 
-  console.log(paymentData);
   const handleNewRegistration = () => {
     setnewRegistration((prev) => !prev);
     console.log(newRegistration);
@@ -330,6 +329,7 @@ const Home = () => {
 
     setProcess(processingId());
 
+    console.log('Patient Data:', patientData);
     try {
       // Confirm that patient data is available
       if (
