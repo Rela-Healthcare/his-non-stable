@@ -376,17 +376,13 @@ const PatientCreation = () => {
       const salutationsResponse = (await OPModuleAgent.getSalutations()).data;
       const departmentsResponse = (await OPModuleAgent.getDepartments()).data;
       const mobileCodeResponse = (await OPModuleAgent.getMobileCodeList()).data;
-      const maritalStatusResponse = (await OPModuleAgent.getMaritalStatusList())
-        .data;
+      const maritalStatusResponse = (await OPModuleAgent.getMaritalStatusList()).data;
       const occupationResponse = (await OPModuleAgent.getOccupationList()).data;
-      const nationalityResponse = (await OPModuleAgent.getNationalityList())
-        .data;
+      const nationalityResponse = (await OPModuleAgent.getNationalityList()).data;
       const idTypeResponse = (await OPModuleAgent.getIdTypeList()).data;
       const countriesResponse = (await OPModuleAgent.getCountriesList()).data;
       const stateResponse = (await OPModuleAgent.getStateList()).data;
-
-      const relationTyeResponse = (await OPModuleAgent.getRelationTypeList())
-        .data;
+      const relationTyeResponse = (await OPModuleAgent.getRelationTypeList()).data;
       const bloodGroupResponse = (await OPModuleAgent.getBloodGroupList()).data;
       const religionResponse = (await OPModuleAgent.getReligionList()).data;
       const languageResponse = (await OPModuleAgent.getLanguageList()).data;

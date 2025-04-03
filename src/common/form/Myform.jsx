@@ -1,25 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import PatientPersonDetailFrom from './PatientPersonDetailFrom';
-import {
-  fetchSalutations,
-  fetchDepartments,
-  fetchMobileCodes,
-  fetchMaritalStatus,
-  fetchOccupation,
-  fetchNationality,
-  fetchIdType,
-  fetchCountries,
-  fetchState,
-  fetchRelationType,
-  fetchBloodGroup,
-  fetchReligion,
-  fetchLanguage,
-  fetchAreaListByPincode,
-} from '../../store/Slices/dropdownSlice';
-import {useDispatch, useSelector} from 'react-redux';
+import React, {useState} from 'react';
 
-const Home = () => {
-  const dispatch = useDispatch();
+const MyForm = () => {
   // Initialize state with the provided payload structure
   const [formData, setFormData] = useState({
     OP_Master: [
@@ -105,24 +86,6 @@ const Home = () => {
     UserId: 'user123',
   });
 
-  // Dispatch fetch actions on component mount
-  useEffect(() => {
-    dispatch(fetchSalutations());
-    dispatch(fetchDepartments());
-    dispatch(fetchMobileCodes());
-    dispatch(fetchMaritalStatus());
-    dispatch(fetchOccupation());
-    dispatch(fetchNationality());
-    dispatch(fetchIdType());
-    dispatch(fetchCountries());
-    dispatch(fetchState());
-    dispatch(fetchRelationType());
-    dispatch(fetchBloodGroup());
-    dispatch(fetchReligion());
-    dispatch(fetchLanguage());
-    dispatch(fetchAreaListByPincode());
-  }, [dispatch]);
-
   // Handle input changes
   const handleInputChange = (e) => {
     const {name, value, type, checked} = e.target;
@@ -132,38 +95,92 @@ const Home = () => {
     }));
   };
 
-  const {
-    areaListByPincodeResponse,
-    departmentsResponse,
-    mobileCodeResponse,
-    maritalStatusResponse,
-    occupationResponse,
-    nationalityResponse,
-    idTypeResponse,
-    countriesResponse,
-    stateResponse,
-    relationTypeResponse,
-    bloodGroupResponse,
-    religionResponse,
-    languageResponse,
-    loading,
-    error,
-  } = useSelector((state) => state.dropdown);
-
-  console.log(areaListByPincodeResponse);
+  // Handle form submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form Data Submitted: ', formData);
+  };
 
   return (
-    <div>
-      <PatientPersonDetailFrom
-        formData={formData}
-        handleInputChange={handleInputChange}
-      />
-      {/* Evaluation From */}
-      {/* Appointment Form */}
-      {/* Op Service From  */}
-      {/* Payment Form  */}
-    </div>
+    <form onSubmit={handleSubmit}>
+      {/* Example Input Fields */}
+      <div>
+        <label>Name:</label>
+        <input
+          type="text"
+          name="Name"
+          value={formData.Name}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <div>
+        <label>Date of Birth:</label>
+        <input
+          type="date"
+          name="DOB"
+          value={formData.DOB}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <div>
+        <label>Gender:</label>
+        <select
+          name="Gender"
+          value={formData.Gender}
+          onChange={handleInputChange}>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Email ID:</label>
+        <input
+          type="email"
+          name="Email_ID"
+          value={formData.Email_ID}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      {/* Continue with more form fields as per the payload structure */}
+      <div>
+        <label>Special Assistance:</label>
+        <input
+          type="checkbox"
+          name="Special_Assistance"
+          checked={formData.Special_Assistance}
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <div>
+        <label>Remarks:</label>
+        <textarea
+          name="Remarks"
+          value={formData.OP_Master[0].Remarks}
+          onChange={(e) => {
+            const newRemarks = e.target.value;
+            setFormData((prevData) => ({
+              ...prevData,
+              OP_Master: [
+                {
+                  ...prevData.OP_Master[0],
+                  Remarks: newRemarks,
+                },
+              ],
+            }));
+          }}
+        />
+      </div>
+
+      {/* Submit button */}
+      <button type="submit">Submit</button>
+    </form>
   );
 };
 
-export default Home;
+export default MyForm;

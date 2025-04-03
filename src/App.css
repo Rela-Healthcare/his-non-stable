@@ -35,6 +35,17 @@ body {
   margin: 15px 5px;
 }
 
+.select:hover {
+  /* transform: scale(0.5); */
+  transition: 0.1s;
+}
+
+.select:focus {
+  outline: none;
+  box-shadow: none !important;
+  border-color: #3c4b64;
+}
+
 .selected {
   border: 1px solid #000000;
   border-radius: 4px;
@@ -46,20 +57,11 @@ body {
   /* margin: 5px 0px; */
 }
 
-.select:hover {
-  /* transform: scale(0.5); */
-  transition: 0.1s;
-}
 .selected:hover {
   /* transform: scale(0.5); */
   transition: 0.1s;
 }
 
-.select:focus {
-  outline: none;
-  box-shadow: none !important;
-  border-color: #3c4b64;
-}
 .selected:focus {
   outline: none;
   box-shadow: none !important;

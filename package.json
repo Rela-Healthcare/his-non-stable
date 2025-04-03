@@ -26,6 +26,7 @@
     "bootstrap-datepicker": "^1.10.0",
     "bootstrap-timepicker": "^0.5.2",
     "font-awesome": "^4.7.0",
+    "framer-motion": "^12.6.3",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.1",
     "jquery": "^3.7.1",
