@@ -1,65 +1,59 @@
-import React from 'react';
-import Select from 'react-select';
-import {Form} from 'react-bootstrap';
+import React, {useState} from 'react';
+import {FormControl, Dropdown} from 'react-bootstrap';
 
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    border: '1px solid #000000',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    color: 'black',
-    fontWeight: '600',
-    padding: '5px',
-    height: '40px',
-    margin: '15px 5px',
-    boxShadow: state.isFocused ? 'none' : provided.boxShadow,
-    borderColor: state.isFocused ? '#3c4b64' : '#000000',
-    '&:hover': {
-      transition: '0.1s',
-    },
-  }),
-  menu: (provided) => ({
-    ...provided,
-    zIndex: 10,
-  }),
-};
+const CustomSelect = ({options, onSelect, placeholder, className}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selected, setSelected] = useState(null);
+  const [show, setShow] = useState(false);
 
-const CustomSelect = ({
-  label,
-  name,
-  value,
-  onChange,
-  options,
-  placeholder,
-  error,
-  isDisabled,
-}) => {
+  // Ensure options are strings before calling .toLowerCase()
+  const filteredOptions = options
+    .filter((option) => typeof option === 'string')
+    .filter((option) =>
+      option.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
   return (
-    <Form.Group controlId={name}>
-      {label && <Form.Label>{label}</Form.Label>}
+    <Dropdown
+      show={show}
+      onToggle={(isOpen) => setShow(isOpen)}
+      className={className}>
+      <Dropdown.Toggle variant="outline-primary" id="custom-select">
+        {selected || placeholder || 'Select an option'}
+      </Dropdown.Toggle>
 
-      <Select
-        name={name}
-        value={options.find((option) => option.value === value)}
-        onChange={(selectedOption) =>
-          onChange({
-            target: {name, value: selectedOption ? selectedOption.value : ''},
-          })
-        }
-        options={options}
-        placeholder={placeholder || 'Select an option...'}
-        isDisabled={isDisabled}
-        isSearchable
-        styles={customStyles} // Apply custom styles
-      />
+      {/* ✅ FIX: Renders dropdown outside the accordion */}
+      <Dropdown.Menu
+        className="custom-dropdown-menu"
+        flip={false}
+        popperConfig={{modifiers: []}}>
+        {/* Search Input */}
+        <FormControl
+          autoFocus
+          placeholder="Search..."
+          className="m-2"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
 
-      {error && (
-        <Form.Control.Feedback type="invalid" style={{display: 'block'}}>
-          {error}
-        </Form.Control.Feedback>
-      )}
-    </Form.Group>
+        {/* Dropdown Items */}
+        {filteredOptions.length > 0 ? (
+          filteredOptions.map((option, index) => (
+            <Dropdown.Item
+              key={index}
+              onClick={() => {
+                setSelected(option);
+                onSelect(option);
+                setShow(false);
+              }}>
+              {option}
+            </Dropdown.Item>
+          ))
+        ) : (
+          <Dropdown.Item disabled>No results found</Dropdown.Item>
+        )}
+      </Dropdown.Menu>
+    </Dropdown>
   );
 };
 

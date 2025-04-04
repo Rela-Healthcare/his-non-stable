@@ -132,3 +132,59 @@ export const generateProcessingId = (patientMobileNo) => {
     new Date().getSeconds().toString().padStart(2, '0')
   );
 };
+
+export const convertToSelectOptions = (data) => {
+  return data
+    .filter((item) => item.columnName) // Ensure valid labels
+    .map((item) => ({
+      value: String(item.columnCode), // Ensure value is a string
+      label: item.columnName,
+    }));
+};
+
+export const validateIDType = (type, value) => {
+  switch (type) {
+    case '1014':
+      return validateID('aadhaar', value);
+    case '1016':
+      return validateID('pan', value);
+    case '5':
+      return validateID('passport', value);
+    case '1015':
+      return validateID('drivingLicence', value);
+    case '9':
+      return validateID('policeArmyID', value);
+    case '1017':
+      return validateID('voterID', value);
+    default:
+      return false;
+  }
+};
+
+export const validateID = (type, value) => {
+  /* 
+  ID Type        Pattern                  Example
+  -----------------------------------------------
+  * Aadhaar      12-digit (No leading 0/1)   234567890123
+  * Driving Licence  State Code + Digits     MH-12-1234567890
+  * PAN Card     ABCDE1234F              ABCDE1234F
+  * Passport     A1234567                A1234567
+  * Police/Army ID  5-15 Alphanumeric        IND12345
+  * Voter ID     XYZ1234567              XYZ1234567 
+  * Mobile       10-digit (Starts 6-9)       9876543210
+  * Pincode      6-digit                    600061
+  */
+
+  const patterns = {
+    aadhaar: /^[2-9]{1}[0-9]{11}$/,
+    drivingLicence: /^[A-Z]{2}[-]?[0-9]{2}[-]?[0-9]{6,10}$/,
+    pan: /^[A-Z]{5}[0-9]{4}[A-Z]$/,
+    passport: /^[A-Z][0-9]{7}$/,
+    policeArmyID: /^[A-Z0-9]{5,15}$/,
+    voterID: /^[A-Z]{3}[0-9]{7}$/,
+    mobile: /^[6-9]\d{9}$/,
+    pincode: /^[1-9][0-9]{5}$/
+  };
+
+  return patterns[type]?.test(value) || false;
+};

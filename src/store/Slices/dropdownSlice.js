@@ -1,11 +1,13 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {OPModuleAgent} from '../../agent/agent';
+import {convertToSelectOptions} from '../../utils/utils';
 
 // Async thunks to fetch dropdown data
 export const fetchSalutations = createAsyncThunk(
   'dropdown/fetchSalutations',
   async () => {
-    const response = (await OPModuleAgent.getSalutations()).data;
+    const apiData = (await OPModuleAgent.getSalutations()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -13,7 +15,8 @@ export const fetchSalutations = createAsyncThunk(
 export const fetchDepartments = createAsyncThunk(
   'dropdown/fetchDepartments',
   async () => {
-    const response = (await OPModuleAgent.getDepartments()).data;
+    const apiData = (await OPModuleAgent.getDepartments()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -21,7 +24,8 @@ export const fetchDepartments = createAsyncThunk(
 export const fetchMobileCodes = createAsyncThunk(
   'dropdown/fetchMobileCodes',
   async () => {
-    const response = (await OPModuleAgent.getMobileCodeList()).data;
+    const apiData = (await OPModuleAgent.getMobileCodeList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -29,7 +33,8 @@ export const fetchMobileCodes = createAsyncThunk(
 export const fetchMaritalStatus = createAsyncThunk(
   'dropdown/fetchMaritalStatus',
   async () => {
-    const response = (await OPModuleAgent.getMaritalStatusList()).data;
+    const apiData = (await OPModuleAgent.getMaritalStatusList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -37,7 +42,8 @@ export const fetchMaritalStatus = createAsyncThunk(
 export const fetchOccupation = createAsyncThunk(
   'dropdown/fetchOccupation',
   async () => {
-    const response = (await OPModuleAgent.getOccupationList()).data;
+    const apiData = (await OPModuleAgent.getOccupationList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -45,7 +51,8 @@ export const fetchOccupation = createAsyncThunk(
 export const fetchNationality = createAsyncThunk(
   'dropdown/fetchNationality',
   async () => {
-    const response = (await OPModuleAgent.getNationalityList()).data;
+    const apiData = (await OPModuleAgent.getNationalityList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -53,7 +60,8 @@ export const fetchNationality = createAsyncThunk(
 export const fetchIdType = createAsyncThunk(
   'dropdown/fetchIdType',
   async () => {
-    const response = (await OPModuleAgent.getIdTypeList()).data;
+    const apiData = (await OPModuleAgent.getIdTypeList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -61,20 +69,23 @@ export const fetchIdType = createAsyncThunk(
 export const fetchCountries = createAsyncThunk(
   'dropdown/fetchCountries',
   async () => {
-    const response = (await OPModuleAgent.getCountriesList()).data;
+    const apiData = (await OPModuleAgent.getCountriesList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
 
 export const fetchState = createAsyncThunk('dropdown/fetchState', async () => {
-  const response = (await OPModuleAgent.getStateList()).data;
+  const apiData = (await OPModuleAgent.getStateList()).data;
+  const response = convertToSelectOptions(apiData);
   return response;
 });
 
 export const fetchRelationType = createAsyncThunk(
   'dropdown/fetchRelationType',
   async () => {
-    const response = (await OPModuleAgent.getRelationTypeList()).data;
+    const apiData = (await OPModuleAgent.getRelationTypeList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -82,7 +93,8 @@ export const fetchRelationType = createAsyncThunk(
 export const fetchBloodGroup = createAsyncThunk(
   'dropdown/fetchBloodGroup',
   async () => {
-    const response = (await OPModuleAgent.getBloodGroupList()).data;
+    const apiData = (await OPModuleAgent.getBloodGroupList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -90,7 +102,8 @@ export const fetchBloodGroup = createAsyncThunk(
 export const fetchReligion = createAsyncThunk(
   'dropdown/fetchReligion',
   async () => {
-    const response = (await OPModuleAgent.getReligionList()).data;
+    const apiData = (await OPModuleAgent.getReligionList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -98,7 +111,8 @@ export const fetchReligion = createAsyncThunk(
 export const fetchLanguage = createAsyncThunk(
   'dropdown/fetchLanguage',
   async () => {
-    const response = (await OPModuleAgent.getLanguageList()).data;
+    const apiData = (await OPModuleAgent.getLanguageList()).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -106,7 +120,8 @@ export const fetchLanguage = createAsyncThunk(
 export const fetchAreaListByPincode = createAsyncThunk(
   'dropdown/fetchAreaListByPincode',
   async (pincode) => {
-    const response = (await OPModuleAgent.getAreaListByPincode()).data;
+    const apiData = (await OPModuleAgent.getAreaListByPincode(pincode)).data;
+    const response = convertToSelectOptions(apiData);
     return response;
   }
 );
@@ -121,12 +136,12 @@ const dropdownSlice = createSlice({
     occupationResponse: [],
     nationalityResponse: [],
     idTypeResponse: [],
-    countriesResponse: [],
-    stateResponse: [],
     relationTypeResponse: [],
     bloodGroupResponse: [],
     religionResponse: [],
     languageResponse: [],
+    countriesResponse: [],
+    stateResponse: [],
     areaListByPincodeResponse: [],
     loading: false,
     error: null,
