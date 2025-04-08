@@ -1,40 +1,26 @@
 import React, {useEffect, useState} from 'react';
-import PatientPersonDetailFrom from './PatientPersonDetailFrom';
+import PatientPersonCreation from '../OPDModule/NewPatient/PatientCreation/PatientPersonCreation';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   fetchSalutations,
-  fetchDepartments,
-  fetchMobileCodes,
   fetchMaritalStatus,
-  fetchOccupation,
-  fetchNationality,
-  fetchIdType,
-  fetchCountries,
-  fetchState,
   fetchRelationType,
   fetchBloodGroup,
   fetchReligion,
   fetchLanguage,
-} from '../../store/Slices/dropdownSlice';
-import {useDispatch} from 'react-redux';
+  fetchCountries,
+  fetchState,
+  fetchOccupation,
+  fetchNationality,
+  fetchIdType,
+  fetchMobileCodes,
+} from '../../store/Slices/dropdownSlice'; // Assume we create a batch fetch action
+import ErrorBoundary from '../ErrorBoundary';
 
 const Home = () => {
   const dispatch = useDispatch();
-  // Initialize state with the provided payload structure
-  const [formData, setFormData] = useState({
-    OP_Master: [
-      {
-        Service_Group: null,
-        Service: null,
-        Priority: null,
-        Rate: null,
-        Discount_Type: '',
-        AMOUNT: null,
-        Discount: null,
-        Amount_Ttl: null,
-        Remarks: '',
-        Discount_Reason: '',
-      },
-    ],
+  const UserId = useSelector((state) => state.loginInfo.formData.userName);
+  const initialPatientData = {
     SalutionId: null,
     Name: '',
     DOB: '',
@@ -102,44 +88,60 @@ const Home = () => {
     Payment_Mode: '',
     Net_Payable_Amount: null,
     UserId: '',
+  };
+
+  // Modularizing state handling, could break it further as needed
+  const [formData, setFormData] = useState({
+    OP_Master: [
+      {
+        Service_Group: null,
+        Service: null,
+        Priority: null,
+        Rate: null,
+        Discount_Type: '',
+        AMOUNT: null,
+        Discount: null,
+        Amount_Ttl: null,
+        Remarks: '',
+        Discount_Reason: '',
+      },
+    ],
+    ...initialPatientData, // This should be an object holding other patient data
   });
 
-  // Dispatch fetch actions on component mount
+  // Optimized useEffect for fetching all necessary data
   useEffect(() => {
     dispatch(fetchSalutations());
-    dispatch(fetchDepartments());
-    dispatch(fetchMobileCodes());
     dispatch(fetchMaritalStatus());
-    dispatch(fetchOccupation());
-    dispatch(fetchNationality());
-    dispatch(fetchIdType());
-    dispatch(fetchCountries());
-    dispatch(fetchState());
     dispatch(fetchRelationType());
     dispatch(fetchBloodGroup());
     dispatch(fetchReligion());
     dispatch(fetchLanguage());
+    dispatch(fetchCountries());
+    dispatch(fetchState());
+    dispatch(fetchOccupation());
+    dispatch(fetchNationality());
+    dispatch(fetchIdType());
+    dispatch(fetchMobileCodes());
   }, [dispatch]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const {name, value, type, checked} = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   return (
     <div>
-      <PatientPersonDetailFrom
-        formData={formData}
-        handleInputChange={handleInputChange}
-      />
-      {/* Evaluation From */}
-      {/* Appointment Form */}
-      {/* Op Service From  */}
-      {/* Payment Form  */}
+      <ErrorBoundary>
+        <PatientPersonCreation
+          UserId={UserId}
+          // patientForm={formData}
+          // handleInputChange={handleInputChange}
+        />
+      </ErrorBoundary>
     </div>
   );
 };

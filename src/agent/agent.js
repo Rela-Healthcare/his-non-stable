@@ -192,6 +192,12 @@ export const OPModuleAgent = {
 
   //Save OPD Visit, Patient Creation, Service Addition Endpoints
   saveOPDModule: (payload) => requests.post('Insert_OPDMaster_Porc', payload),
+  createTemporaryOPDPatient: (payload) =>
+    requests.post('Insert_NewPatient_Registration', payload),
+  updateTempOPDPatientAdditionalDetails: (payload) =>
+    requests.put('Update_NewRegistration', payload),
+  updateTempOPDPatientKinDetails: (payload) =>
+    requests.put('Update_NewRegistration_Kin', payload),
 
   //Insert_ExsistsOPDMaster_Porc
   saveExistingOPDModule: (existingPayload) =>

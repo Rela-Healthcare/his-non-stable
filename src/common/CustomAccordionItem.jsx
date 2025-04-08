@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {motion} from 'framer-motion';
 
 // Custom Accordion Item Component
@@ -43,12 +43,18 @@ export const CustomAccordionItem = ({
 };
 
 // Custom Accordion Wrapper Component
-export const CustomAccordion = ({children, defaultIndex = 0}) => {
-  const [activeIndex, setActiveIndex] = useState(defaultIndex);
-
+export const CustomAccordion = ({children, activeIndex, setActiveIndex}) => {
   const onToggle = (index) => {
     setActiveIndex((prev) => (prev === index ? -1 : index));
   };
 
-  return <div className="space-y-4">{children({activeIndex, onToggle})}</div>;
+  const renderedChildren = React.Children.map(children, (child, index) =>
+    React.cloneElement(child, {
+      index,
+      activeIndex,
+      onToggle,
+    })
+  );
+
+  return <div className="space-y-4">{renderedChildren}</div>;
 };

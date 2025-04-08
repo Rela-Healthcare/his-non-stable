@@ -1,3 +1,5 @@
+import {format, isValid} from 'date-fns';
+
 export const ageCalculator = (DOB) => {
   const todayDate = new Date();
 
@@ -137,7 +139,10 @@ export const convertToSelectOptions = (data) => {
   return data
     .filter((item) => item.columnName) // Ensure valid labels
     .map((item) => ({
-      value: String(item.columnCode), // Ensure value is a string
+      value:
+        typeof item.columnCode === 'string'
+          ? item.columnCode
+          : Number(item.columnCode),
       label: item.columnName,
     }));
 };
@@ -173,6 +178,7 @@ export const validateID = (type, value) => {
   * Voter ID     XYZ1234567              XYZ1234567 
   * Mobile       10-digit (Starts 6-9)       9876543210
   * Pincode      6-digit                    600061
+  * Email        Standard Email Format       example@domain.com
   */
 
   const patterns = {
@@ -183,8 +189,39 @@ export const validateID = (type, value) => {
     policeArmyID: /^[A-Z0-9]{5,15}$/,
     voterID: /^[A-Z]{3}[0-9]{7}$/,
     mobile: /^[6-9]\d{9}$/,
-    pincode: /^[1-9][0-9]{5}$/
+    pincode: /^[1-9][0-9]{5}$/,
+    email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   };
 
   return patterns[type]?.test(value) || false;
+};
+
+export const calculateAgeByDOB = (DOB) => {
+  const today = new Date();
+  const birthDate = new Date(DOB);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+export const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  if (!isValid(date)) return '';
+  return format(date, 'dd/MM/yyyy');
+};
+
+export const stringToObjectDate = (dateValue) => {
+  if (typeof dateValue === 'string') {
+    const parsed = new Date(dateValue);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+  return dateValue;
+};
+
+export const capitalize = (str) => {
+  if (!str || str.trim() === '') return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
 };
