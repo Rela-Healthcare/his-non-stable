@@ -62,7 +62,69 @@ export const fetchLanguage = createDropdownThunk(
   'fetchLanguage',
   OPModuleAgent.getLanguageList
 );
+export const fetchRefSrcList = createDropdownThunk(
+  'fetchRefSrcList',
+  OPModuleAgent.getRefSrcList
+);
+export const fetchInternalDoctorList = createDropdownThunk(
+  'fetchInternalDoctorList',
+  OPModuleAgent.getInternalDoctorList
+);
+export const fetchExternalDoctorList = createDropdownThunk(
+  'fetchExternalDoctorList',
+  OPModuleAgent.getExternalDoctorList
+);
 
+export const fetchServiceGroupList = createDropdownThunk(
+  'fetchServiceGroupList',
+  OPModuleAgent.getServiceGroupList
+);
+
+export const fetchPriorityList = createDropdownThunk(
+  'fetchPriorityList',
+  OPModuleAgent.getPriorityList
+);
+
+export const fetchServicesList = createAsyncThunk(
+  'dropdown/fetchServicesList',
+  async (serviceGroup) => {
+    const apiData = (await OPModuleAgent.getServicesList(serviceGroup)).data;
+    return apiData
+      .filter((item) => item.columnCode)
+      .map((item) => ({
+        value: item.columnCode,
+        label: item.columnName,
+      }));
+  }
+);
+
+export const fetchPayorsList = createAsyncThunk(
+  'dropdown/fetchPayorsList',
+  async (patientType) => {
+    const apiData = (await OPModuleAgent.getPayorsList(patientType)).data;
+    return apiData
+      .filter((item) => item.columnCode)
+      .map((item) => ({
+        value: item.columnCode,
+        label: item.columnName,
+      }));
+  }
+);
+
+export const fetchDoctorListByDepartment = createAsyncThunk(
+  'dropdown/fetchDoctorListByDepartment',
+  async (departmentId) => {
+    const apiData = (
+      await OPModuleAgent.getDoctorListByDepartment(departmentId)
+    ).data;
+    return apiData
+      .filter((item) => item.columnName) // Ensure valid labels
+      .map((item) => ({
+        value: item.columnCode,
+        label: item.columnName,
+      }));
+  }
+);
 export const fetchAreaListByPincode = createAsyncThunk(
   'dropdown/fetchAreaListByPincode',
   async (pincode) => {
@@ -72,6 +134,23 @@ export const fetchAreaListByPincode = createAsyncThunk(
       .map((item) => ({
         value: String(item.columnName).toLowerCase(),
         label: item.columnName,
+      }));
+  }
+);
+
+export const fetchAppointmentDetails = createAsyncThunk(
+  'dropdown/fetchAppointmentDetails',
+  async ({AppointmentDate, doctorId, slotType = 0}) => {
+    const response = await OPModuleAgent.getAppointmentDetails({
+      SlotDate: AppointmentDate,
+      DoctorID: doctorId,
+      SlotType: slotType,
+    });
+    return response.data
+      .filter((item) => item.startDateTime)
+      .map((item) => ({
+        value: item.startDateTime,
+        label: item.startDateTime,
       }));
   }
 );
@@ -93,6 +172,15 @@ const initialState = {
     religionResponse: [],
     languageResponse: [],
     areaListByPincodeResponse: [],
+    doctorListByDepartmentResponse: [],
+    payorsListResponse: [],
+    refSrcListResponse: [],
+    internalDoctorListResponse: [],
+    externalDoctorListResponse: [],
+    appointmentDetailsResponse: [],
+    serviceGroupListResponse: [],
+    priorityListResponse: [],
+    servicesListResponse: [],
   },
   loading: false,
   error: null,
@@ -114,6 +202,15 @@ const thunkToKeyMap = [
   {thunk: fetchReligion, key: 'religionResponse'},
   {thunk: fetchLanguage, key: 'languageResponse'},
   {thunk: fetchAreaListByPincode, key: 'areaListByPincodeResponse'},
+  {thunk: fetchDoctorListByDepartment, key: 'doctorListByDepartmentResponse'},
+  {thunk: fetchPayorsList, key: 'payorsListResponse'},
+  {thunk: fetchRefSrcList, key: 'refSrcListResponse'},
+  {thunk: fetchInternalDoctorList, key: 'internalDoctorListResponse'},
+  {thunk: fetchExternalDoctorList, key: 'externalDoctorListResponse'},
+  {thunk: fetchAppointmentDetails, key: 'appointmentDetailsResponse'},
+  {thunk: fetchServiceGroupList, key: 'serviceGroupListResponse'},
+  {thunk: fetchPriorityList, key: 'priorityListResponse'},
+  {thunk: fetchServicesList, key: 'servicesListResponse'},
 ];
 
 const dropdownSlice = createSlice({

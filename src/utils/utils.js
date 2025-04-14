@@ -1,4 +1,6 @@
-import {format, isValid} from 'date-fns';
+import {format, isValid, parseISO} from 'date-fns';
+import {clsx} from 'clsx';
+import {twMerge} from 'tailwind-merge';
 
 export const ageCalculator = (DOB) => {
   const todayDate = new Date();
@@ -207,21 +209,66 @@ export const calculateAgeByDOB = (DOB) => {
   return age;
 };
 
+/**
+ * Formats a date string into 'dd/MM/yyyy' format.
+ *
+ * @param {string} dateString - The date string to format.
+ * @returns {string} The formatted date string or an empty string if the date is invalid.
+ */
 export const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  if (!isValid(date)) return '';
-  return format(date, 'dd/MM/yyyy');
+  const date = new Date(dateString); // Parse the date string into a Date object
+  if (!isValid(date)) return ''; // Return an empty string if the date is invalid
+  return format(date, 'dd/MM/yyyy'); // Format the date into 'dd/MM/yyyy'
+};
+
+/**
+ * Converts a date picker object to a string in 'YYYY-MM-DD' format.
+ *
+ * @param {Object} datePickerObject - The date picker object to convert.
+ * @returns {string} The formatted date string or an empty string if the input is invalid.
+ */
+export const dateObjectToString = (dateObj) => {
+  return dateObj ? format(dateObj, 'yyyy-MM-dd') : '';
 };
 
 export const stringToObjectDate = (dateValue) => {
+  if (!dateValue) return null;
   if (typeof dateValue === 'string') {
-    const parsed = new Date(dateValue);
-    return isNaN(parsed.getTime()) ? null : parsed;
+    const parsedDate = parseISO(dateValue);
+    return isValid(parsedDate) ? parsedDate : null;
   }
   return dateValue;
 };
 
 export const capitalize = (str) => {
   if (!str || str.trim() === '') return str;
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+export const upperCase = (value) => {
+  if (typeof value !== 'string') return value;
+  return value.toUpperCase();
+};
+
+export const lowerCase = (value) => {
+  if (typeof value !== 'string') return value;
+  return value.toLowerCase();
+};
+
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
+// Example usage:
+// console.log(truncateString(7, 'bharathkumar')); // Output: bharath...
+export const truncateString = (maxLength, str) => {
+  if (typeof str !== 'string') return;
+  if (!str) return '';
+  return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
+};
+
+export const formatPrice = (amount) => {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num)) return '0.00';
+  return num.toFixed(2);
 };

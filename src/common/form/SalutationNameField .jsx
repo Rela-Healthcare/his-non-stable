@@ -1,5 +1,6 @@
 import React from 'react';
-import {Form} from 'react-bootstrap';
+import {Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {FaInfoCircle} from 'react-icons/fa';
 
 const SalutationNameField = ({
   salutationValue,
@@ -11,13 +12,31 @@ const SalutationNameField = ({
   onChange,
   onBlur,
   isInvalid,
+  errorMessage,
 }) => {
+  errorMessage = 'please enter your full name with salutation';
   return (
-    <div className="sm:mb-[2em] w-full">
-      <label className="block mb-[1.3em] text-sm text-black font-bold">
-        Full Name <span className="text-red-500">*</span>
-      </label>
-      <div className="flex flex-col md:flex-row w-full">
+    <div className="relative">
+      {/* Tooltip Icon - Top right */}
+      {isInvalid && errorMessage && (
+        <div className="absolute top-[-0.7rem] right-[-0.6rem] z-10">
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip id={`tooltip-${name}`}>{errorMessage}</Tooltip>}>
+            <span>
+              <FaInfoCircle
+                style={{
+                  color: 'red',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                }}
+              />
+            </span>
+          </OverlayTrigger>
+        </div>
+      )}
+
+      <div className="flex flex-col md:flex-row w-full mb-[0.9rem]">
         {/* Salutation Select */}
         <div className="w-full md:w-[20%] h-[40px] border-y border-l border-black border-r-0 rounded-t-md md:rounded-l-md md:rounded-tr-none">
           <Form.Select
@@ -49,8 +68,8 @@ const SalutationNameField = ({
             onBlur={onBlur}
             placeholder="Enter full name"
             required
-            className="w-full h-full border-0 focus:outline-none focus:ring-0 shadow-none text-sm text-black font-semibold"
             isInvalid={isInvalid}
+            className="w-full h-full border-0 focus:outline-none focus:ring-0 shadow-none text-sm text-black font-semibold"
           />
         </div>
       </div>

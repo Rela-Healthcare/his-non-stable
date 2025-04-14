@@ -1,11 +1,7 @@
 import React from 'react';
 import {Button, Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCircleCheck} from '@fortawesome/free-solid-svg-icons';
-import {motion} from 'framer-motion';
-import {stringToObjectDate} from '../../../../utils/utils';
-import SalutationNameField from '../../../../common/form/SalutationNameField ';
+import {capitalize, stringToObjectDate} from '../../../../utils/utils';
 
 const PersonalDetailsForm = ({
   formData,
@@ -14,7 +10,7 @@ const PersonalDetailsForm = ({
   onChange,
   onSubmit,
   onReset,
-  onContinue,
+  onBlur,
   isIdValid,
   isMobileValid,
   isEmailValid,
@@ -30,28 +26,32 @@ const PersonalDetailsForm = ({
   return (
     <Container className="px-2 md:px-6">
       <Form noValidate onSubmit={onSubmit}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-4">
           <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row items-start sm:items-center">
-            <SalutationNameField
-              salutationValue={formData.SalutionId}
+            <CustomFormField
+              combinedField
+              label="Full Name"
+              salutationValue={formData?.SalutionId}
               salutationOptions={salutationsResponse}
               onSalutationChange={onChange}
               salutationName="SalutionId"
+              onBlur={onBlur}
               name="Name"
-              value={formData.Name}
+              value={capitalize(formData?.Name)}
+              required
               onChange={onChange}
-              isInvalid={!!errors.SalutionId || !!errors.Name}
+              isInvalid={!!errors?.SalutionId || !!errors?.Name}
             />
           </div>
-
           <CustomFormField
             label="Date of Birth"
             type="date"
             name="DOB"
+            onBlur={onBlur}
             value={
-              typeof formData.DOB === 'string'
-                ? stringToObjectDate(formData.DOB)
-                : formData.DOB
+              typeof formData?.DOB === 'string'
+                ? stringToObjectDate(formData?.DOB)
+                : formData?.DOB
             }
             onChange={onChange}
             required
@@ -64,8 +64,9 @@ const PersonalDetailsForm = ({
             label="Age"
             type="number"
             name="Age"
+            onBlur={onBlur}
             disabled
-            value={formData.Age}
+            value={formData?.Age}
             onChange={onChange}
             placeholder="Auto Calculated"
             className="w-full cursor-not-allowed"
@@ -75,7 +76,8 @@ const PersonalDetailsForm = ({
             label="Gender"
             type="select"
             name="Gender"
-            value={formData.Gender}
+            onBlur={onBlur}
+            value={capitalize(formData?.Gender)}
             placeholder="Select Gender"
             onChange={onChange}
             options={[
@@ -93,8 +95,9 @@ const PersonalDetailsForm = ({
             label="Nationality"
             type="select"
             name="Nationality"
+            onBlur={onBlur}
             required
-            value={formData.Nationality}
+            value={capitalize(formData?.Nationality)}
             onChange={onChange}
             options={nationalityResponse}
             placeholder="Select Nationality"
@@ -107,8 +110,9 @@ const PersonalDetailsForm = ({
             label="ID Type"
             type="select"
             name="ID_Type"
+            onBlur={onBlur}
             required
-            value={formData.ID_Type}
+            value={capitalize(formData?.ID_Type)}
             onChange={onChange}
             options={idTypeResponse}
             placeholder="Select ID Type"
@@ -117,99 +121,72 @@ const PersonalDetailsForm = ({
             errorMessage={errors.ID_Type}
           />
 
-          <div className="relative">
-            <CustomFormField
-              label="ID Number"
-              type="text"
-              name="ID_No"
-              disabled={formData.ID_Type.length > 1 ? false : true}
-              value={formData.ID_No.toUpperCase()}
-              onChange={onChange}
-              required
-              placeholder="Enter ID Number"
-              className={`w-full ${
-                formData.ID_Type.length > 1 ? '' : 'cursor-not-allowed'
-              }`}
-            />
-            {isIdValid && (
-              <motion.span
-                initial={{opacity: 0, scale: 0.8}}
-                animate={{opacity: 1, scale: 1}}
-                transition={{duration: 0.3}}
-                className="text-green-500 absolute top-[47%] right-2">
-                <FontAwesomeIcon icon={faCircleCheck} size="sm" />
-              </motion.span>
-            )}
-          </div>
-
+          <CustomFormField
+            label="ID Number"
+            type="text"
+            name="ID_No"
+            onBlur={onBlur}
+            disabled={formData?.ID_Type?.length > 1 ? false : true}
+            value={formData?.ID_No}
+            TextCase="Upper"
+            onChange={onChange}
+            required
+            placeholder="Enter ID Number"
+            className={`w-full ${
+              formData?.ID_Type?.length > 1 ? '' : 'cursor-not-allowed'
+            }`}
+            validIcon={isIdValid}
+          />
           <CustomFormField
             label="Marital Status"
             type="select"
             name="Marital_Status"
+            onBlur={onBlur}
             required
             placeholder="Select Marital_Status"
-            value={formData.Marital_Status}
+            value={capitalize(formData?.Marital_Status)}
             onChange={onChange}
             options={maritalStatusResponse}
             className="w-full"
             isInvalid={!!errors.Marital_Status}
             errorMessage={errors.Marital_Status}
           />
-
-          <div className="relative">
-            <CustomFormField
-              label="Mobile Number"
-              type="text"
-              name="Mobile_No"
-              value={formData.Mobile_No}
-              onChange={onChange}
-              required
-              placeholder="Enter Mobile Number"
-              className="w-full"
-              isInvalid={!!errors.Mobile_No}
-              errorMessage={errors.Mobile_No}
-            />
-            {isMobileValid && (
-              <motion.span
-                initial={{opacity: 0, scale: 0.8}}
-                animate={{opacity: 1, scale: 1}}
-                transition={{duration: 0.3}}
-                className="text-green-500 absolute top-[47%] right-2">
-                <FontAwesomeIcon icon={faCircleCheck} size="sm" />
-              </motion.span>
-            )}
-          </div>
-
-          <div className="relative">
-            <CustomFormField
-              label="Email ID"
-              type="email"
-              name="Email_ID"
-              required
-              value={formData.Email_ID}
-              onChange={onChange}
-              placeholder="Enter Email ID"
-              className="w-full"
-              isInvalid={!!errors.Email_ID}
-              errorMessage={errors.Email_ID}
-            />
-            {isEmailValid && (
-              <motion.span
-                initial={{opacity: 0, scale: 0.8}}
-                animate={{opacity: 1, scale: 1}}
-                transition={{duration: 0.3}}
-                className="text-green-500 absolute top-[47%] right-2">
-                <FontAwesomeIcon icon={faCircleCheck} size="sm" />
-              </motion.span>
-            )}
-          </div>
-
+          <CustomFormField
+            label="Mobile Number"
+            type="number"
+            name="Mobile_No"
+            onBlur={onBlur}
+            value={formData?.Mobile_No}
+            onChange={onChange}
+            required
+            placeholder="Enter Mobile Number"
+            className="w-full"
+            maxLength={10}
+            isInvalid={!!errors.Mobile_No}
+            errorMessage={errors.Mobile_No}
+            validIcon={isMobileValid}
+          />
+          <CustomFormField
+            label="Email ID"
+            type="email"
+            name="Email_ID"
+            onBlur={onBlur}
+            required
+            value={formData?.Email_ID}
+            onChange={onChange}
+            placeholder="Enter Email ID"
+            className="w-full"
+            isInvalid={!!errors.Email_ID}
+            errorMessage={errors.Email_ID}
+            validIcon={isEmailValid}
+          />
           <CustomFormField
             label="Occupation"
             type="select"
             name="Occupation"
+            onBlur={onBlur}
             required
-            value={formData.Occupation}
+            value={formData?.Occupation}
             onChange={onChange}
             options={occupationResponse}
             placeholder="Select Occupation"
@@ -223,11 +200,7 @@ const PersonalDetailsForm = ({
           <Button variant="secondary" type="button" onClick={onReset}>
             Clear
           </Button>
-          <Button
-            variant="primary"
-            type="submit"
-            size="md"
-            onClick={onContinue}>
+          <Button variant="primary" type="submit" size="md">
             Save & Continue
           </Button>
         </div>

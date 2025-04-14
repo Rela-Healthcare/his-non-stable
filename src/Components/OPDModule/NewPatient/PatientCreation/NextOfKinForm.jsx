@@ -1,23 +1,18 @@
 import React from 'react';
-import {Button, Container, Form} from 'react-bootstrap';
+import {Button, Container, Form, Tooltip} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCircleCheck} from '@fortawesome/free-solid-svg-icons';
-import {motion} from 'framer-motion';
 import {capitalize} from '../../../../utils/utils';
 
 const NextOfKinForm = ({
   formData,
   errors,
   dropdownData,
-  kinLocationData,
-  locationData,
   additionalDetails,
   onChange,
   onSubmit,
   onReset,
+  onBlur,
   isCheckedSameAsPatientAddress,
-  onCheckboxChange,
   isRelationMobileValid,
 }) => {
   const {relationTypeResponse, kinAreaData} = dropdownData;
@@ -30,6 +25,7 @@ const NextOfKinForm = ({
             label="Relation Type"
             type="select"
             name="Relation_Type"
+            onBlur={onBlur}
             required
             value={capitalize(formData.Relation_Type)}
             onChange={onChange}
@@ -44,36 +40,27 @@ const NextOfKinForm = ({
             name="Relation_Name"
             required
             value={capitalize(formData.Relation_Name)}
+            onBlur={onBlur}
             onChange={onChange}
             placeholder="Enter relation name"
             className="w-full"
             isInvalid={!!errors.Relation_Name}
             errorMessage={errors.Relation_Name}
           />
-          <div className="relative w-full">
-            <CustomFormField
-              label="Relation Mobile No."
-              type="number"
-              name="Relation_Mobile_No"
-              value={formData.Relation_Mobile_No}
-              onChange={onChange}
-              required
-              className="w-full"
-              placeholder="Enter mobile number"
-              isInvalid={!!errors.Relation_Mobile_No}
-              errorMessage={errors.Relation_Mobile_No}
-            />
-            {isRelationMobileValid && (
-              <motion.span
-                initial={{opacity: 0, scale: 0.8}}
-                animate={{opacity: 1, scale: 1}}
-                transition={{duration: 0.3}}
-                className="text-green-500 absolute top-[47%] right-2">
-                <FontAwesomeIcon icon={faCircleCheck} size="sm" />
-              </motion.span>
-            )}
-          </div>
-
+          <CustomFormField
+            label="Relation Mobile No."
+            type="number"
+            name="Relation_Mobile_No"
+            value={formData.Relation_Mobile_No}
+            onBlur={onBlur}
+            onChange={onChange}
+            required
+            className="w-full"
+            placeholder="Enter mobile number"
+            isInvalid={!!errors.Relation_Mobile_No}
+            errorMessage={errors.Relation_Mobile_No}
+            validIcon={isRelationMobileValid}
+          />
           <div
             className={`flex justify-center items-center col-span-1 ${
               !additionalDetails.Pincode && 'cursor-not-allowed'
@@ -91,14 +78,22 @@ const NextOfKinForm = ({
                         ? 'cursor-not-allowed'
                         : 'cursor-pointer'
                     }`}>
-                    Same as above patient address
+                    {window.innerWidth < 768 ? (
+                      <Tooltip title="Same as above patient address">
+                        <span>Same...</span>
+                      </Tooltip>
+                    ) : (
+                      'Same as above patient address'
+                    )}
                   </span>
                 }
                 name="same_as_patient_address"
                 checked={isCheckedSameAsPatientAddress}
                 onChange={onChange}
-                className={`flex justify-center items-center gap-2 p-[0.8em] mt-2 border border-gray-400 rounded-md w-full ${
-                  !additionalDetails.Pincode && 'bg-gray-200'
+                onBlur={onBlur}
+                className={`flex justify-center items-center gap-2 p-[0.8em] mt-[1.4rem] border border-black rounded-md w-full ${
+                  !additionalDetails.Pincode &&
+                  'bg-gray-200 border-0 cursor-not-allowed'
                 }`}
               />
             </Form.Group>
@@ -108,6 +103,7 @@ const NextOfKinForm = ({
             label="Pincode"
             type="text"
             name="Kin_Pincode"
+            onBlur={onBlur}
             required
             value={
               isCheckedSameAsPatientAddress
@@ -116,6 +112,7 @@ const NextOfKinForm = ({
             }
             onChange={onChange}
             className="w-full"
+            maxLength={6}
             placeholder="Enter pincode"
             isInvalid={!!errors.Kin_Pincode}
             errorMessage={errors.Kin_Pincode}
@@ -125,11 +122,7 @@ const NextOfKinForm = ({
             name="Kin_Country"
             type="text"
             disabled
-            value={
-              isCheckedSameAsPatientAddress
-                ? capitalize(locationData?.countryName)
-                : capitalize(kinLocationData?.countryName)
-            }
+            value={capitalize(formData?.countryName ?? '')}
             className="w-full cursor-not-allowed"
             placeholder="Country will be auto-filled"
           />
@@ -138,11 +131,7 @@ const NextOfKinForm = ({
             name="Kin_State"
             type="text"
             disabled
-            value={
-              isCheckedSameAsPatientAddress
-                ? capitalize(locationData?.stateName)
-                : capitalize(kinLocationData?.stateName ?? '')
-            }
+            value={formData?.stateName ?? ''}
             className="w-full cursor-not-allowed"
             placeholder="State will be auto-filled"
           />
@@ -151,11 +140,7 @@ const NextOfKinForm = ({
             name="Kin_City"
             type="text"
             disabled
-            value={
-              isCheckedSameAsPatientAddress
-                ? capitalize(locationData?.cityName)
-                : capitalize(kinLocationData?.cityName ?? '')
-            }
+            value={formData?.cityName ?? ''}
             className="w-full cursor-not-allowed"
             placeholder="City will be auto-filled"
           />
@@ -163,6 +148,7 @@ const NextOfKinForm = ({
             label="Area"
             type="select"
             name="Kin_Area"
+            onBlur={onBlur}
             required
             value={
               isCheckedSameAsPatientAddress
@@ -180,6 +166,7 @@ const NextOfKinForm = ({
             label="Address"
             type="text"
             name="Kin_Address"
+            onBlur={onBlur}
             value={
               isCheckedSameAsPatientAddress
                 ? capitalize(additionalDetails?.Address)
@@ -193,11 +180,11 @@ const NextOfKinForm = ({
           />
         </div>
 
-        <div className="flex justify-end gap-3 px-4 pb-4">
+        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-6">
           <Button variant="secondary" type="button" onClick={onReset}>
             Clear
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" size="md">
             Save & Continue
           </Button>
         </div>

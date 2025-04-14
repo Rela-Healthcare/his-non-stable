@@ -1,7 +1,13 @@
 import React, {useMemo} from 'react';
-import {Form, Col} from 'react-bootstrap';
+import {Form, Col, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import {FaInfoCircle} from 'react-icons/fa';
+import {motion} from 'framer-motion';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCircleCheck} from '@fortawesome/free-solid-svg-icons';
+import SalutationNameField from './SalutationNameField ';
+import {capitalize, lowerCase, upperCase} from '../../utils/utils';
 
 const CustomFormField = ({
   label,
@@ -18,10 +24,14 @@ const CustomFormField = ({
   isInvalid = false,
   errorMessage = '',
   combinedField = false,
-  salutationValue = '',
-  salutationOptions = [],
-  onSalutationChange = () => {},
   validateOnBlur = false,
+  validIcon = false,
+  salutationValue,
+  salutationOptions,
+  onSalutationChange,
+  salutationName,
+  maxLength,
+  TextCase = 'Capital', // Upper | Lower | Capital - Capital is default case
   ...props
 }) => {
   const handleBlur = (e) => {
@@ -36,7 +46,7 @@ const CustomFormField = ({
   const selectOptions = useMemo(() => {
     return options.map((option) => (
       <option key={option.value} value={option.value}>
-        {option.label}
+        {capitalize(option.label)}
       </option>
     ));
   }, [options]);
@@ -46,108 +56,122 @@ const CustomFormField = ({
   return (
     <Form.Group
       as={combinedField ? Col : undefined}
-      className={`mb-3 ${className}`}>
-      <Form.Label style={{color: disabled ? 'gray' : 'black'}}>
-        {label} {required && <span className="text-danger">*</span>}
-      </Form.Label>
+      className={`${className}`}
+      style={{position: 'relative'}}>
+      <label className={`block mb-[1.3em] text-sm font-bold`}>
+        {label} <span className="text-red-500">*</span>
+      </label>
 
+      {/* Tooltip Icon - Positioned at top-right */}
+      {isInvalid && errorMessage && (
+        <div style={{position: 'absolute', top: 25, right: -12, zIndex: 10}}>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip id={`tooltip-${name}`}>{errorMessage}</Tooltip>}>
+            <span>
+              <FaInfoCircle
+                style={{color: 'red', cursor: 'pointer', fontSize: '18px'}}
+              />
+            </span>
+          </OverlayTrigger>
+        </div>
+      )}
+
+      {/* Custom input field */}
       {combinedField ? (
-        <div className="flex gap-2 w-[500px]">
+        <SalutationNameField
+          salutationValue={salutationValue}
+          salutationOptions={salutationOptions}
+          onSalutationChange={onChange}
+          salutationName={salutationName}
+          name={name}
+          value={capitalize(value)}
+          onChange={onChange}
+          isInvalid={isInvalid}
+        />
+      ) : type === 'select' ? (
+        <div className={`w-full ${disabled ? 'cursor-not-allowed' : ''}`}>
           <Form.Select
-            name="Salutation"
-            value={salutationValue}
-            onChange={onSalutationChange}
-            onBlur={handleBlur}
-            required
-            className={`select w-[10%] min-w-[100px] ${
-              isInvalid ? 'is-invalid' : ''
-            }`}
-            isInvalid={isInvalid}>
-            <option disabled value="">
-              Select
-            </option>
-            {salutationOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Form.Select>
-
-          <Form.Control
-            type="text"
             name={name}
             value={value}
             onChange={onChange}
             onBlur={handleBlur}
-            placeholder="Enter full name"
-            required
-            className={`select w-[90%] ${isInvalid ? 'is-invalid' : ''}`}
-            isInvalid={isInvalid}
-          />
-        </div>
-      ) : type === 'select' ? (
-        <Form.Select
-          name={name}
-          value={value}
-          onChange={onChange}
-          onBlur={handleBlur}
-          disabled={disabled}
-          isInvalid={isInvalid}
-          className={`select ${!disabled ? className : disabledStyle}`}
-          {...props}>
-          <option value="">
-            {placeholder || `Select ${label === 'Salutation' && ''}`}
-          </option>
-          {selectOptions}
-        </Form.Select>
-      ) : type === 'date' ? (
-        <>
-          <DatePicker
-            className={`form-control select ${
-              disabled ? 'select-disabled' : className
-            } ${isInvalid ? 'is-invalid' : ''}`}
-            dateFormat="MMMM d, yyyy"
-            placeholderText={placeholder || 'Select a date'}
-            yearDropdownItemNumber={150}
-            showYearDropdown
-            showMonthDropdown
-            scrollableYearDropdown
-            scrollableMonthDropdown
-            maxDate={new Date()}
-            minDate={new Date('1900-01-01')}
-            name={name}
-            selected={value}
-            onChange={(date) => onChange({target: {name, value: date}})}
-            onBlur={handleBlur}
             disabled={disabled}
-            required={required}
-            {...props}
-          />
-          {isInvalid && (
-            <div className="invalid-feedback d-block">{errorMessage}</div>
-          )}
-        </>
-      ) : (
-        <Form.Control
-          type={type}
+            className={`select w-full ${className} ${
+              disabled ? disabledStyle : ''
+            }`}
+            {...props}>
+            <option value="">
+              {placeholder || `Select ${label === 'Salutation' && ''}`}
+            </option>
+            {selectOptions}
+          </Form.Select>
+        </div>
+      ) : type === 'date' ? (
+        <DatePicker
+          className={`select w-full !my-0 form-control placeholder:text-gray-900 ${
+            disabled ? 'select-disabled' : className
+          }`}
+          dateFormat="MMMM d, yyyy"
+          placeholderText={placeholder || 'Select a date'}
+          yearDropdownItemNumber={150}
+          showYearDropdown
+          showMonthDropdown
+          scrollableYearDropdown
+          scrollableMonthDropdown
+          maxDate={new Date()}
+          minDate={new Date('1900-01-01')}
           name={name}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
+          selected={value}
+          onChange={(date) => onChange({target: {name, value: date}})}
           onBlur={handleBlur}
           disabled={disabled}
           required={required}
-          isInvalid={isInvalid}
-          className={`select ${disabled ? disabledStyle : className}`}
           {...props}
         />
+      ) : (
+        <div className="relative">
+          <Form.Control
+            type={type}
+            name={name}
+            placeholder={placeholder}
+            value={
+              TextCase === 'Capital'
+                ? capitalize(value ?? '')
+                : TextCase === 'Upper'
+                ? upperCase(value)
+                : lowerCase(value)
+            }
+            onChange={(e) => {
+              const newValue = e.target.value;
+              if (maxLength) {
+                // Allow only digits and limit maxLength
+                if (/^\d*$/.test(newValue) && newValue.length <= maxLength) {
+                  onChange(e); // pass event to your handler
+                }
+              } else {
+                onChange(e);
+              }
+            }}
+            onBlur={handleBlur}
+            disabled={disabled}
+            required={required}
+            className={`select w-full ${disabled ? disabledStyle : className}`}
+            {...props}
+          />
+          {validIcon && (
+            <motion.span
+              initial={{opacity: 0, scale: 0.8}}
+              animate={{opacity: 1, scale: 1}}
+              transition={{duration: 0.5}}
+              className="text-green-500 absolute top-[32%] right-2">
+              <FontAwesomeIcon icon={faCircleCheck} size="md" />
+            </motion.span>
+          )}
+        </div>
       )}
 
-      {isInvalid && type !== 'date' && (
-        <Form.Control.Feedback type="invalid">
-          {errorMessage}
-        </Form.Control.Feedback>
-      )}
+      {isInvalid && type !== 'date' && <Form.Control.Feedback type="invalid" />}
     </Form.Group>
   );
 };

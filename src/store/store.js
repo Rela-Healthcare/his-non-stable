@@ -23,6 +23,7 @@ import depositReducer from '../features/OPDModule/DepositAllocation/DepositSlice
 
 //dropdown
 import dropdownReducer from './Slices/dropdownSlice';
+import opServiceReducer from './Slices/OPModule/Service/opServiceSlice';
 
 export const store = configureStore({
   reducer: {
@@ -40,5 +41,6 @@ export const store = configureStore({
     opdashBoard: opdashBoardReducer,
     depositInfo: depositReducer,
     dropdown: dropdownReducer,
+    opService: opServiceReducer,
   },
 });

@@ -198,6 +198,14 @@ export const OPModuleAgent = {
     requests.put('Update_NewRegistration', payload),
   updateTempOPDPatientKinDetails: (payload) =>
     requests.put('Update_NewRegistration_Kin', payload),
+  updateTempOPDPatientEvaluation: (payload) =>
+    requests.put('Update_NewRegistration_Evaluation', payload),
+  updateTempOPDPatientAppointment: (payload) =>
+    requests.put('Update_NewRegistration_appt', payload),
+  insertServiceInvioice: (payload) =>
+    requests.post('Insert_New_Invoice', payload),
+  insertPaymentInformation: (payload) =>
+    requests.post('Payment_Information_Dtl', payload),
 
   //Insert_ExsistsOPDMaster_Porc
   saveExistingOPDModule: (existingPayload) =>

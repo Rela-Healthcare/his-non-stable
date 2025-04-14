@@ -1,16 +1,16 @@
 import React from 'react';
 import {Button, Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
+import {capitalize} from '../../../../utils/utils';
 
 const AdditionalDetailsForm = ({
   formData,
   errors,
   dropdownData,
-  locationData,
   onChange,
   onSubmit,
   onReset,
-  onContinue,
+  onBlur,
 }) => {
   const {
     additionalAreaData,
@@ -27,11 +27,12 @@ const AdditionalDetailsForm = ({
             label="Pincode"
             type="number"
             name="Pincode"
-            onBlur={onChange}
+            onBlur={onBlur}
             required
             value={formData.Pincode}
             onChange={onChange}
             placeholder="Enter Pincode"
+            maxLength={6}
             className="w-full"
             isInvalid={!!errors.Pincode}
             errorMessage={errors.Pincode}
@@ -41,7 +42,7 @@ const AdditionalDetailsForm = ({
             name="Country"
             type="text"
             disabled
-            value={locationData?.countryName?.toUpperCase() ?? ''}
+            value={capitalize(formData?.countryName ?? '')}
             placeholder="Auto-populated Country"
             className="w-full cursor-not-allowed"
           />
@@ -50,7 +51,7 @@ const AdditionalDetailsForm = ({
             name="State"
             type="text"
             disabled
-            value={locationData?.stateName?.toUpperCase() ?? ''}
+            value={capitalize(formData?.stateName ?? '')}
             placeholder="Auto-populated State"
             className="w-full cursor-not-allowed"
           />
@@ -59,7 +60,7 @@ const AdditionalDetailsForm = ({
             name="City"
             type="text"
             disabled
-            value={locationData?.cityName?.toUpperCase() ?? ''}
+            value={capitalize(formData?.cityName ?? '')}
             placeholder="Auto-populated City"
             className="w-full cursor-not-allowed"
           />
@@ -70,6 +71,7 @@ const AdditionalDetailsForm = ({
             required
             value={formData.Area}
             onChange={onChange}
+            onBlur={onBlur}
             options={additionalAreaData}
             placeholder="Select Area"
             className="w-full"
@@ -80,6 +82,7 @@ const AdditionalDetailsForm = ({
             label="Address"
             type="text"
             name="Address"
+            onBlur={onBlur}
             required
             value={formData.Address}
             onChange={onChange}
@@ -92,8 +95,9 @@ const AdditionalDetailsForm = ({
             label="Religion"
             type="select"
             name="Religion"
+            onBlur={onBlur}
             required
-            value={formData.Religion}
+            value={capitalize(formData.Religion)}
             onChange={onChange}
             options={religionResponse}
             placeholder="Select Religion"
@@ -105,6 +109,7 @@ const AdditionalDetailsForm = ({
             label="Language"
             type="select"
             name="Language"
+            onBlur={onBlur}
             required
             value={formData.Language}
             onChange={onChange}
@@ -118,6 +123,7 @@ const AdditionalDetailsForm = ({
             label="Blood Group"
             type="select"
             name="BloodGroup"
+            onBlur={onBlur}
             value={formData.BloodGroup}
             onChange={onChange}
             options={bloodGroupResponse}
@@ -130,6 +136,7 @@ const AdditionalDetailsForm = ({
             label="Special assistance?"
             type="select"
             name="Special_Assistance"
+            onBlur={onBlur}
             required
             value={
               formData?.Special_Assistance === undefined
@@ -153,6 +160,7 @@ const AdditionalDetailsForm = ({
               name="Select_Special_Assistance"
               value={formData.Select_Special_Assistance}
               onChange={onChange}
+              onBlur={onBlur}
               options={[
                 {value: '', label: 'Select Special Assistance'},
                 {value: 'Wheel Chair', label: 'WHEEL CHAIR'},
@@ -172,6 +180,7 @@ const AdditionalDetailsForm = ({
                 label="Other Special Assistance"
                 type="text"
                 name="Spl_Assist_Remarks"
+                onBlur={onBlur}
                 value={formData.Spl_Assist_Remarks}
                 onChange={onChange}
                 placeholder="Enter Other Special Assistance"
@@ -181,16 +190,11 @@ const AdditionalDetailsForm = ({
               />
             )}
         </div>
-        <div className="flex flex-wrap justify-end gap-3 px-4 pb-4">
+        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-6">
           <Button variant="secondary" type="button" onClick={onReset}>
             Clear
           </Button>
-          <Button
-            variant="primary"
-            type="submit"
-            size="md"
-            // onClick={onContinue}
-          >
+          <Button variant="primary" type="submit" size="md">
             Save & Continue
           </Button>
         </div>

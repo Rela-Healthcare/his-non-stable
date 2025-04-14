@@ -1,5 +1,7 @@
 import React from 'react';
 import {motion} from 'framer-motion';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCircleCheck} from '@fortawesome/free-solid-svg-icons';
 
 // Custom Accordion Item Component
 export const CustomAccordionItem = ({
@@ -8,22 +10,32 @@ export const CustomAccordionItem = ({
   index,
   activeIndex,
   onToggle,
+  isCompleted,
 }) => {
   const isOpen = activeIndex === index;
-
   return (
     <div className="border-b">
       <button
         type="button"
         onClick={() => onToggle(index)}
-        className="w-full text-left px-4 py-3 font-semibold text-lg bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none flex justify-between items-center">
+        className="w-full text-left px-4 py-3 font-semibold text-lg bg-[#3c4b64] text-white rounded-md hover:bg-[#3c4b64] focus:outline-none flex justify-between items-center">
         {title}
-        <motion.span
-          animate={{rotate: isOpen ? 180 : 0}}
-          transition={{duration: 0.3}}
-          className="transform">
-          ▼
-        </motion.span>
+        {isCompleted && !isOpen ? (
+          <motion.span
+            initial={{rotate: 0, scale: 0.8}}
+            animate={{rotate: 360, scale: 1}}
+            transition={{duration: 0.5}}
+            className="text-green-500">
+            <FontAwesomeIcon icon={faCircleCheck} size="lg" />
+          </motion.span>
+        ) : (
+          <motion.span
+            animate={{rotate: isOpen ? 180 : 0}}
+            transition={{duration: 0.3}}
+            className="transform">
+            ▼
+          </motion.span>
+        )}
       </button>
 
       <motion.div
@@ -43,7 +55,12 @@ export const CustomAccordionItem = ({
 };
 
 // Custom Accordion Wrapper Component
-export const CustomAccordion = ({children, activeIndex, setActiveIndex}) => {
+export const CustomAccordion = ({
+  children,
+  activeIndex,
+  setActiveIndex,
+  formStatus,
+}) => {
   const onToggle = (index) => {
     setActiveIndex((prev) => (prev === index ? -1 : index));
   };
@@ -53,6 +70,7 @@ export const CustomAccordion = ({children, activeIndex, setActiveIndex}) => {
       index,
       activeIndex,
       onToggle,
+      isCompleted: formStatus[index],
     })
   );
 
