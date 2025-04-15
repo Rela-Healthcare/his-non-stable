@@ -54,9 +54,9 @@ const PatientCreation = ({UserId}) => {
     false, // 5.service
     false, // 6.payment
   ]);
-  const [activeAccordionIndex, setActiveAccordionIndex] = useLocalStorage(
-    'activeAccordionIndex',
-    5
+  const [activeAccordions, setActiveAccordions] = useLocalStorage(
+    'activeAccordions',
+    [0, 1, 2, 3, 4, 5]
   );
   const [personalDetails, setPersonalDetails] = useLocalStorage(
     'personalDetails',
@@ -167,6 +167,14 @@ const PatientCreation = ({UserId}) => {
     setAdditionalAreaData(areaListByPincodeResponse);
     setKinAreaData(areaListByPincodeResponse);
   }, [areaListByPincodeResponse]);
+
+  const openAllAccordions = () => {
+    setActiveAccordions([0, 1, 2, 3, 4, 5]); // Adjust indices based on your accordion count
+  };
+
+  const closeAllAccordions = () => {
+    setActiveAccordions([]);
+  };
 
   const markFormAsCompleted = (index) => {
     const updatedFormStatus = [...formStatus];
@@ -542,7 +550,7 @@ const PatientCreation = ({UserId}) => {
             ID: sNo,
           });
           markFormAsCompleted(0);
-          setActiveAccordionIndex(1);
+          setActiveAccordions([1]);
         }
       }
     } catch (error) {
@@ -579,7 +587,7 @@ const PatientCreation = ({UserId}) => {
         );
         if (res?.data?.id) {
           markFormAsCompleted(1);
-          setActiveAccordionIndex(2);
+          setActiveAccordions([2]);
         }
       }
     } catch (error) {
@@ -613,7 +621,7 @@ const PatientCreation = ({UserId}) => {
       );
       if (response?.data?.id) {
         markFormAsCompleted(2);
-        setActiveAccordionIndex(3);
+        setActiveAccordions([3]);
       }
       console.log('Submission successful:', response);
     }
@@ -664,7 +672,7 @@ const PatientCreation = ({UserId}) => {
       );
       if (response?.data?.id) {
         markFormAsCompleted(3);
-        setActiveAccordionIndex(4);
+        setActiveAccordions([4]);
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -712,7 +720,7 @@ const PatientCreation = ({UserId}) => {
         );
         if (res?.data?.id) {
           markFormAsCompleted(4);
-          setActiveAccordionIndex(5);
+          setActiveAccordions([5]);
         }
       }
     } catch (error) {
@@ -745,7 +753,7 @@ const PatientCreation = ({UserId}) => {
       const response = await OPModuleAgent.insertServiceInvioice(payload);
       if (response?.data?.id) {
         markFormAsCompleted(5);
-        setActiveAccordionIndex(6);
+        setActiveAccordions([6]);
         setServiceDetails(payload);
       } else {
         console.error('❌ Submission failed:', response?.data?.id);
@@ -811,8 +819,8 @@ const PatientCreation = ({UserId}) => {
   return (
     <>
       <CustomAccordion
-        activeIndex={activeAccordionIndex}
-        setActiveIndex={setActiveAccordionIndex}
+        activeIndex={activeAccordions}
+        setActiveIndex={setActiveAccordions}
         formStatus={formStatus}>
         <CustomAccordionItem title="Personal Details">
           <PersonalDetailsForm
@@ -878,7 +886,7 @@ const PatientCreation = ({UserId}) => {
             setEvaluationDetails={setEvaluationDetails}
             onSubmit={handleEvaluationSubmit}
             onReset={() => setEvaluationDetails(initialEvaluationDetails)}
-            shouldAnimate={activeAccordionIndex === 3}
+            shouldAnimate={activeAccordions === 3}
           />
         </CustomAccordionItem>
 

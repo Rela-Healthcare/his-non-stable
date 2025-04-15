@@ -8,11 +8,18 @@ export const CustomAccordionItem = ({
   title,
   children,
   index,
-  activeIndex,
-  onToggle,
+  activeAccordions = [],
+  setActiveAccordions,
   isCompleted,
 }) => {
-  const isOpen = activeIndex === index;
+  const isOpen = activeAccordions.includes(index);
+
+  const onToggle = (index) => {
+    setActiveAccordions((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
   return (
     <div className="border-b">
       <button
@@ -57,19 +64,15 @@ export const CustomAccordionItem = ({
 // Custom Accordion Wrapper Component
 export const CustomAccordion = ({
   children,
-  activeIndex,
+  activeIndex = [],
   setActiveIndex,
   formStatus,
 }) => {
-  const onToggle = (index) => {
-    setActiveIndex((prev) => (prev === index ? -1 : index));
-  };
-
   const renderedChildren = React.Children.map(children, (child, index) =>
     React.cloneElement(child, {
       index,
-      activeIndex,
-      onToggle,
+      activeAccordions: activeIndex,
+      setActiveAccordions: setActiveIndex,
       isCompleted: formStatus[index],
     })
   );
