@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, FormEvent, useMemo, useEffect} from 'react';
 import {
   Button,
   Form,
@@ -15,72 +15,171 @@ import {Button as CustomButton} from '../../../../common/ui/button';
 import {Tags, HelpCircle} from 'lucide-react';
 import {toast} from 'react-toastify';
 
-const PaymentCheckout = ({
+interface PatientDetails {
+  Name?: string;
+  Mobile?: string;
+  Age?: string;
+  Gender?: string;
+}
+
+interface ServiceDetail {
+  ServiceName?: string;
+  Discount?: number;
+  Discount_Type?: 'Percentage' | 'Flat' | string;
+  Amount?: number;
+  Actual_Amount?: number;
+}
+
+interface PaymentCheckoutProps {
+  id: string;
+  totalAmount: number;
+  couponAmount?: number;
+  paitentDetails?: PatientDetails;
+  serviceDetails: ServiceDetail[];
+  paymentDetails?: any;
+  userId?: string;
+  onSubmit: (data: any) => void;
+}
+
+const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   id,
-  grossAmount,
-  finalDiscount,
-  totalAmount,
-  couponBalance = 0,
-  applyCoupon = false,
+  couponAmount = 0,
+  paymentDetails,
   paitentDetails,
   serviceDetails,
-  netPayableAmount,
   userId = 'admin123',
   onSubmit,
 }) => {
-  const [paymentMode, setPaymentMode] = useState('full');
-  const [payType, setPayType] = useState('');
-  const [cardAmount, setCardAmount] = useState(null);
-  const [discountType, setDiscountType] = useState('');
-  const [discount, setDiscount] = useState(null);
-  const [coupon, setCoupon] = useState(false);
-  const [cashAmount, setCashAmount] = useState(null);
-  const [errors, setErrors] = useState({});
+  const [paymentMode, setPaymentMode] = useState<'full' | 'split'>('full');
+  const [payType, setPayType] = useState<string>('');
+  const [discountType, setDiscountType] = useState<string>('');
+  const [discount, setDiscount] = useState<number | null>(null);
+  const [coupon, setCoupon] = useState<boolean>(
+    paymentDetails?.Apply_Coupon ? true : false
+  );
+  const [cardAmount, setCardAmount] = useState<number | null>(null);
+  const [cashAmount, setCashAmount] = useState<number | null>(null);
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const toastShownRef = useRef(false);
 
-  const ReuseGrid = ({customName, customerDetails}) => {
-    return (
-      <div className="w-full flex justify-center items-center">
-        <div className="w-full">
-          <h5 className="text-[#838383] font-bold text-sm font-inter">
-            {customName}
-          </h5>
-        </div>
-        <div className="w-full">
-          <h5 className="text-black font-bold text-sm font-inter">:</h5>
-        </div>
-        <div className="w-full">
-          <h5 className="text-black font-bold text-sm font-inter">
-            {customerDetails}
-          </h5>
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    setCardAmount(null);
+    setCashAmount(null);
+  }, [discountType, discount, coupon]);
+
+  const grossAmount = useMemo(() => {
+    return serviceDetails.reduce((total, service) => {
+      return total + (service.Actual_Amount || 0);
+    }, 0);
+  }, [serviceDetails]);
+
+  const finalDiscount = useMemo(() => {
+    return serviceDetails.reduce((total, service) => {
+      const actualAmount = service.Actual_Amount || 0;
+      const discount = Number(service.Discount) || 0;
+      if (service.Discount_Type === 'Percentage') {
+        return total + (actualAmount * discount) / 100;
+      }
+      return total + discount;
+    }, 0);
+  }, [serviceDetails]);
+
+  const getConvertPercentageToDecimal = (
+    percentage: number,
+    Actual_Amount: number
+  ) => {
+    return (percentage / 100) * Actual_Amount;
   };
 
-  const handleSubmit = (e) => {
+  const parsedDiscount =
+    parseFloat(String(discount ? discount : finalDiscount)) || 0;
+
+  const couponValue = useMemo(() => {
+    return coupon ? couponAmount : 0;
+  }, [coupon, couponAmount]);
+
+  const parseAmount = (val: number | string | null | undefined): number =>
+    parseFloat(String(val ?? 0)) || 0;
+
+  const computedDiscountAmount = useMemo(() => {
+    if (isNaN(parsedDiscount) || parsedDiscount <= 0) return 0;
+    const discountValue =
+      discountType === 'percentage'
+        ? (grossAmount * parsedDiscount) / 100
+        : parsedDiscount;
+    return Math.min(discountValue, grossAmount);
+  }, [discountType, parsedDiscount, grossAmount]);
+
+  const netPayable = useMemo(() => {
+    const afterDiscount = Math.max(grossAmount - computedDiscountAmount, 0);
+    return Math.max(afterDiscount - couponValue, 0);
+  }, [grossAmount, computedDiscountAmount, couponValue]);
+
+  const ReuseGrid: React.FC<{customName: string; customerDetails: string}> = ({
+    customName,
+    customerDetails,
+  }) => (
+    <div className="w-full flex justify-center items-center">
+      <div className="w-full">
+        <h5 className="text-[#838383] font-bold text-sm font-inter">
+          {customName}
+        </h5>
+      </div>
+      <div className="w-full">
+        <h5 className="text-black font-bold text-sm font-inter">:</h5>
+      </div>
+      <div className="w-full">
+        <h5 className="text-black font-bold text-sm font-inter">
+          {customerDetails}
+        </h5>
+      </div>
+    </div>
+  );
+
+  const handleCoupon = () => {
+    setCoupon((prevCoupon) => {
+      return !prevCoupon;
+    });
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
       const payload = constructPaymentData();
       onSubmit(payload);
+      toastShownRef.current = true;
+      toast.success('Payment successful');
+      setErrors({});
     } else {
       setErrors(validationErrors);
     }
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors: Record<string, string | undefined> = {};
 
     if (paymentMode === 'full') {
-      if (!payType) newErrors.payType = 'Select payment type';
-    } else {
-      const totalEntered =
-        parseFloat(cardAmount?.toString() || '0') +
-        parseFloat(cashAmount?.toString() || '0');
+      if (!payType) newErrors.payType = 'Please select a payment type';
+    }
 
-      if (totalEntered.toFixed(2) !== netPayableAmount.toFixed(2)) {
-        newErrors.amounts = `Total must equal ₹${netPayableAmount}`;
+    if (discountType && (isNaN(parsedDiscount) || parsedDiscount <= 0)) {
+      newErrors.discount = 'Please enter a valid discount value';
+    }
+
+    if (paymentMode === 'split') {
+      const cardAmt = parseAmount(cardAmount);
+      const cashAmt = parseAmount(cashAmount);
+      const total = +(cardAmt + cashAmt).toFixed(2);
+
+      if (total !== +netPayable.toFixed(2)) {
+        newErrors.amounts = `Split total ₹${total} must equal Net Payable ₹${netPayable.toFixed(
+          2
+        )}`;
+      }
+
+      if (cardAmt < 0 || cashAmt < 0) {
+        newErrors.amounts = 'Amounts cannot be negative';
       }
     }
 
@@ -93,18 +192,18 @@ const PaymentCheckout = ({
     if (paymentMode === 'full') {
       paymentTypes.push({
         PayType: payType,
-        amount: netPayableAmount,
+        amount: netPayable,
       });
     } else {
-      if (cardAmount > 0) {
+      if (cardAmount !== null && cardAmount > 0) {
         paymentTypes.push({
-          PayType: 'Card',
+          PayType: 'R',
           amount: cardAmount,
         });
       }
-      if (cashAmount > 0) {
+      if (cashAmount !== null && cashAmount > 0) {
         paymentTypes.push({
-          PayType: 'Cash',
+          PayType: 'C',
           amount: cashAmount,
         });
       }
@@ -114,46 +213,46 @@ const PaymentCheckout = ({
       Web_OPReceipt_Payment_Type: paymentTypes,
       Id: id,
       Gross_Amount: grossAmount,
-      Final_Discount: finalDiscount,
-      Total_Amount: totalAmount,
-      Coupon_Balance: applyCoupon ? couponBalance : 0,
-      Apply_Coupon: applyCoupon,
-      Net_Payable_Amount: netPayableAmount,
+      Final_Discount: computedDiscountAmount,
+      Total_Amount: grossAmount - computedDiscountAmount,
+      Coupon_Balance: coupon ? couponAmount : 0,
+      Apply_Coupon: coupon,
+      Net_Payable_Amount: netPayable,
       UserId: userId,
     };
   };
 
-  const handleSplitAmountChange = (type, value) => {
-    const numericValue = parseFloat(value) || 0 || '';
+  const handleSplitAmountChange = (type: 'card' | 'cash', value: string) => {
+    const enteredValue = parseAmount(value);
+    const cappedValue = Math.min(enteredValue, netPayable);
 
-    const showToastOnce = (message) => {
+    const showToastOnce = (msg: string) => {
       if (!toastShownRef.current) {
-        toast.error(message);
+        toast.error(msg);
         toastShownRef.current = true;
         setTimeout(() => {
           toastShownRef.current = false;
-        }, 3000); // show only once every 3 seconds
+        }, 3000);
       }
     };
 
+    if (enteredValue > netPayable) {
+      showToastOnce(
+        `${type === 'card' ? 'Card' : 'Cash'} amount exceeds the payable limit`
+      );
+      return;
+    }
+
     if (type === 'card') {
-      if (numericValue > netPayableAmount) {
-        showToastOnce('The card amount exceeds the payable limit.');
-        return;
-      }
-      setCardAmount(numericValue);
-      setCashAmount(Math.max(0, netPayableAmount - numericValue));
+      setCardAmount(cappedValue);
+      setCashAmount(Math.max(0, netPayable - cappedValue));
     } else {
-      if (numericValue > netPayableAmount) {
-        showToastOnce('The cash amount exceeds the payable limit.');
-        return;
-      }
-      setCashAmount(numericValue);
-      setCardAmount(Math.max(0, netPayableAmount - numericValue));
+      setCashAmount(cappedValue);
+      setCardAmount(Math.max(0, netPayable - cappedValue));
     }
   };
 
-  const renderTooltip = (props) => (
+  const renderTooltip = (props: any) => (
     <Tooltip id="overall-discount-tooltip" {...props}>
       If you have already applied a discount to individual services, you cannot
       provide an overall discount.
@@ -226,19 +325,26 @@ const PaymentCheckout = ({
                       </td>
                       <td className="border px-1">
                         {service.Discount_Type === 'Percentage'
-                          ? `${service.Discount ?? 0}%`
+                          ? `${service.Discount ?? 0}%  ( ₹${
+                              service.Discount &&
+                              service?.Actual_Amount &&
+                              getConvertPercentageToDecimal(
+                                service?.Discount,
+                                service?.Actual_Amount
+                              ).toFixed(2)
+                            } )`
                           : service.Discount_Type === 'Flat'
                           ? `₹${service.Discount ?? 0}`
                           : '—'}
                       </td>
                       <td className="border px-1">
-                        {formatPrice(service.Amount) ?? 0}
+                        {formatPrice(service.Actual_Amount) ?? 0}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3" className="text-center py-1">
+                    <td colSpan={3} className="text-center py-1">
                       No services available
                     </td>
                   </tr>
@@ -261,25 +367,23 @@ const PaymentCheckout = ({
               </li>
               <li className="flex justify-between items-center">
                 <span>Final Discount:</span>
-                <span className="text-red-500">{`— ₹ ${finalDiscount}`}</span>
+                <span className="text-red-500">{`— ₹ ${computedDiscountAmount}`}</span>
               </li>
               <li className="flex justify-between items-center">
                 <span>Total Amount:</span>
-                <span>₹{totalAmount}</span>
+                <span>₹{grossAmount - computedDiscountAmount}</span>
               </li>
-              {applyCoupon && (
-                <li className="flex justify-between items-center">
-                  <span>Coupon:</span>
-                  {coupon ? (
-                    <span className="text-red-500">{`— ₹ ${couponBalance}`}</span>
-                  ) : (
-                    0
-                  )}
-                </li>
-              )}
+              <li className="flex justify-between items-center">
+                <span>Coupon:</span>
+                {coupon ? (
+                  <span className="text-red-500">{`— ₹ ${couponValue}`}</span>
+                ) : (
+                  0
+                )}
+              </li>
               <li className="text-md font-bold tracking-wide font-serif border-t-2 border-gray-300 pt-2 flex justify-between items-center">
                 <span>Net Payable:</span>
-                <span>₹{netPayableAmount}</span>
+                <span>₹{netPayable}</span>
               </li>
             </ul>
           </div>
@@ -316,12 +420,16 @@ const PaymentCheckout = ({
                   required
                   value={discountType}
                   disabled={finalDiscount > 0 ? true : false}
-                  onChange={(e) => setDiscountType(e.target.value)}
+                  onChange={(e: {target: {value: string}}) =>
+                    setDiscountType(e.target.value)
+                  }
                   className={'m-0 w-1/2'}
-                  options={[
-                    {label: 'Percentage', value: 'percentage'},
-                    {label: 'Flat', value: 'flat'},
-                  ]}
+                  options={
+                    [
+                      {label: 'Percentage', value: 'percentage'},
+                      {label: 'Flat', value: 'flat'},
+                    ] as unknown as never[]
+                  }
                   placeholder="Discount Type"
                   isInvalid={!!errors?.discountType}
                   errorMessage={errors?.discountType}
@@ -351,8 +459,8 @@ const PaymentCheckout = ({
                 }`}
                 type="button"
                 variant="link"
-                onClick={() => setCoupon((prev) => !prev)}
-                size="md">
+                onClick={handleCoupon}
+                size="sm">
                 {!coupon ? 'Apply' : 'Remove'}
               </CustomButton>
             </div>
@@ -420,7 +528,7 @@ const PaymentCheckout = ({
                         </Form.Label>
                         <Form.Control
                           type="number"
-                          value={cardAmount}
+                          value={cardAmount || ''}
                           onChange={(e) =>
                             handleSplitAmountChange('card', e.target.value)
                           }
@@ -435,7 +543,7 @@ const PaymentCheckout = ({
                         </Form.Label>
                         <Form.Control
                           type="number"
-                          value={cashAmount}
+                          value={cashAmount || ''}
                           onChange={(e) =>
                             handleSplitAmountChange('cash', e.target.value)
                           }
@@ -459,7 +567,7 @@ const PaymentCheckout = ({
             variant="success"
             type="submit"
             className="mt-3 w-full font-sans font-bold">
-            Payment: ₹{netPayableAmount}
+            Payment: ₹{netPayable}
           </Button>
         </Form>
       </div>

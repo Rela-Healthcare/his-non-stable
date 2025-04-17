@@ -31,6 +31,7 @@ import {
   initialNextOfKinDetails,
   initialEvaluationDetails,
   initialAppointmentDetails,
+  initialPaymentDetails,
 } from './patientFormConstants';
 import {
   validatePersonalDetails,
@@ -46,6 +47,8 @@ import PaymentCheckout from './PaymentCheckout';
 
 const PatientCreation = ({UserId}) => {
   const dispatch = useDispatch();
+  const dropdownData = useSelector((state) => state.dropdown.data);
+  const opServices = useSelector((state) => state.opService);
   const [formStatus, setFormStatus] = useLocalStorage('formStatus', [
     false, // 0.personal details
     false, // 1.additional details
@@ -79,8 +82,16 @@ const PatientCreation = ({UserId}) => {
     'appointmentDetails',
     initialAppointmentDetails
   );
-  const {confirm, ConfirmDialogComponent} = useConfirmDialog();
+  const [paymentDetails, setPaymentDetails] = useLocalStorage(
+    'paymentDetails',
+    initialPaymentDetails
+  );
+  const [serviceDetails, setServiceDetails] = useLocalStorage(
+    'serviceDetails',
+    opServices.OP_Master
+  );
 
+  const {confirm, ConfirmDialogComponent} = useConfirmDialog();
   const [personalErrors, setPersonalErrors] = useState({});
   const [additionalErrors, setAdditionalErrors] = useState({});
   const [nextOfKinErrors, setNextOfKinErrors] = useState({});
@@ -94,12 +105,6 @@ const PatientCreation = ({UserId}) => {
   const [isCheckedSameAsPatientAddress, setIsCheckedSameAsPatientAddress] =
     useState(false);
 
-  const dropdownData = useSelector((state) => state.dropdown.data);
-  const opServices = useSelector((state) => state.opService);
-  const [serviceDetails, setServiceDetails] = useLocalStorage(
-    'serviceDetails',
-    opServices.OP_Master
-  );
   const {
     salutationsResponse = [],
     maritalStatusResponse = [],
@@ -768,7 +773,7 @@ const PatientCreation = ({UserId}) => {
   };
 
   const handlePaymentSubmit = (paymentData) => {
-    console.log('Payment Data:', paymentData);
+    setPaymentDetails(paymentData);
   };
 
   const submitAllData = async () => {
@@ -929,19 +934,17 @@ const PatientCreation = ({UserId}) => {
         </CustomAccordionItem>
 
         <CustomAccordionItem title="Payment Checkout">
-          <PaymentCheckout
-            id={1}
-            userId="admin123"
-            paitentDetails={personalDetails}
-            serviceDetails={serviceDetails}
-            grossAmount={1000}
-            finalDiscount={200}
-            totalAmount={800}
-            couponBalance={50}
-            applyCoupon={true}
-            netPayableAmount={750}
-            onSubmit={handlePaymentSubmit}
-          />
+          {serviceDetails.length > 1 && (
+            <PaymentCheckout
+              id={1}
+              userId="admin123"
+              paymentDetails={paymentDetails}
+              paitentDetails={personalDetails}
+              serviceDetails={serviceDetails}
+              couponAmount={50}
+              onSubmit={handlePaymentSubmit}
+            />
+          )}
         </CustomAccordionItem>
       </CustomAccordion>
       <ConfirmDialogComponent />

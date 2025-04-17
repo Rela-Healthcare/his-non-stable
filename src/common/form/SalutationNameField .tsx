@@ -2,7 +2,25 @@ import React from 'react';
 import {Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {FaInfoCircle} from 'react-icons/fa';
 
-const SalutationNameField = ({
+type Option = {
+  label: string;
+  value: string;
+};
+
+interface Props {
+  salutationValue: string;
+  salutationOptions: Option[];
+  onSalutationChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  salutationName: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: any) => void;
+  isInvalid: boolean;
+  errorMessage?: string;
+}
+
+const SalutationNameField: React.FC<Props> = ({
   salutationValue,
   salutationOptions,
   onSalutationChange,

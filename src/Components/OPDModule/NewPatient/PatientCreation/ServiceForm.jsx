@@ -22,6 +22,7 @@ const initialService = {
   Discount_Type: '',
   Discount: '',
   Discount_Reason: '',
+  Actual_Amount: 0,
   Amount: '',
   Remarks: '',
   servicesListResponse: [],
@@ -30,7 +31,6 @@ const initialService = {
 };
 
 function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
-  // const [services, setServices] = useState([{...formData}]);
   const [errors, setErrors] = useState({});
   const [showTooltip, setShowTooltip] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0); // 🆕 Added
@@ -79,6 +79,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
     if (field === 'Service') {
       const rate = Number(getServiceLabel(value, index)[1].split(':')[1]);
       currentService['Amount'] = rate;
+      currentService['Actual_Amount'] = Math.max(rate, 0);
       const serviceName = services[index].servicesListResponse.find(
         (option) => {
           return option?.value === Number(value);
@@ -105,6 +106,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
       }
 
       currentService['Amount'] = Math.max(finalAmount, 0);
+      currentService['Actual_Amount'] = Math.max(originalAmount, 0);
     }
 
     updated[index] = currentService;

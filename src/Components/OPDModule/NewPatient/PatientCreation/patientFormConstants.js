@@ -93,9 +93,28 @@ export const emptyOPService = {
   Discount_Type: '',
   Discount: '',
   Discount_Reason: '',
+  Actual_Amount: 0,
   Amount: '',
   Remarks: '',
   servicesListResponse: [],
   totalAmount: 0,
   saved: false,
+};
+
+export const initialPaymentDetails = {
+  Web_OPReceipt_Payment_Type: [
+    {
+      PayType: 'Card',
+      amount: 0,
+      CardNo: '',
+    },
+  ],
+  Id: null, // Assuming this comes from backend after save
+  Gross_Amount: 0,
+  Final_Discount: 0,
+  Total_Amount: 0,
+  Coupon_Balance: 0,
+  Apply_Coupon: false,
+  Net_Payable_Amount: 0,
+  UserId: '', // To be filled with logged-in user's ID
 };
