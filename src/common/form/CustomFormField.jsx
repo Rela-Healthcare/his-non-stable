@@ -58,9 +58,11 @@ const CustomFormField = ({
       as={combinedField ? Col : undefined}
       className={`${className}`}
       style={{position: 'relative'}}>
-      <label className={`block mb-[1.3em] text-sm font-bold`}>
-        {label} <span className="text-red-500">*</span>
-      </label>
+      {label && (
+        <label className={`block mb-[1.3em] text-sm font-bold`}>
+          {label} <span className="text-red-500">*</span>
+        </label>
+      )}
 
       {/* Tooltip Icon - Positioned at top-right */}
       {isInvalid && errorMessage && (
@@ -101,7 +103,7 @@ const CustomFormField = ({
               disabled ? disabledStyle : ''
             }`}
             {...props}>
-            <option value="">
+            <option value="" className="bg-slate-300">
               {placeholder || `Select ${label === 'Salutation' && ''}`}
             </option>
             {selectOptions}

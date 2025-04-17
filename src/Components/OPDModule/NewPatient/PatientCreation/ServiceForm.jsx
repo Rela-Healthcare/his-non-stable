@@ -17,6 +17,7 @@ import {formatPrice, truncateString} from '../../../../utils/utils';
 const initialService = {
   Service_Group: '',
   Service: '',
+  ServiceName: '',
   Priority: '',
   Discount_Type: '',
   Discount: '',
@@ -28,8 +29,8 @@ const initialService = {
   saved: false,
 };
 
-function ServiceInvoice({formData, dropdownData, onSubmit}) {
-  const [services, setServices] = useState([{...formData}]);
+function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
+  // const [services, setServices] = useState([{...formData}]);
   const [errors, setErrors] = useState({});
   const [showTooltip, setShowTooltip] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0); // 🆕 Added
@@ -62,39 +63,51 @@ function ServiceInvoice({formData, dropdownData, onSubmit}) {
 
   const handleChange = async (index, field, e) => {
     const {value} = e.target;
+
     const updated = [...services];
-    updated[index][field] = value;
+    // Clone the object to avoid mutation of frozen object
+    const currentService = {...updated[index]};
+
+    currentService[field] = value;
 
     if (field === 'Service_Group') {
       const response = await dispatch(fetchServicesList(value)).unwrap();
-      updated[index]['Service'] = '';
-      updated[index]['servicesListResponse'] = response;
+      currentService['Service'] = '';
+      currentService['servicesListResponse'] = response;
     }
+
     if (field === 'Service') {
       const rate = Number(getServiceLabel(value, index)[1].split(':')[1]);
-      updated[index]['Amount'] = rate;
+      currentService['Amount'] = rate;
+      const serviceName = services[index].servicesListResponse.find(
+        (option) => {
+          return option?.value === Number(value);
+        }
+      )?.label;
+      currentService['ServiceName'] = serviceName ?? '';
     }
 
     if (
       ['Discount_Type', 'Discount', 'Service'].includes(field) &&
-      updated[index]['Discount_Type'] &&
-      updated[index]['Service']
+      currentService['Discount_Type'] &&
+      currentService['Service']
     ) {
       const originalAmount = Number(
-        getServiceLabel(updated[index]['Service'], index)[1].split(':')[1]
+        getServiceLabel(currentService['Service'], index)[1].split(':')[1]
       );
-      const discountValue = parseFloat(updated[index]['Discount']) || 0;
+      const discountValue = parseFloat(currentService['Discount']) || 0;
       let finalAmount = originalAmount;
 
-      if (updated[index]['Discount_Type'] === 'Percentage') {
+      if (currentService['Discount_Type'] === 'Percentage') {
         finalAmount = originalAmount - (originalAmount * discountValue) / 100;
-      } else if (updated[index]['Discount_Type'] === 'Flat') {
+      } else if (currentService['Discount_Type'] === 'Flat') {
         finalAmount = originalAmount - discountValue;
       }
 
-      updated[index]['Amount'] = Math.max(finalAmount, 0);
+      currentService['Amount'] = Math.max(finalAmount, 0);
     }
 
+    updated[index] = currentService;
     setServices(updated);
 
     const newErrors = {...errors};
@@ -107,7 +120,12 @@ function ServiceInvoice({formData, dropdownData, onSubmit}) {
 
     const newErrors = {};
     Object.keys(initialService).forEach((key) => {
-      if (!updated[key] && key !== 'saved' && key !== 'totalAmount') {
+      if (
+        !updated[key] &&
+        key !== 'saved' &&
+        key !== 'totalAmount' &&
+        key !== 'ServiceName'
+      ) {
         newErrors[`${index}-${key}`] = `${key.replace(/_/g, ' ')} is required.`;
       }
     });
@@ -521,7 +539,7 @@ function ServiceInvoice({formData, dropdownData, onSubmit}) {
                               <CustomButton
                                 type="button"
                                 onClick={() => deleteService(index)}
-                                className="border-1 bg-transparent border-blue-500 hover:bg-blue-700 text-blue-500 hover:text-blue-700 font-bold py-3 px-3 rounded-lg"
+                                className="border-1 bg-transparent border-blue-500 hover:bg-blue-700 text-red-500 hover:text-red-700 font-bold py-3 px-3 rounded-lg"
                                 size="sm">
                                 <TrashIcon />
                               </CustomButton>
@@ -538,8 +556,11 @@ function ServiceInvoice({formData, dropdownData, onSubmit}) {
 
           {/* 🆕 Show Total */}
           <div className="p-2 mt-3 flex justify-between items-center border-t-2 border-slate-200 ">
-            <div className="text-md font-semibold">
-              Total Amount: {formatPrice(totalAmount)}
+            <div className="text-[1.1rem] text-slate-500 font-semibold">
+              Total Amount:{' '}
+              <span className="font-bold text-black">{`₹ ${formatPrice(
+                totalAmount
+              )}`}</span>
             </div>
             <div>
               <Button

@@ -86,15 +86,16 @@ export const initialAppointmentDetails = {
 };
 
 export const emptyOPService = {
-  ID: '',
   Service_Group: '',
   Service: '',
+  ServiceName: '',
   Priority: '',
-  Rate: '',
   Discount_Type: '',
-  AMOUNT: '',
   Discount: '',
-  Amount_Ttl: '',
-  Remarks: '',
   Discount_Reason: '',
+  Amount: '',
+  Remarks: '',
+  servicesListResponse: [],
+  totalAmount: 0,
+  saved: false,
 };

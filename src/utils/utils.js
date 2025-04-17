@@ -267,8 +267,7 @@ export const truncateString = (maxLength, str) => {
   return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
 };
 
-export const formatPrice = (amount) => {
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num)) return '0.00';
-  return num.toFixed(2);
+export const formatPrice = (price) => {
+  if (typeof price !== 'number' || isNaN(price)) return '0.00';
+  return price.toFixed(2);
 };

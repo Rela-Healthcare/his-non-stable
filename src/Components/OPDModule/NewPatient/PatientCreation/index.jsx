@@ -42,6 +42,7 @@ import {
 import ScheduleAppointmentForm from './ScheduleAppointmentForm';
 import {updateService} from '../../../../store/Slices/OPModule/Service/opServiceSlice';
 import ServiceForm from './ServiceForm';
+import PaymentCheckout from './PaymentCheckout';
 
 const PatientCreation = ({UserId}) => {
   const dispatch = useDispatch();
@@ -56,7 +57,7 @@ const PatientCreation = ({UserId}) => {
   ]);
   const [activeAccordions, setActiveAccordions] = useLocalStorage(
     'activeAccordions',
-    [0, 1, 2, 3, 4, 5]
+    [0, 1, 2, 3, 4, 5, 6]
   );
   const [personalDetails, setPersonalDetails] = useLocalStorage(
     'personalDetails',
@@ -735,7 +736,7 @@ const PatientCreation = ({UserId}) => {
       Id: Number(personalDetails?.ID),
       UserId,
       OP_Master: services.map((service) => ({
-        ID: 74, // Same as main Id
+        ID: 74,
         Service_Group: service.serviceGroup,
         Service: service.service,
         Priority: service.priority,
@@ -754,7 +755,6 @@ const PatientCreation = ({UserId}) => {
       if (response?.data?.id) {
         markFormAsCompleted(5);
         setActiveAccordions([6]);
-        setServiceDetails(payload);
       } else {
         console.error('❌ Submission failed:', response?.data?.id);
         alert(
@@ -765,6 +765,10 @@ const PatientCreation = ({UserId}) => {
       console.error('❌ Network error:', error);
       alert('❌ Network error. Please try again.');
     }
+  };
+
+  const handlePaymentSubmit = (paymentData) => {
+    console.log('Payment Data:', paymentData);
   };
 
   const submitAllData = async () => {
@@ -912,8 +916,8 @@ const PatientCreation = ({UserId}) => {
 
         <CustomAccordionItem title="Services & Invoice">
           <ServiceForm
-            formData={serviceDetails}
-            setServiceDetails={setServiceDetails}
+            services={serviceDetails}
+            setServices={setServiceDetails}
             onChange={handleServiceChange}
             onSubmit={handleServiceSubmit}
             dropdownData={{
@@ -924,10 +928,21 @@ const PatientCreation = ({UserId}) => {
           />
         </CustomAccordionItem>
 
-        {/* Other accordion items */}
-        {['Payments'].map((title) => (
-          <CustomAccordionItem key={title} title={title} />
-        ))}
+        <CustomAccordionItem title="Payment Checkout">
+          <PaymentCheckout
+            id={1}
+            userId="admin123"
+            paitentDetails={personalDetails}
+            serviceDetails={serviceDetails}
+            grossAmount={1000}
+            finalDiscount={200}
+            totalAmount={800}
+            couponBalance={50}
+            applyCoupon={true}
+            netPayableAmount={750}
+            onSubmit={handlePaymentSubmit}
+          />
+        </CustomAccordionItem>
       </CustomAccordion>
       <ConfirmDialogComponent />
     </>

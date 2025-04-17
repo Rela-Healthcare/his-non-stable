@@ -237,7 +237,7 @@ const ScheduleAppointmentForm = ({
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-6">
+        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-1">
           <Button variant="secondary" type="button" onClick={onReset}>
             Clear
           </Button>
