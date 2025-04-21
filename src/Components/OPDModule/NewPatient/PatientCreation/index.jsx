@@ -44,6 +44,8 @@ import ScheduleAppointmentForm from './ScheduleAppointmentForm';
 import {updateService} from '../../../../store/Slices/OPModule/Service/opServiceSlice';
 import ServiceForm from './ServiceForm';
 import PaymentCheckout from './PaymentCheckout';
+import {toast} from 'react-toastify';
+import {transformToApiPayload} from './transformToApiPayload';
 
 const PatientCreation = ({UserId}) => {
   const dispatch = useDispatch();
@@ -294,6 +296,9 @@ const PatientCreation = ({UserId}) => {
       setIsEmailValid(validateID('email', value));
     } else if (name === 'SalutionId') {
       updatedDetails.Gender = getGenderFromSalutation(value);
+      updatedDetails.SalutationName = salutationsResponse.find(
+        (salutation) => salutation.value === Number(value)
+      )?.label;
     }
 
     setPersonalDetails(updatedDetails);
@@ -772,30 +777,40 @@ const PatientCreation = ({UserId}) => {
     }
   };
 
-  const handlePaymentSubmit = (paymentData) => {
-    setPaymentDetails(paymentData);
+  const handlePaymentSubmit = async (payload) => {
+    setPaymentDetails(payload);
+    markFormAsCompleted(6);
+    setActiveAccordions([7]);
+    submitAllData();
   };
 
   const submitAllData = async () => {
     try {
-      for (let i = 0; i < opServices.OP_Master.length; i++) {
-        const service = opServices.OP_Master[i];
-        if (!service.Service || !service.Rate) {
-          alert(`Service #${i + 1} is invalid`);
-          return;
-        }
-      }
-
-      const combinedData = {
-        UserId: opServices.UserId,
-        OP_Master: opServices.OP_Master,
-        // Add other sections like personalDetails etc.
+      const combinedPayload = {
+        ...personalDetails,
+        ...additionalDetails,
+        ...nextOfKinDetails,
+        ...evaluationDetails,
+        ...appointmentDetails,
+        ...serviceDetails,
+        ...paymentDetails,
       };
 
-      console.log('✅ Final submission data:', combinedData);
+      const formattedPayload = await transformToApiPayload(combinedPayload);
+
       // Send to API or wherever
+      const response = await OPModuleAgent.saveOPDModule(formattedPayload);
+      if (response?.status === 'success') {
+        toast.success('Patient created successfully');
+        console.log('✅ Final submission data:', combinedPayload, response);
+        resetAllForms();
+      } else {
+        toast.error('Failed to create patient. Please try again.');
+      }
     } catch (error) {
       console.error('Submission failed:', error);
+      toast.error('Submission failed. Please try again.');
+      return;
     }
   };
 
@@ -820,9 +835,33 @@ const PatientCreation = ({UserId}) => {
     setNextOfKinErrors({});
   };
 
+  const resetEvaluationDetails = () => {
+    setEvaluationDetails(initialEvaluationDetails);
+  };
+
   const resetAppointmentDetails = () => {
     setAppointmentDetails(initialAppointmentDetails);
     setAppointmentErrors({});
+  };
+
+  const resetServiceDetails = () => {
+    setServiceDetails(opServices.OP_Master);
+  };
+
+  const resetPaymentDetails = () => {
+    setPaymentDetails(initialPaymentDetails);
+  };
+
+  const resetAllForms = () => {
+    resetPersonalDetails();
+    resetAdditionalDetails();
+    resetNextOfKinDetails();
+    resetEvaluationDetails();
+    resetAppointmentDetails();
+    resetServiceDetails();
+    resetPaymentDetails();
+    setFormStatus([false, false, false, false, false, false, false]);
+    setActiveAccordions([0, 1, 2, 3, 4, 5, 6]);
   };
 
   return (

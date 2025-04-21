@@ -10,14 +10,15 @@ import {
 } from 'react-bootstrap';
 import {Container} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
-import {formatPrice} from '../../../../utils/utils';
+import {formatPrice, generateProcessingId} from '../../../../utils/utils';
 import {Button as CustomButton} from '../../../../common/ui/button';
 import {Tags, HelpCircle} from 'lucide-react';
 import {toast} from 'react-toastify';
 
 interface PatientDetails {
   Name?: string;
-  Mobile?: string;
+  Mobile_No?: string;
+  Email_ID?: string;
   Age?: string;
   Gender?: string;
 }
@@ -40,6 +41,16 @@ interface PaymentCheckoutProps {
   userId?: string;
   onSubmit: (data: any) => void;
 }
+type PaymentURLParams = {
+  patientName: string;
+  uhid: string;
+  chargeRate: number;
+  email: string;
+  mobileNo: string;
+  processingId: string;
+  uname?: string;
+  payMode?: string;
+};
 
 const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   id,
@@ -142,14 +153,64 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const generatePaymentURL = ({
+    patientName,
+    uhid,
+    chargeRate,
+    email,
+    mobileNo,
+    processingId,
+    uname = 'MEFTECmeftec',
+    payMode = 'cash-remote-deposit',
+  }: PaymentURLParams) => {
+    const baseURL = 'https://www.relainstitute.in/DataAegis_Live/';
+    const queryParams = new URLSearchParams({
+      patientName: patientName.toString(),
+      uhid: uhid.toString(),
+      chargerate: chargeRate.toString(),
+      email: email.toString(),
+      mobileno: mobileNo.toString(),
+      processingid: processingId.toString(),
+      uname: uname.toString(),
+      paymode: payMode.toString(),
+    });
+
+    return `${baseURL}?${queryParams.toString()}`;
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length === 0) {
       const payload = constructPaymentData();
+      const result = payload.Web_OPReceipt_Payment_Type.find(
+        (item: {PayType: string}) => item.PayType === 'R'
+      );
+      if (result) {
+        try {
+          if (
+            paitentDetails?.Name &&
+            result?.amount &&
+            paitentDetails?.Email_ID &&
+            paitentDetails?.Mobile_No
+          ) {
+            await generatePaymentURL({
+              patientName: paitentDetails?.Name,
+              uhid: '000000',
+              /* chargeRate: result?.amount, */
+              chargeRate: 1,
+              email: paitentDetails?.Email_ID,
+              mobileNo: paitentDetails?.Mobile_No,
+              processingId: generateProcessingId(paitentDetails?.Mobile_No),
+            });
+          }
+        } catch (error) {
+          console.error('❌ Error generating payment link:', error);
+          toast.error('Failed to generate payment link.');
+          return;
+        }
+      }
       onSubmit(payload);
-      toastShownRef.current = true;
-      toast.success('Payment successful');
       setErrors({});
     } else {
       setErrors(validationErrors);
@@ -310,9 +371,13 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
             <table className="min-w-full border-collapse border">
               <thead className="sticky top-0 z-10 block bg-slate-200">
                 <tr className="table w-full m-0 border-0 table-fixed">
-                  <th className="border px-1 py-0 text-left">Service</th>
-                  <th className="border px-1 py-0 text-left">Discount (₹)</th>
-                  <th className="border px-1 py-0 text-left">Amount (₹)</th>
+                  <th className="border px-1 py-0 text-left w-7/12">Service</th>
+                  <th className="border px-1 py-0 text-left w-3/12">
+                    Discount (₹)
+                  </th>
+                  <th className="border px-1 py-0 text-left w-2/12">
+                    Amount (₹)
+                  </th>
                 </tr>
               </thead>
               <tbody className="block max-h-64 overflow-y-auto w-full">
@@ -320,10 +385,10 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                 serviceDetails.slice(0, -1).length > 0 ? (
                   serviceDetails.slice(0, -1).map((service, index) => (
                     <tr key={index} className="table m-0 w-full table-fixed">
-                      <td className="border px-1">
+                      <td className="border px-1 w-7/12">
                         {service.ServiceName || '—'}
                       </td>
-                      <td className="border px-1">
+                      <td className="border px-1 w-3/12">
                         {service.Discount_Type === 'Percentage'
                           ? `${service.Discount ?? 0}%  ( ₹${
                               service.Discount &&
@@ -337,7 +402,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                           ? `₹${service.Discount ?? 0}`
                           : '—'}
                       </td>
-                      <td className="border px-1">
+                      <td className="border px-1 w-2/12">
                         {formatPrice(service.Actual_Amount) ?? 0}
                       </td>
                     </tr>
@@ -451,7 +516,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
             <div className="flex justify-between items-center my-2 px-3 w-full h-[3rem] border-1 border-gray-800 rounded-md">
               <span className="flex items-center font-sans font-bold">
                 Coupon <Tags fill="#CCC" size={20} className="mx-2" />
-                <span className="text-gray-500">Save₹50</span>
+                <span className="text-gray-500">Save₹{couponValue}</span>
               </span>
               <CustomButton
                 className={`font-sans font-bold ${

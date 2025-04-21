@@ -74,7 +74,6 @@ export const ageCalculator = (DOB) => {
  */
 export const getFormattedDate = (date = new Date()) => {
   const pad = (num) => num.toString().padStart(2, '0');
-
   // Extract parts of the date
   const day = pad(date.getDate());
   const month = pad(date.getMonth() + 1); // Months are 0-based
@@ -271,3 +270,11 @@ export const formatPrice = (price) => {
   if (typeof price !== 'number' || isNaN(price)) return '0.00';
   return price.toFixed(2);
 };
+
+export function convertToApiDate(dateInput) {
+  const date = new Date(dateInput);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} 00:00:00`;
+}

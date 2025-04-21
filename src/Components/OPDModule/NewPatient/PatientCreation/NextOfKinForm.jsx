@@ -91,7 +91,7 @@ const NextOfKinForm = ({
                 checked={isCheckedSameAsPatientAddress}
                 onChange={onChange}
                 onBlur={onBlur}
-                className={`flex justify-center items-center gap-2 p-[0.8em] mt-[1.4rem] border border-black rounded-md w-full ${
+                className={`flex justify-center items-center gap-2 p-[0.8em] mt-[1.8rem] border border-black rounded-md w-full ${
                   !additionalDetails.Pincode &&
                   'bg-gray-200 border-0 cursor-not-allowed'
                 }`}

@@ -6,6 +6,7 @@ export const PATIENT_FORM_OPTIONS = {
 
 export const initialPersonalDetails = {
   SalutionId: '',
+  SalutationName: '',
   Name: '',
   DOB: '',
   Age: '',
@@ -104,7 +105,7 @@ export const emptyOPService = {
 export const initialPaymentDetails = {
   Web_OPReceipt_Payment_Type: [
     {
-      PayType: 'Card',
+      PayType: 'R',
       amount: 0,
       CardNo: '',
     },
