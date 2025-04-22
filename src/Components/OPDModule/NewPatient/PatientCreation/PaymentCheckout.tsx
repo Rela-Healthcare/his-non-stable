@@ -16,6 +16,7 @@ import {Tags, HelpCircle} from 'lucide-react';
 import {toast} from 'react-toastify';
 import generatePaymentURL from '../../../../utils/generatePaymentURL';
 import PaymentModal from '../../../../common/PaymentModal';
+import TruncatedText from '../../../../common/TruncatedText';
 
 interface PatientDetails {
   Name?: string;
@@ -358,7 +359,12 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                   serviceDetails.slice(0, -1).map((service, index) => (
                     <tr key={index} className="table m-0 w-full table-fixed">
                       <td className="border px-1 w-7/12">
-                        {service.ServiceName || '—'}
+                        <TruncatedText
+                          text={service.ServiceName || '—'}
+                          maxLength={30}
+                          middleEllipsis={true}
+                          className="font-semibold text-sm px-2"
+                        />
                       </td>
                       <td className="border px-1 w-3/12">
                         {service.Discount_Type === 'Percentage'

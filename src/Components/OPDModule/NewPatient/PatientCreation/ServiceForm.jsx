@@ -13,6 +13,7 @@ import {Info, PencilIcon, TrashIcon} from 'lucide-react';
 import {useDispatch} from 'react-redux';
 import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
 import {formatPrice, truncateString} from '../../../../utils/utils';
+import TruncatedText from '../../../../common/TruncatedText';
 
 const initialService = {
   Service_Group: '',
@@ -159,7 +160,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
     const serviceGroupLabel =
       serviceGroupListResponse.find((option) => option.value === Number(value))
         ?.label || value;
-    return [truncateString(14, serviceGroupLabel), serviceGroupLabel];
+    return serviceGroupLabel;
   };
 
   const getServiceLabel = (value, index) => {
@@ -167,7 +168,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
       services[index]?.servicesListResponse.find(
         (option) => option.value === Number(value)
       )?.label || value;
-    return [truncateString(14, serviceLabel), serviceLabel];
+    return serviceLabel;
   };
 
   const validateServices = (services) => {
@@ -283,21 +284,11 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                         index,
                         <>
                           {service.saved ? (
-                            <OverlayTrigger
-                              placement="top"
-                              overlay={
-                                <Tooltip id={`tooltip-${index}-Service_Group`}>
-                                  {
-                                    getServiceGroupLabel(
-                                      service.Service_Group
-                                    )[1]
-                                  }
-                                </Tooltip>
-                              }>
-                              <span className="px-2 font-semibold">
-                                {getServiceGroupLabel(service.Service_Group)[0]}
-                              </span>
-                            </OverlayTrigger>
+                            <TruncatedText
+                              text={getServiceGroupLabel(service.Service_Group)}
+                              maxLength={14}
+                              className="font-semibold text-sm px-2"
+                            />
                           ) : (
                             <Select
                               name="Service_Group"
@@ -329,17 +320,11 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                         index,
                         <>
                           {service.saved ? (
-                            <OverlayTrigger
-                              placement="top"
-                              overlay={
-                                <Tooltip id={`tooltip-${index}-Service`}>
-                                  {getServiceLabel(service.Service, index)[1]}
-                                </Tooltip>
-                              }>
-                              <span className="px-2 font-semibold">
-                                {getServiceLabel(service.Service, index)[0]}
-                              </span>
-                            </OverlayTrigger>
+                            <TruncatedText
+                              text={getServiceLabel(service.Service, index)}
+                              maxLength={14}
+                              className="font-semibold text-sm px-2"
+                            />
                           ) : (
                             <Select
                               name="Service"
