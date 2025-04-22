@@ -65,7 +65,6 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
   TextCase = 'Capital',
   ...props
 }) => {
-
   const handleBlur = (e: any) => {
     if (onBlur) {
       onBlur(e);
@@ -155,7 +154,9 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
           minDate={new Date('1900-01-01')}
           name={name}
           selected={value}
-          onChange={(date: Date | null) => onChange({target: {name, value: date}})}
+          onChange={(date: Date | null) =>
+            onChange({target: {name, value: date}})
+          }
           onBlur={handleBlur}
           disabled={disabled}
           required={required}

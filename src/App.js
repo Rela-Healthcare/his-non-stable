@@ -57,6 +57,7 @@ import ConcessionReport from './Components/OPDModule/Reports/ConcessionReport.js
 import {loginInformation} from './features/Login/LoginSlice';
 import Refund from './Components/OPDModule/Deposit/Refund.js';
 import ErrorBoundary from './Components/ErrorBoundary.js';
+import PatientCreation from './Components/OPDModule/NewPatient/PatientCreation/index.jsx';
 
 const App = () => {
   const navigate = useNavigate();
@@ -228,6 +229,10 @@ const App = () => {
                             <Route
                               path="op-reports/billcancellation"
                               element={<BillCancellationReport />}
+                            />
+                            <Route
+                              element={<PatientCreation />}
+                              path="patient-creation"
                             />
                           </Routes>
                         </SideBar>

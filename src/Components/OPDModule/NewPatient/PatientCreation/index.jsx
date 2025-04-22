@@ -46,8 +46,9 @@ import ServiceForm from './ServiceForm';
 import PaymentCheckout from './PaymentCheckout';
 import {toast} from 'react-toastify';
 import {transformToApiPayload} from './transformToApiPayload';
+import {Button} from 'react-bootstrap';
 
-const PatientCreation = ({UserId}) => {
+const PatientCreation = ({UserId, setShowPatientCreation}) => {
   const dispatch = useDispatch();
   const dropdownData = useSelector((state) => state.dropdown.data);
   const opServices = useSelector((state) => state.opService);
@@ -866,6 +867,13 @@ const PatientCreation = ({UserId}) => {
 
   return (
     <>
+      <Button
+        type="button"
+        variant="link"
+        onClick={() => setShowPatientCreation(false)}
+        className="mb-2 no-underline">
+        ⬅️ Back
+      </Button>
       <CustomAccordion
         activeIndex={activeAccordions}
         setActiveIndex={setActiveAccordions}

@@ -163,7 +163,9 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     uname = 'MEFTECmeftec',
     payMode = 'cash-remote-deposit',
   }: PaymentURLParams) => {
-    const baseURL = 'https://www.relainstitute.in/DataAegis_Live/';
+    const baseURL = 'https://testapp.ariticapp.com/ma/patient/app/payments';
+    // const baseURL = 'https://rela.momentpay.live/ma/patient/app/payments/';
+    // const baseURL = 'https://www.relainstitute.in/DataAegis_Live/';
     const queryParams = new URLSearchParams({
       patientName: patientName.toString(),
       uhid: uhid.toString(),
@@ -194,15 +196,17 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
             paitentDetails?.Email_ID &&
             paitentDetails?.Mobile_No
           ) {
-            await generatePaymentURL({
+            const paymentURL = await generatePaymentURL({
               patientName: paitentDetails?.Name,
               uhid: '000000',
               /* chargeRate: result?.amount, */
-              chargeRate: 1,
+              chargeRate: 1.0,
               email: paitentDetails?.Email_ID,
               mobileNo: paitentDetails?.Mobile_No,
               processingId: generateProcessingId(paitentDetails?.Mobile_No),
             });
+
+            window.open(paymentURL, '_blank');
           }
         } catch (error) {
           console.error('❌ Error generating payment link:', error);

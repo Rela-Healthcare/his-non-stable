@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
-import PatientCreation from '../OPDModule/NewPatient/PatientCreation';
 import {useDispatch, useSelector} from 'react-redux';
 import {Container} from 'react-bootstrap';
+import PatientSearch from '../OPDModule/PatientSearch';
 import {
   fetchSalutations,
   fetchMaritalStatus,
@@ -23,15 +23,17 @@ import {
   fetchServiceGroupList,
   fetchPriorityList,
 } from '../../store/Slices/dropdownSlice'; // Assume we create a batch fetch action
+import PatientCreation from '../OPDModule/NewPatient/PatientCreation';
 import ErrorBoundary from '../ErrorBoundary';
 
 const Home = () => {
   const dispatch = useDispatch();
+  const [showPatientCreation, setShowPatientCreation] = React.useState(false);
   const UserId = useSelector((state) => state.loginInfo.formData.userName);
 
   // Optimized useEffect for fetching all necessary data
   useEffect(() => {
-    // persional, addional details, next of kin
+    // persional, addional details, next of kin, evaluation, appointment
     dispatch(fetchSalutations());
     dispatch(fetchMaritalStatus());
     dispatch(fetchOccupation());
@@ -44,7 +46,6 @@ const Home = () => {
     dispatch(fetchCountries());
     dispatch(fetchState());
     dispatch(fetchRelationType());
-    // appointment
     dispatch(fetchDepartments());
     dispatch(fetchPayorsList());
     dispatch(fetchRefSrcList());
@@ -71,7 +72,13 @@ const Home = () => {
         </style>
 
         <ErrorBoundary>
-          <PatientCreation UserId={UserId} />
+          <>
+            {showPatientCreation ? (
+              <PatientCreation UserId={UserId} setShowPatientCreation={setShowPatientCreation} />
+            ) : (
+              <PatientSearch setShowPatientCreation={setShowPatientCreation} />
+            )}
+          </>
         </ErrorBoundary>
       </div>
     </Container>
