@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Table, Pagination, Button} from 'react-bootstrap';
+import {Table, Button} from 'react-bootstrap';
 
 interface Column<T> {
   label: string;

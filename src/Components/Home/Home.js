@@ -74,7 +74,10 @@ const Home = () => {
         <ErrorBoundary>
           <>
             {showPatientCreation ? (
-              <PatientCreation UserId={UserId} setShowPatientCreation={setShowPatientCreation} />
+              <PatientCreation
+                UserId={UserId}
+                setShowPatientCreation={setShowPatientCreation}
+              />
             ) : (
               <PatientSearch setShowPatientCreation={setShowPatientCreation} />
             )}

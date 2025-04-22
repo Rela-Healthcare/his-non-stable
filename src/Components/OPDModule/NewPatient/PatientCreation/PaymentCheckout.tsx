@@ -14,6 +14,8 @@ import {formatPrice, generateProcessingId} from '../../../../utils/utils';
 import {Button as CustomButton} from '../../../../common/ui/button';
 import {Tags, HelpCircle} from 'lucide-react';
 import {toast} from 'react-toastify';
+import generatePaymentURL from '../../../../utils/generatePaymentURL';
+import PaymentModal from '../../../../common/PaymentModal';
 
 interface PatientDetails {
   Name?: string;
@@ -41,16 +43,6 @@ interface PaymentCheckoutProps {
   userId?: string;
   onSubmit: (data: any) => void;
 }
-type PaymentURLParams = {
-  patientName: string;
-  uhid: string;
-  chargeRate: number;
-  email: string;
-  mobileNo: string;
-  processingId: string;
-  uname?: string;
-  payMode?: string;
-};
 
 const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   id,
@@ -71,6 +63,8 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   const [cardAmount, setCardAmount] = useState<number | null>(null);
   const [cashAmount, setCashAmount] = useState<number | null>(null);
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paymentURL, setPaymentURL] = useState('');
   const toastShownRef = useRef(false);
 
   useEffect(() => {
@@ -153,33 +147,6 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     });
   };
 
-  const generatePaymentURL = ({
-    patientName,
-    uhid,
-    chargeRate,
-    email,
-    mobileNo,
-    processingId,
-    uname = 'MEFTECmeftec',
-    payMode = 'cash-remote-deposit',
-  }: PaymentURLParams) => {
-    const baseURL = 'https://testapp.ariticapp.com/ma/patient/app/payments';
-    // const baseURL = 'https://rela.momentpay.live/ma/patient/app/payments/';
-    // const baseURL = 'https://www.relainstitute.in/DataAegis_Live/';
-    const queryParams = new URLSearchParams({
-      patientName: patientName.toString(),
-      uhid: uhid.toString(),
-      chargerate: chargeRate.toString(),
-      email: email.toString(),
-      mobileno: mobileNo.toString(),
-      processingid: processingId.toString(),
-      uname: uname.toString(),
-      paymode: payMode.toString(),
-    });
-
-    return `${baseURL}?${queryParams.toString()}`;
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const validationErrors = validateForm();
@@ -206,7 +173,8 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
               processingId: generateProcessingId(paitentDetails?.Mobile_No),
             });
 
-            window.open(paymentURL, '_blank');
+            setPaymentURL(paymentURL);
+            setIsModalOpen(true);
           }
         } catch (error) {
           console.error('❌ Error generating payment link:', error);
@@ -214,7 +182,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           return;
         }
       }
-      onSubmit(payload);
+      // onSubmit(payload);
       setErrors({});
     } else {
       setErrors(validationErrors);
@@ -640,6 +608,11 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           </Button>
         </Form>
       </div>
+      <PaymentModal
+        isOpen={isModalOpen}
+        iframeUrl={paymentURL}
+        onClose={() => setIsModalOpen(false)}
+      />
     </Container>
   );
 };
