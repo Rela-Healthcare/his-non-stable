@@ -12,7 +12,7 @@ import {
 import {Info, PencilIcon, TrashIcon} from 'lucide-react';
 import {useDispatch} from 'react-redux';
 import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
-import {formatPrice, truncateString} from '../../../../utils/utils';
+import {formatPrice} from '../../../../utils/utils';
 import TruncatedText from '../../../../common/TruncatedText';
 
 const initialService = {
@@ -244,9 +244,9 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
 
           <div
             ref={scrollRef}
-            className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scroll-smooth border border-blue-300 rounded-md">
-            <table className="min-w-[1200px] w-full table-auto bg-blue-100 rounded-md">
-              <thead className="bg-blue-300 text-gray-800 font-semibold">
+            className="overflow-x-auto scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-blue-100 scroll-smooth border border-gray-300 rounded-md">
+            <table className="min-w-[1200px] w-full table-auto bg-gray-100 rounded-md">
+              <thead className="bg-gray-300 text-gray-800 font-semibold">
                 <tr className="border-b border-gray-500">
                   <th className="px-2 py-3 min-w-[160px] text-left">
                     Service Group
@@ -266,7 +266,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                   </th>
                   <th className="px-2 py-3 min-w-[160px] text-left">Amount</th>
                   <th className="px-2 py-3 min-w-[160px] text-left">Remarks</th>
-                  <th className="px-2 py-3 text-center sticky right-0 bg-blue-300 z-20">
+                  <th className="px-2 py-3 text-center sticky right-0 bg-gray-300 z-20">
                     Action
                   </th>
                 </tr>
@@ -323,6 +323,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                             <TruncatedText
                               text={getServiceLabel(service.Service, index)}
                               maxLength={14}
+                              middleEllipsis={true}
                               className="font-semibold text-sm px-2"
                             />
                           ) : (
@@ -489,13 +490,13 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                       )}
                     </td>
 
-                    <td className="px-2 py-2 sticky right-0 bg-blue-100 z-10 text-center min-w-[100px]">
+                    <td className="px-2 py-2 sticky right-0 bg-gray-100 z-10 text-center min-w-[100px]">
                       <div className="flex justify-center gap-2">
                         {!service.saved ? (
                           <CustomButton
                             type="button"
                             onClick={() => toggleSaveEdit(index)}
-                            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
+                            className="w-full bg-gray-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-lg"
                             size="md">
                             {'Save Service'}
                           </CustomButton>
@@ -511,7 +512,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                               <CustomButton
                                 type="button"
                                 onClick={() => toggleSaveEdit(index)}
-                                className="border-1 bg-transparent border-blue-500 hover:border-blue-700 text-blue-500 hover:text-blue-700 font-bold py-3 px-3 rounded-lg"
+                                className="border-1 bg-transparent border-gray-500 hover:border-gray-700 text-blue-500 hover:text-blue-700 font-bold py-3 px-3 rounded-lg"
                                 size="sm">
                                 <PencilIcon />
                               </CustomButton>
@@ -526,7 +527,7 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
                               <CustomButton
                                 type="button"
                                 onClick={() => deleteService(index)}
-                                className="border-1 bg-transparent border-blue-500 hover:bg-blue-700 text-red-500 hover:text-red-700 font-bold py-3 px-3 rounded-lg"
+                                className="border-1 bg-transparent border-gray-500 hover:bg-gray-700 text-red-500 hover:text-red-700 font-bold py-3 px-3 rounded-lg"
                                 size="sm">
                                 <TrashIcon />
                               </CustomButton>
@@ -543,11 +544,9 @@ function ServiceInvoice({services, setServices, dropdownData, onSubmit}) {
 
           {/* 🆕 Show Total */}
           <div className="p-2 mt-3 flex justify-between items-center border-t-2 border-slate-200 ">
-            <div className="text-[1.1rem] text-slate-500 font-semibold">
-              Total Amount:{' '}
-              <span className="font-bold text-black">{`₹ ${formatPrice(
-                totalAmount
-              )}`}</span>
+            <div className="text-lg text-gray-600 font-semibold">
+              Total Amount: 
+              <span className="font-bold text-black">{`₹ ${formatPrice(totalAmount)}`}</span>
             </div>
             <div>
               <Button
