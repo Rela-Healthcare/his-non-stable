@@ -10,6 +10,8 @@ interface TruncatedTextProps {
   as?: 'span' | 'div';
   hideTooltipIfFits?: boolean;
   middleEllipsis?: boolean;
+  alwaysShowTooltip?: boolean;
+  tooltipText?: string;
 }
 
 const TruncatedText: React.FC<TruncatedTextProps> = ({
@@ -20,7 +22,9 @@ const TruncatedText: React.FC<TruncatedTextProps> = ({
   tooltipId,
   as = 'span',
   hideTooltipIfFits = true,
-  middleEllipsis = false, // DEFAULT FALSE
+  middleEllipsis = false,
+  alwaysShowTooltip = false, // ✅ Default false
+  tooltipText, // ✅ Optional override
 }) => {
   if (typeof text !== 'string') return null;
 
@@ -39,10 +43,14 @@ const TruncatedText: React.FC<TruncatedTextProps> = ({
 
   const Wrapper = as;
   const tooltip = (
-    <Tooltip id={tooltipId || `tooltip-${Math.random()}`}>{text}</Tooltip>
+    <Tooltip id={tooltipId || `tooltip-${Math.random()}`}>
+      {tooltipText || text}
+    </Tooltip>
   );
 
-  if (!shouldTruncate && hideTooltipIfFits) {
+  const showTooltip = shouldTruncate || alwaysShowTooltip || !hideTooltipIfFits;
+
+  if (!showTooltip) {
     return <Wrapper className={className}>{text}</Wrapper>;
   }
 

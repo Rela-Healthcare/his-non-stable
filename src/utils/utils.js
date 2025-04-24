@@ -266,11 +266,6 @@ export const truncateString = (maxLength, str) => {
   return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
 };
 
-export const formatPrice = (price) => {
-  if (typeof price !== 'number' || isNaN(price)) return '0.00';
-  return price.toFixed(2);
-};
-
 export function convertToApiDate(dateInput) {
   const date = new Date(dateInput);
   const yyyy = date.getFullYear();
@@ -278,3 +273,8 @@ export function convertToApiDate(dateInput) {
   const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd} 00:00:00`;
 }
+
+export const formatPrice = (price) => {
+  if (typeof price !== 'number' || isNaN(price)) return '0.00';
+  return price.toFixed(2);
+};

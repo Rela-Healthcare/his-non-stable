@@ -1,4 +1,11 @@
-import React, {useRef, useState, FormEvent, useMemo, useEffect} from 'react';
+import React, {
+  useRef,
+  useState,
+  FormEvent,
+  useMemo,
+  useEffect,
+  useCallback,
+} from 'react';
 import {
   Button,
   Form,
@@ -7,238 +14,252 @@ import {
   Alert,
   OverlayTrigger,
   Tooltip,
+  Container,
 } from 'react-bootstrap';
-import {Container} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
-import {formatPrice, generateProcessingId} from '../../../../utils/utils';
+import {
+  capitalize,
+  formatPrice,
+  generateProcessingId,
+} from '../../../../utils/utils';
 import {Button as CustomButton} from '../../../../common/ui/button';
 import {Tags, HelpCircle} from 'lucide-react';
 import {toast} from 'react-toastify';
-import generatePaymentURL from '../../../../utils/generatePaymentURL';
-import PaymentModal from '../../../../common/PaymentModal';
 import TruncatedText from '../../../../common/TruncatedText';
+import PaymentButton from '../../../../Components/Payment/PaymentButton';
+import {PaymentButtonProps, PayModes} from '../../../../types/payment.types';
+import {usePaymentCalculation} from '../../../../hooks/usePaymentCalculation';
+import {getConvertPercentageToDecimal} from '../../../../utils/PaymentUtil';
+
+// Types
+type PaymentMode = 'full' | 'split';
+type DiscountType = 'percentage' | 'flat' | '';
 
 interface PatientDetails {
-  Name?: string;
-  Mobile_No?: string;
-  Email_ID?: string;
-  Age?: string;
-  Gender?: string;
+  Name: string;
+  Mobile_No: string;
+  Email_ID: string;
+  Age: string;
+  Gender: string;
+  UHID?: string;
 }
 
 interface ServiceDetail {
-  ServiceName?: string;
-  Discount?: number;
-  Discount_Type?: 'Percentage' | 'Flat' | string;
-  Amount?: number;
-  Actual_Amount?: number;
+  ServiceName: string;
+  Discount: number;
+  Discount_Type: 'Percentage' | 'Flat';
+  Amount: number;
+  Actual_Amount: number;
 }
 
 interface PaymentCheckoutProps {
   id: string;
-  totalAmount: number;
   couponAmount?: number;
-  paitentDetails?: PatientDetails;
+  patientDetails?: PatientDetails;
   serviceDetails: ServiceDetail[];
   paymentDetails?: any;
   userId?: string;
   onSubmit: (data: any) => void;
+  taxRate?: number;
+  serviceCharge?: number;
 }
 
+// Constants
+const PAYMENT_TYPES = [
+  {label: '💵 Cash', value: 'C'},
+  {label: '💳 Card / UPI', value: 'R'},
+  {label: '📝 Cheque', value: 'Q'},
+  {label: '🔁 Contra', value: 'T'},
+];
+
+const DISCOUNT_TYPES = [
+  {label: 'Percentage', value: 'percentage'},
+  {label: 'Flat', value: 'flat'},
+];
+
+/**
+ * World-class Payment Checkout Component with:
+ * - Comprehensive payment processing
+ * - Discount and coupon handling
+ * - Split payment support
+ * - Tax and service charge calculation
+ * - Robust validation
+ * - Accessibility support
+ */
 const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   id,
   couponAmount = 0,
   paymentDetails,
-  paitentDetails,
+  patientDetails,
   serviceDetails,
   userId = 'admin123',
   onSubmit,
+  taxRate = 0,
+  serviceCharge = 0,
 }) => {
-  const [paymentMode, setPaymentMode] = useState<'full' | 'split'>('full');
-  const [payType, setPayType] = useState<string>('');
-  const [discountType, setDiscountType] = useState<string>('');
-  const [discount, setDiscount] = useState<number | null>(null);
-  const [coupon, setCoupon] = useState<boolean>(
-    paymentDetails?.Apply_Coupon ? true : false
-  );
-  const [cardAmount, setCardAmount] = useState<number | null>(null);
-  const [cashAmount, setCashAmount] = useState<number | null>(null);
-  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [paymentURL, setPaymentURL] = useState('');
+  // State
+  const [payment, setPayment] = useState({
+    mode: 'full' as PaymentMode,
+    type: '',
+    discountType: '' as DiscountType,
+    discount: null as number | null,
+    couponApplied: paymentDetails?.Apply_Coupon ?? false,
+    cardAmount: null as number | null,
+    cashAmount: null as number | null,
+  });
+
+  const [myPaymentDetails, setMyPaymentDetails] = useState<
+    PaymentButtonProps['paymentDetails']
+  >({
+    patientName: '',
+    uhid: '000000',
+    chargeRate: 1,
+    email: '',
+    mobileNo: '',
+    processingId: '',
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const toastShownRef = useRef(false);
 
+  // Reset split amounts when discount/coupon changes
   useEffect(() => {
-    setCardAmount(null);
-    setCashAmount(null);
-  }, [discountType, discount, coupon]);
+    setPayment((prev) => ({
+      ...prev,
+      cardAmount: null,
+      cashAmount: null,
+    }));
+  }, [payment.discountType, payment.discount, payment.couponApplied]);
 
-  const grossAmount = useMemo(() => {
-    return serviceDetails.reduce((total, service) => {
-      return total + (service.Actual_Amount || 0);
-    }, 0);
-  }, [serviceDetails]);
+  // Calculate payment details using custom hook
+  const {
+    grossAmount,
+    serviceLevelDiscount,
+    overallDiscountAmount,
+    totalDiscount,
+    afterDiscount,
+    couponValue,
+    taxAmount,
+    netPayable,
+    validateSplit,
+    breakdown,
+  } = usePaymentCalculation({
+    services: serviceDetails.slice(0, -1),
+    overallDiscount: payment.discount || 0,
+    overallDiscountType:
+      payment.discountType === 'percentage' ? 'PERCENTAGE' : 'FLAT',
+    couponAmount,
+    applyCoupon: payment.couponApplied,
+    taxRate,
+    applyTax: true,
+    serviceCharge,
+    applyServiceCharge: true,
+  });
 
-  const finalDiscount = useMemo(() => {
-    return serviceDetails.reduce((total, service) => {
-      const actualAmount = service.Actual_Amount || 0;
-      const discount = Number(service.Discount) || 0;
-      if (service.Discount_Type === 'Percentage') {
-        return total + (actualAmount * discount) / 100;
-      }
-      return total + discount;
-    }, 0);
-  }, [serviceDetails]);
-
-  const getConvertPercentageToDecimal = (
-    percentage: number,
-    Actual_Amount: number
-  ) => {
-    return (percentage / 100) * Actual_Amount;
-  };
-
-  const parsedDiscount =
-    parseFloat(String(discount ? discount : finalDiscount)) || 0;
-
-  const couponValue = useMemo(() => {
-    return coupon ? couponAmount : 0;
-  }, [coupon, couponAmount]);
-
-  const parseAmount = (val: number | string | null | undefined): number =>
-    parseFloat(String(val ?? 0)) || 0;
-
-  const computedDiscountAmount = useMemo(() => {
-    if (isNaN(parsedDiscount) || parsedDiscount <= 0) return 0;
-    const discountValue =
-      discountType === 'percentage'
-        ? (grossAmount * parsedDiscount) / 100
-        : parsedDiscount;
-    return Math.min(discountValue, grossAmount);
-  }, [discountType, parsedDiscount, grossAmount]);
-
-  const netPayable = useMemo(() => {
-    const afterDiscount = Math.max(grossAmount - computedDiscountAmount, 0);
-    return Math.max(afterDiscount - couponValue, 0);
-  }, [grossAmount, computedDiscountAmount, couponValue]);
-
-  const ReuseGrid: React.FC<{customName: string; customerDetails: string}> = ({
-    customName,
-    customerDetails,
-  }) => (
-    <div className="w-full flex justify-center items-center">
-      <div className="w-full">
-        <h5 className="text-[#838383] font-bold text-sm font-inter">
-          {customName}
-        </h5>
-      </div>
-      <div className="w-full">
-        <h5 className="text-black font-bold text-sm font-inter">:</h5>
-      </div>
-      <div className="w-full">
-        <h5 className="text-black font-bold text-sm font-inter">
-          {customerDetails}
-        </h5>
-      </div>
-    </div>
+  // Memoized patient data fallback
+  const patientData = useMemo(
+    () => ({
+      Name: capitalize(patientDetails?.Name) || 'Not Available',
+      Mobile_No: patientDetails?.Mobile_No || 'Not Available',
+      Age: patientDetails?.Age || 'Not Available',
+      Gender: patientDetails?.Gender || 'Not Available',
+      UHID: patientDetails?.UHID || 'UHID000000',
+    }),
+    [patientDetails]
   );
 
-  const handleCoupon = () => {
-    setCoupon((prevCoupon) => {
-      return !prevCoupon;
-    });
-  };
+  /**
+   * Handles coupon application/removal
+   */
+  const handleCouponToggle = useCallback(() => {
+    setPayment((prev) => ({
+      ...prev,
+      couponApplied: !prev.couponApplied,
+    }));
+  }, []);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length === 0) {
-      const payload = constructPaymentData();
-      const result = payload.Web_OPReceipt_Payment_Type.find(
-        (item: {PayType: string}) => item.PayType === 'R'
-      );
-      if (result) {
-        try {
-          if (
-            paitentDetails?.Name &&
-            result?.amount &&
-            paitentDetails?.Email_ID &&
-            paitentDetails?.Mobile_No
-          ) {
-            const paymentURL = await generatePaymentURL({
-              patientName: paitentDetails?.Name,
-              uhid: '000000',
-              /* chargeRate: result?.amount, */
-              chargeRate: 1.0,
-              email: paitentDetails?.Email_ID,
-              mobileNo: paitentDetails?.Mobile_No,
-              processingId: generateProcessingId(paitentDetails?.Mobile_No),
-            });
+  /**
+   * Handles split amount changes with validation
+   */
+  const handleSplitAmountChange = useCallback(
+    (type: 'card' | 'cash', value: string) => {
+      const enteredValue = parseFloat(value) || 0;
+      const cappedValue = Math.min(enteredValue, netPayable);
 
-            setPaymentURL(paymentURL);
-            setIsModalOpen(true);
-          }
-        } catch (error) {
-          console.error('❌ Error generating payment link:', error);
-          toast.error('Failed to generate payment link.');
-          return;
-        }
+      // Show toast if amount exceeds payable limit (once per change)
+      if (enteredValue > netPayable && !toastShownRef.current) {
+        toast.error(
+          `${type === 'card' ? 'Card' : 'Cash'} amount exceeds payable limit`
+        );
+        toastShownRef.current = true;
+        setTimeout(() => {
+          toastShownRef.current = false;
+        }, 5000);
       }
-      // onSubmit(payload);
-      setErrors({});
-    } else {
-      setErrors(validationErrors);
+
+      if (enteredValue > netPayable) return;
+      setPayment((prev) => ({
+        ...prev,
+        [type === 'card' ? 'cardAmount' : 'cashAmount']: cappedValue,
+        [type === 'card' ? 'cashAmount' : 'cardAmount']: Math.max(
+          0,
+          netPayable - cappedValue
+        ),
+      }));
+    },
+    [netPayable]
+  );
+
+  /**
+   * Validates the payment form
+   */
+  const validateForm = useCallback(() => {
+    const newErrors: Record<string, string> = {};
+
+    // Payment type validation
+    if (payment.mode === 'full' && !payment.type) {
+      newErrors.payType = 'Please select a payment method';
     }
-  };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string | undefined> = {};
-
-    if (paymentMode === 'full') {
-      if (!payType) newErrors.payType = 'Please select a payment type';
-    }
-
-    if (discountType && (isNaN(parsedDiscount) || parsedDiscount <= 0)) {
+    // Discount validation
+    if (payment.discountType && (!payment.discount || payment.discount <= 0)) {
       newErrors.discount = 'Please enter a valid discount value';
     }
 
-    if (paymentMode === 'split') {
-      const cardAmt = parseAmount(cardAmount);
-      const cashAmt = parseAmount(cashAmount);
-      const total = +(cardAmt + cashAmt).toFixed(2);
-
-      if (total !== +netPayable.toFixed(2)) {
-        newErrors.amounts = `Split total ₹${total} must equal Net Payable ₹${netPayable.toFixed(
-          2
-        )}`;
-      }
-
-      if (cardAmt < 0 || cashAmt < 0) {
-        newErrors.amounts = 'Amounts cannot be negative';
-      }
+    // Split payment validation
+    if (payment.mode === 'split') {
+      const validationError = validateSplit(
+        payment.cardAmount || 0,
+        payment.cashAmount || 0
+      );
+      if (validationError) newErrors.amounts = validationError;
     }
 
-    return newErrors;
-  };
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }, [payment, validateSplit]);
 
-  const constructPaymentData = () => {
+  /**
+   * Constructs payment data payload
+   */
+  const constructPaymentData = useCallback(() => {
     const paymentTypes = [];
 
-    if (paymentMode === 'full') {
+    if (payment.mode === 'full') {
       paymentTypes.push({
-        PayType: payType,
+        PayType: payment.type,
         amount: netPayable,
       });
     } else {
-      if (cardAmount !== null && cardAmount > 0) {
+      if (payment.cardAmount && payment.cardAmount > 0) {
         paymentTypes.push({
           PayType: 'R',
-          amount: cardAmount,
+          amount: payment.cardAmount,
         });
       }
-      if (cashAmount !== null && cashAmount > 0) {
+      if (payment.cashAmount && payment.cashAmount > 0) {
         paymentTypes.push({
           PayType: 'C',
-          amount: cashAmount,
+          amount: payment.cashAmount,
         });
       }
     }
@@ -247,120 +268,169 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
       Web_OPReceipt_Payment_Type: paymentTypes,
       Id: id,
       Gross_Amount: grossAmount,
-      Final_Discount: computedDiscountAmount,
-      Total_Amount: grossAmount - computedDiscountAmount,
-      Coupon_Balance: coupon ? couponAmount : 0,
-      Apply_Coupon: coupon,
+      Final_Discount: totalDiscount,
+      Total_Amount: afterDiscount,
+      Coupon_Balance: payment.couponApplied ? couponAmount : 0,
+      Apply_Coupon: payment.couponApplied,
+      Tax_Amount: taxAmount,
+      Service_Charge: serviceCharge,
       Net_Payable_Amount: netPayable,
       UserId: userId,
     };
-  };
+  }, [
+    payment.mode,
+    payment.couponApplied,
+    payment.type,
+    payment.cardAmount,
+    payment.cashAmount,
+    id,
+    grossAmount,
+    totalDiscount,
+    afterDiscount,
+    couponAmount,
+    taxAmount,
+    serviceCharge,
+    netPayable,
+    userId,
+  ]);
 
-  const handleSplitAmountChange = (type: 'card' | 'cash', value: string) => {
-    const enteredValue = parseAmount(value);
-    const cappedValue = Math.min(enteredValue, netPayable);
+  /**
+   * Processes payment and generates payment URL if needed
+   */
+  const processPayment = useCallback(async () => {
+    if (!patientDetails) {
+      toast.error('Patient details are required for payment');
+      return null;
+    }
+    setMyPaymentDetails({
+      patientName: patientDetails.Name,
+      uhid: patientDetails.UHID || '000000',
+      chargeRate: netPayable,
+      email: patientDetails.Email_ID,
+      mobileNo: patientDetails.Mobile_No,
+      processingId: generateProcessingId(patientDetails.Mobile_No),
+      payMode: PayModes.CARDS_UPI,
+    });
+    return null;
+  }, [patientDetails, netPayable]);
 
-    const showToastOnce = (msg: string) => {
-      if (!toastShownRef.current) {
-        toast.error(msg);
-        toastShownRef.current = true;
-        setTimeout(() => {
-          toastShownRef.current = false;
-        }, 3000);
+  /**
+   * Handles form submission
+   */
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const payload = constructPaymentData();
+
+    try {
+      // For online payments, generate URL and open modal
+      if (payment.mode === 'full' && payment.type === 'R') {
+        await processPayment();
+        return;
       }
-    };
 
-    if (enteredValue > netPayable) {
-      showToastOnce(
-        `${type === 'card' ? 'Card' : 'Cash'} amount exceeds the payable limit`
-      );
-      return;
-    }
-
-    if (type === 'card') {
-      setCardAmount(cappedValue);
-      setCashAmount(Math.max(0, netPayable - cappedValue));
-    } else {
-      setCashAmount(cappedValue);
-      setCardAmount(Math.max(0, netPayable - cappedValue));
+      // For other payment types, submit directly
+      onSubmit(payload);
+    } catch (error) {
+      console.error('Payment submission error:', error);
+      toast.error('Failed to process payment');
     }
   };
 
-  const renderTooltip = (props: any) => (
-    <Tooltip id="overall-discount-tooltip" {...props}>
-      If you have already applied a discount to individual services, you cannot
-      provide an overall discount.
+  /**
+   * Reusable patient detail display component
+   */
+  const PatientDetailRow: React.FC<{label: string; value: string}> = ({
+    label,
+    value,
+  }) => (
+    <div className="w-full flex justify-between items-center py-1">
+      <span className="text-[#838383] font-bold text-sm">{label}</span>
+      <span className="text-black font-bold text-sm ml-2">:</span>
+      <span className="text-black font-bold text-sm flex-1 text-right ml-2">
+        {value || 'Not Available'}
+      </span>
+    </div>
+  );
+
+  /**
+   * Tooltip for discount information
+   */
+  const renderDiscountTooltip = (props: any) => (
+    <Tooltip id="discount-tooltip" {...props}>
+      {serviceLevelDiscount > 0
+        ? 'Service-level discounts have already been applied, so overall discount will not be provided.'
+        : 'Apply percentage or flat discount to the total amount'}
     </Tooltip>
   );
 
   return (
-    <Container className="flex justify-between items-center mt-4">
+    <Container className="flex justify-between items-center pt-4">
       <div className="h-[75vh] w-4/6 flex flex-col justify-between">
         {/* Patient Details */}
         <div className="border-b-2 border-slate-200 ">
           <h3 className="text-lg font-bold text-gray-800 mb-2">
             Patient Information
           </h3>
-          <div className="flex items-center justify-between">
-            <table className="table-auto w-full">
-              <tbody>
-                <tr>
-                  <td className="px-4 py-2">
-                    <ReuseGrid
-                      customName="Name"
-                      // customerDetails={paitentDetails?.Name}
-                      customerDetails={'Bharathkumar'}
-                    />
-                  </td>
-                  <td className="px-4 py-2">
-                    <ReuseGrid customName="UHID" customerDetails={'11039'} />
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-2">
-                    <ReuseGrid
-                      customName="Mobile"
-                      // customerDetails={paitentDetails?.Mobile}
-                      customerDetails={'9876543210'}
-                    />
-                  </td>
-                  <td className="px-4 py-2 ">
-                    <ReuseGrid
-                      customName="Age/Gender"
-                      // customerDetails={`${paitentDetails?.Age}/${paitentDetails?.Gender}`}
-                      customerDetails={`22/M`}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="flex flex-col items-center justify-between">
+            <Row className="w-full">
+              <Col className="!m-0 !p-0" sm={5}>
+                <PatientDetailRow
+                  label="Patient Name"
+                  value={patientData.Name}
+                />
+              </Col>
+              <Col sm={2} />
+              {/* space between */}
+              <Col className="!m-0 !p-0" sm={5}>
+                {' '}
+                {/* or use `ml-2` for smaller gap */}
+                <PatientDetailRow label="UHID" value={patientData.UHID} />
+              </Col>
+            </Row>
+            <Row className="w-full">
+              <Col className="!m-0 !p-0" sm={5}>
+                <PatientDetailRow
+                  label="Mobile"
+                  value={patientData.Mobile_No}
+                />
+              </Col>
+              <Col sm={2} />
+              <Col className="!m-0 !p-0" sm={5}>
+                <PatientDetailRow
+                  label="Age/Gender"
+                  value={`${patientData.Age}/${patientData.Gender}`}
+                />
+              </Col>
+            </Row>
           </div>
         </div>
 
         {/* Services */}
-        <div className="border-b-2 border-slate-200 pb-2 h-full mt-4">
+        <div className="border-b-2 border-slate-200 pb-2 h-full mt-3">
           <h3 className="text-lg font-bold text-gray-800 mb-4">Services</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse border">
               <thead className="sticky top-0 z-10 block bg-slate-200">
                 <tr className="table w-full m-0 border-0 table-fixed">
-                  <th className="border px-1 py-0 text-left w-7/12">Service</th>
+                  <th className="border px-1 py-0 text-left w-6/12">Service</th>
                   <th className="border px-1 py-0 text-left w-3/12">
                     Discount (₹)
                   </th>
-                  <th className="border px-1 py-0 text-left w-2/12">
+                  <th className="border px-1 py-0 text-left w-3/12">
                     Amount (₹)
                   </th>
                 </tr>
               </thead>
               <tbody className="block max-h-64 overflow-y-auto w-full">
-                {serviceDetails.slice(0, -1) &&
-                serviceDetails.slice(0, -1).length > 0 ? (
+                {serviceDetails.slice(0, -1).length > 0 ? (
                   serviceDetails.slice(0, -1).map((service, index) => (
                     <tr key={index} className="table m-0 w-full table-fixed">
-                      <td className="border px-1 w-7/12">
+                      <td className="border px-1 w-6/12">
                         <TruncatedText
-                          text={service.ServiceName || '—'}
+                          text={service.ServiceName}
                           maxLength={30}
                           middleEllipsis={true}
                           className="font-semibold text-sm px-2"
@@ -380,8 +450,17 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                           ? `₹${service.Discount ?? 0}`
                           : '—'}
                       </td>
-                      <td className="border px-1 w-2/12">
-                        {formatPrice(service.Actual_Amount) ?? 0}
+                      <td className="border px-1 w-3/12 font-medium">
+                        <TruncatedText
+                          text={`₹${formatPrice(service.Amount)}`}
+                          alwaysShowTooltip={true}
+                          tooltipText={`without discount: ₹${formatPrice(
+                            service?.Actual_Amount
+                          )}`}
+                          maxLength={30}
+                          middleEllipsis={true}
+                          className="font-semibold text-sm px-2"
+                        />
                       </td>
                     </tr>
                   ))
@@ -399,34 +478,51 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
 
         {/* Billing Summary */}
         <div className="mt-3 flex justify-end items-center">
-          <div className="px-3 w-full">
+          <div className="w-full">
             <h3 className="text-lg font-bold text-gray-800 mb-4">
               Billing Summary
             </h3>
             <ul className="font-sans font-semibold flex flex-col justify-between gap-y-2">
               <li className="flex justify-between items-center">
                 <span>Gross Amount:</span>
-                <span>₹{grossAmount}</span>
+                <span>₹{grossAmount.toFixed(2)}</span>
               </li>
               <li className="flex justify-between items-center">
-                <span>Final Discount:</span>
-                <span className="text-red-500">{`— ₹ ${computedDiscountAmount}`}</span>
+                <span>Discounts:</span>
+                <span
+                  className={
+                    totalDiscount > 0 ? 'text-red-500' : ''
+                  }>{`— ₹${totalDiscount.toFixed(2)}`}</span>
               </li>
               <li className="flex justify-between items-center">
-                <span>Total Amount:</span>
-                <span>₹{grossAmount - computedDiscountAmount}</span>
+                <span>Subtotal:</span>
+                <span>₹{afterDiscount.toFixed(2)}</span>
               </li>
+
               <li className="flex justify-between items-center">
                 <span>Coupon:</span>
-                {coupon ? (
-                  <span className="text-red-500">{`— ₹ ${couponValue}`}</span>
-                ) : (
-                  0
-                )}
+                <span
+                  className={
+                    payment.couponApplied ? 'text-red-500' : ''
+                  }>{`— ₹${
+                  payment.couponApplied ? couponValue.toFixed(2) : 0
+                }`}</span>
               </li>
+              {taxAmount > 0 && (
+                <li className="flex justify-between items-center">
+                  <span>Tax ({taxRate}%):</span>
+                  <span>+ ₹{taxAmount.toFixed(2)}</span>
+                </li>
+              )}
+              {serviceCharge > 0 && (
+                <li className="flex justify-between items-center">
+                  <span>Service Charge:</span>
+                  <span>+ ₹{serviceCharge.toFixed(2)}</span>
+                </li>
+              )}
               <li className="text-md font-bold tracking-wide font-serif border-t-2 border-gray-300 pt-2 flex justify-between items-center">
                 <span>Net Payable:</span>
-                <span>₹{netPayable}</span>
+                <span>₹{netPayable.toFixed(2)}</span>
               </li>
             </ul>
           </div>
@@ -438,7 +534,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
         <Form
           noValidate
           onSubmit={handleSubmit}
-          className="bg-slate-100 p-4 rounded-lg h-full flex flex-col justify-between">
+          className="bg-slate-100 p-4 rounded-lg h-full flex flex-col justify-between drop-shadow">
           <h5 className="text-lg font-bold tracking-wide font-sans border-b-2 pb-2 border-b-slate-200">
             Payment Details
           </h5>
@@ -447,10 +543,11 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
             <Row>
               <h5 className="text-gray-700 font-semibold text-md flex items-center space-x-2">
                 <span>
-                  Over all discount <span className="text-red-500">*</span>
+                  Overall Discount <span className="text-red-500">*</span>
                 </span>
-
-                <OverlayTrigger placement="right" overlay={renderTooltip}>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={renderDiscountTooltip}>
                   <span className="text-gray-500 cursor-pointer">
                     <HelpCircle size={18} />
                   </span>
@@ -460,51 +557,54 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                 <CustomFormField
                   type="select"
                   name="discountType"
-                  required
-                  value={discountType}
-                  disabled={finalDiscount > 0 ? true : false}
-                  onChange={(e: {target: {value: string}}) =>
-                    setDiscountType(e.target.value)
+                  value={payment.discountType}
+                  onChange={(e) =>
+                    setPayment((prev) => ({
+                      ...prev,
+                      discountType: e.target.value as DiscountType,
+                      discount: null,
+                    }))
                   }
-                  className={'m-0 w-1/2'}
-                  options={
-                    [
-                      {label: 'Percentage', value: 'percentage'},
-                      {label: 'Flat', value: 'flat'},
-                    ] as unknown as never[]
-                  }
+                  options={DISCOUNT_TYPES}
                   placeholder="Discount Type"
-                  isInvalid={!!errors?.discountType}
-                  errorMessage={errors?.discountType}
+                  disabled={serviceLevelDiscount > 0}
+                  className="m-0 w-1/2"
+                  isInvalid={!!errors.discount}
+                  errorMessage={errors.discount}
                 />
                 <CustomFormField
                   type="number"
                   name="discount"
-                  required
-                  value={discount}
-                  disabled={!discountType}
-                  onChange={(e) => setDiscount(e.target.value)}
-                  className={'m-0 w-1/2'}
-                  placeholder="Discount"
-                  isInvalid={!!errors?.discount}
-                  errorMessage={errors?.discount}
+                  value={payment.discount || ''}
+                  onChange={(e) =>
+                    setPayment((prev) => ({
+                      ...prev,
+                      discount: parseFloat(e.target.value) || null,
+                    }))
+                  }
+                  disabled={!payment.discountType}
+                  placeholder="Amount"
+                  min="0"
+                  className="m-0 w-1/2"
+                  isInvalid={!!errors.discount}
+                  errorMessage={errors.discount}
                 />
               </div>
             </Row>
-            <div className="flex justify-between items-center my-2 px-3 w-full h-[3rem] border-1 border-gray-800 rounded-md">
+            <div className="flex justify-between items-center my-2 px-3 w-full h-[2.6rem] border-1 border-gray-800 rounded-md">
               <span className="flex items-center font-sans font-bold">
                 Coupon <Tags fill="#CCC" size={20} className="mx-2" />
-                <span className="text-gray-500">Save₹{couponValue}</span>
+                <span className="text-gray-500">Save|₹{couponAmount}</span>
               </span>
               <CustomButton
                 className={`font-sans font-bold ${
-                  !coupon ? 'text-green-500' : 'text-red-500'
+                  !payment.couponApplied ? 'text-green-500' : 'text-red-500'
                 }`}
                 type="button"
                 variant="link"
-                onClick={handleCoupon}
+                onClick={handleCouponToggle}
                 size="sm">
-                {!coupon ? 'Apply' : 'Remove'}
+                {!payment.couponApplied ? 'Apply' : 'Remove'}
               </CustomButton>
             </div>
             <Form.Group className="space-y-4 mt-4">
@@ -517,8 +617,10 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                       Full Payment
                     </span>
                   }
-                  checked={paymentMode === 'full'}
-                  onChange={() => setPaymentMode('full')}
+                  checked={payment.mode === 'full'}
+                  onChange={() =>
+                    setPayment((prev) => ({...prev, mode: 'full'}))
+                  }
                 />
                 <Form.Check
                   type="radio"
@@ -528,13 +630,15 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                       Split Payment
                     </span>
                   }
-                  checked={paymentMode === 'split'}
-                  onChange={() => setPaymentMode('split')}
+                  checked={payment.mode === 'split'}
+                  onChange={() =>
+                    setPayment((prev) => ({...prev, mode: 'split'}))
+                  }
                 />
               </div>
 
               {/* Full Payment Fields */}
-              {paymentMode === 'full' && (
+              {payment.mode === 'full' && (
                 <div className="space-y-4">
                   <Form.Group>
                     <Form.Label className="text-sm font-semibold text-gray-700">
@@ -542,26 +646,24 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                     </Form.Label>
                     <CustomFormField
                       type="select"
-                      name="PayType"
-                      required
-                      value={payType}
-                      onChange={(e) => setPayType(e.target.value)}
-                      options={[
-                        {label: '💵 Cash', value: 'C'},
-                        {label: '💳 Card', value: 'R'},
-                        {label: '📝 Cheque', value: 'Q'},
-                        {label: '🔁 Contra', value: 'T'},
-                      ]}
+                      name="payType"
+                      value={payment.type}
+                      onChange={(e) => {
+                        setPayment((prev) => ({...prev, type: e.target.value}));
+                        setErrors((prev) => ({...prev, payType: ''}));
+                      }}
+                      options={PAYMENT_TYPES}
                       placeholder="Select payment method"
-                      isInvalid={!!errors?.payType}
-                      errorMessage={errors?.payType}
+                      isInvalid={!!errors.payType}
+                      errorMessage={errors.payType}
+                      required
                     />
                   </Form.Group>
                 </div>
               )}
 
               {/* Split Payment Fields */}
-              {paymentMode === 'split' && (
+              {payment.mode === 'split' && (
                 <div className="space-y-4">
                   <Row>
                     <Col>
@@ -571,10 +673,13 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                         </Form.Label>
                         <Form.Control
                           type="number"
-                          value={cardAmount || ''}
+                          placeholder="Card Amount"
+                          value={payment.cardAmount || ''}
                           onChange={(e) =>
                             handleSplitAmountChange('card', e.target.value)
                           }
+                          min="0"
+                          max={netPayable}
                           className="text-sm font-medium text-gray-900"
                         />
                       </Form.Group>
@@ -586,10 +691,13 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                         </Form.Label>
                         <Form.Control
                           type="number"
-                          value={cashAmount || ''}
+                          placeholder="Cash Amount"
+                          value={payment.cashAmount || ''}
                           onChange={(e) =>
                             handleSplitAmountChange('cash', e.target.value)
                           }
+                          min="0"
+                          max={netPayable}
                           className="text-sm font-medium text-gray-900"
                         />
                       </Form.Group>
@@ -606,19 +714,22 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
             </Form.Group>
           </div>
 
-          <Button
-            variant="success"
-            type="submit"
-            className="mt-3 w-full font-sans font-bold">
-            Payment: ₹{netPayable}
-          </Button>
+          {/* Submit Button - Conditionally render PaymentButton for online payments */}
+          {(payment.mode === 'full' && payment.type === 'R') ||
+          payment.mode === 'split' ? (
+            <PaymentButton
+              paymentDetails={myPaymentDetails && myPaymentDetails}
+              className="w-full mt-6 py-2 font-bold"
+            />
+          ) : (
+            <Button
+              type="submit"
+              className={`flex items-center font-sans justify-center gap-2 bg-gradient-to-r from-green-700 to-teal-800 text-white hover:from-green-700 hover:to-teal-900 transition-all duration-300 ease-in-out px-6 py-2 rounded-lg shadow-lg text-sm tracking-wide w-full mt-6`}>
+              Pay ₹{netPayable.toFixed(2)}
+            </Button>
+          )}
         </Form>
       </div>
-      <PaymentModal
-        isOpen={isModalOpen}
-        iframeUrl={paymentURL}
-        onClose={() => setIsModalOpen(false)}
-      />
     </Container>
   );
 };

@@ -19,7 +19,7 @@ const generatePaymentURL = ({
   uname = 'MEFTECmeftec',
   payMode = '',
 }: PaymentURLParams): string => {
-  const baseURL = 'https://www.relainstitute.in/DataAegis_Live/';
+  const baseURL = process.env.REACT_APP_PAYMENT_BASE_URL;
   const queryParams = new URLSearchParams({
     patientName,
     uhid,

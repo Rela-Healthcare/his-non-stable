@@ -986,7 +986,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
               id={1}
               userId="admin123"
               paymentDetails={paymentDetails}
-              paitentDetails={personalDetails}
+              patientDetails={personalDetails}
               serviceDetails={serviceDetails}
               couponAmount={50}
               onSubmit={handlePaymentSubmit}

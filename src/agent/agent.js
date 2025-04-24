@@ -1,35 +1,4 @@
-import axios from 'axios';
-
-const BASE_URL = 'http://192.168.15.3/Test_HIS/api/his/'; // Developement
-// const BASE_URL = 'https://www.relainstitute.in/NewHIS_Live/api/HIS/'; // Live
-
-const apiRequest = async (method, url, body = null) => {
-  try {
-    const response = await axios({
-      method,
-      url: `${BASE_URL}${url}`,
-      data: body,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    return {data: response.data, status: 'success'};
-  } catch (error) {
-    return {
-      data: error.response
-        ? error.response.data
-        : 'An unexpected error occurred.',
-      status: 'error',
-    };
-  }
-};
-
-const requests = {
-  get: (url) => apiRequest('get', url),
-  post: (url, body) => apiRequest('post', url, body),
-  put: (url, body) => apiRequest('put', url, body),
-  delete: (url, body) => apiRequest('delete', url, body),
-};
+import requests from '../api/requestHelper';
 
 export const OPModuleAgent = {
   //Login
@@ -289,8 +258,9 @@ export const OPModuleAgent = {
 
   updatePOSPayment: (saveInfo) =>
     requests.post(`updatePOSPayment`, saveInfo, true),
+  
   verifyPaymentInfo: (processingId) =>
-    requests.post(`getTransactionStatus?processingid=${processingId}`),
+    requests.get(`getTransactionStatus?processingid=${processingId}`),
 
   //getAll Appointments status!
   getAppointmentStatus: (fromDate, toDate) =>
