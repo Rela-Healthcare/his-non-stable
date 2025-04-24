@@ -59,14 +59,24 @@ const Select = ({
         required={required}
         className={`
           flex h-9 w-full items-center justify-between whitespace-nowrap 
-          rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm 
+          rounded-md border border-input bg-transparent px-3 py-2 text-sm !shadow-sm
           ring-offset-background placeholder:text-muted-foreground 
-          focus:outline-none focus:ring-1 focus:ring-ring 
+          focus:outline-none 
+          focus:shadow-md focus:shadow-blue-100
+          transition-all duration-200 ease-in-out
           disabled:cursor-not-allowed disabled:opacity-50
           [&>span]:line-clamp-1 
+          ${
+            isInvalid
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : ''
+          }
           ${disabled ? 'select-disabled cursor-not-allowed' : ''} 
           ${className}
-        `}>
+        `}
+        style={{
+          '--tw-ring-color': isInvalid ? '#ef4444' : '#3b82f6',
+        }}>
         <option value="">{placeholder || `Select ${label}`}</option>
         {selectOptions}
       </Form.Select>
