@@ -200,7 +200,7 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
   );
 
   return (
-    <Container className="md:px-6 mt-4">
+    <Container className="px-2 md:px-6">
       <Form noValidate onSubmit={handleSubmit}>
         <EditableServiceTable
           services={services}
@@ -213,9 +213,9 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
           errors={errors}
         />
 
-        <div className="p-2 mt-3 flex justify-between items-center border-t-2 border-slate-200">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 mt-6">
           <div className="text-lg text-gray-600 font-semibold">
-            Total Amount:
+            Total Amount <span className="mx-2">:</span>
             <span className="font-bold text-black">{`₹ ${formatPrice(
               totalAmount
             )}`}</span>

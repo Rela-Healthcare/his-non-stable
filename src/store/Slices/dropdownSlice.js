@@ -101,6 +101,7 @@ export const fetchServicesList = createAsyncThunk(
 export const fetchPayorsList = createAsyncThunk(
   'dropdown/fetchPayorsList',
   async (patientType) => {
+    if (!patientType) return [];
     const apiData = (await OPModuleAgent.getPayorsList(patientType)).data;
     return apiData
       .filter((item) => item.columnCode)
@@ -141,6 +142,7 @@ export const fetchAreaListByPincode = createAsyncThunk(
 export const fetchAppointmentDetails = createAsyncThunk(
   'dropdown/fetchAppointmentDetails',
   async ({AppointmentDate, doctorId, slotType = 0}) => {
+    if (!AppointmentDate || !doctorId) return [];
     const response = await OPModuleAgent.getAppointmentDetails({
       SlotDate: AppointmentDate,
       DoctorID: doctorId,

@@ -1,7 +1,9 @@
 import React from 'react';
-import {Button, Container, Form, Tooltip} from 'react-bootstrap';
+import {Button, Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
 import {capitalize} from '../../../../utils/utils';
+import {useMediaQuery} from '@mui/material';
+import TruncatedText from '../../../../common/TruncatedText';
 
 const NextOfKinForm = ({
   formData,
@@ -16,11 +18,12 @@ const NextOfKinForm = ({
   isRelationMobileValid,
 }) => {
   const {relationTypeResponse, kinAreaData} = dropdownData;
+  const isMobile = useMediaQuery('(max-width:767px)');
 
   return (
-    <Container className="max-w-full">
-      <Form noValidate onSubmit={onSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-4">
+    <Container className="px-2 md:px-6">
+      <Form noValidate onSubmit={onSubmit}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-4">
           <CustomFormField
             label="Relation Type"
             type="select"
@@ -67,7 +70,7 @@ const NextOfKinForm = ({
             }`}>
             <Form.Group
               controlId="formBasicCheckbox"
-              className="flex justify-center items-center w-full m-2">
+              className="flex justify-center items-center w-full my-2">
               <Form.Check
                 type="checkbox"
                 label={
@@ -78,10 +81,11 @@ const NextOfKinForm = ({
                         ? 'cursor-not-allowed'
                         : 'cursor-pointer'
                     }`}>
-                    {window.innerWidth < 768 ? (
-                      <Tooltip title="Same as above patient address">
-                        <span>Same...</span>
-                      </Tooltip>
+                    {isMobile ? (
+                      <TruncatedText
+                        text="Same as above patient address"
+                        maxLength={8}
+                      />
                     ) : (
                       'Same as above patient address'
                     )}
@@ -93,7 +97,7 @@ const NextOfKinForm = ({
                 onBlur={onBlur}
                 className={`flex justify-center items-center gap-2 p-[0.8em] mt-[1.8rem] border border-black rounded-md w-full ${
                   !additionalDetails.Pincode &&
-                  'bg-gray-200 border-0 cursor-not-allowed'
+                  'bg-gray-200 h-full cursor-not-allowed'
                 }`}
               />
             </Form.Group>

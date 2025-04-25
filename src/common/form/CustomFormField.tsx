@@ -77,7 +77,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
   const selectOptions = useMemo(() => {
     return options.map((option) => (
       <option key={option.value} value={option.value}>
-        {capitalize(option.label)}
+        option.label
       </option>
     ));
   }, [options]);
@@ -124,7 +124,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
         <div className={`w-full ${disabled ? 'cursor-not-allowed' : ''}`}>
           <Form.Select
             name={name}
-            value={value}
+            value={value ?? ''}
             onChange={onChange}
             onBlur={handleBlur}
             disabled={disabled}

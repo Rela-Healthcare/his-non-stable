@@ -81,6 +81,7 @@
     "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
+  "proxy": "http://192.168.15.3/Test_HIS/api/his",
   "resolutions": {
     "styled-components": "^6.1.0"
   },

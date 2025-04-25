@@ -21,9 +21,9 @@ const ScheduleAppointmentForm = ({
     externalDoctorListResponse,
   } = dropdownData;
   return (
-    <Container className="max-w-full">
-      <Form noValidate onSubmit={onSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-4">
+    <Container className="px-2 md:px-6">
+      <Form noValidate onSubmit={onSubmit}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-4">
           <CustomFormField
             label="Department Name"
             type="select"
@@ -237,7 +237,7 @@ const ScheduleAppointmentForm = ({
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-1">
+        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-2">
           <Button variant="secondary" type="button" onClick={onReset}>
             Clear
           </Button>

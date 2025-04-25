@@ -59,7 +59,7 @@ const SalutationNameField: React.FC<Props> = ({
         <div className="w-full md:w-[20%] h-[40px] border-y border-l border-black border-r-0 rounded-t-md md:rounded-l-md md:rounded-tr-none">
           <Form.Select
             name={salutationName}
-            value={salutationValue}
+            value={salutationValue ?? ''}
             onChange={onSalutationChange}
             onBlur={onBlur}
             required

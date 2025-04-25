@@ -92,9 +92,9 @@ const EvaluationForm = ({
   };
 
   return (
-    <Container className="max-w-full">
+    <Container className="px-2 md:px-6">
       <Form noValidate onSubmit={onSubmit} className="space-y-6">
-        <div className="grid gap-4 p-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-4">
           {questions.map((q, idx) => (
             <motion.div
               key={`${q.key}-${shouldAnimate}`}

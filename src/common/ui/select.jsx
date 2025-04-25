@@ -26,22 +26,16 @@ const Select = ({
 
   const selectOptions = useMemo(() => {
     return options.map((option) => (
-      <option key={option.value} value={option.value}>
-        <TruncatedText
-          text={capitalize(option.label)}
-          hideTooltipIfFits={false}
-          middleEllipsis={middleEllipsis}
-          maxLength={14}
-          className="font-semibold text-sm px-2"
-        />
+      <option key={option.value} value={option.value} title={option.label}>
+        {option.label}
       </option>
     ));
-  }, [middleEllipsis, options]);
+  }, [options]);
 
   const selectOptionsOnBlur = useMemo(() => {
     return options.map((option) => (
       <option key={option.value} value={option.value}>
-        {capitalize(option.label)}
+        {option.label}
       </option>
     ));
   }, [options]);
@@ -74,7 +68,7 @@ const Select = ({
 
       <Form.Select
         name={name}
-        value={value || ''}
+        value={value ?? ''}
         onChange={onChange}
         onBlur={(e) => {
           setIsFocused(false);
@@ -83,8 +77,7 @@ const Select = ({
         onFocus={() => setIsFocused(true)}
         disabled={disabled}
         required={required}
-        className={
-          `flex h-9 w-full items-center justify-between whitespace-nowrap 
+        className={`flex h-9 w-full items-center justify-between whitespace-nowrap 
           rounded-md border border-input bg-transparent px-3 py-2 text-sm !shadow-sm
           ring-offset-background placeholder:text-muted-foreground 
           focus:outline-none 
@@ -92,10 +85,13 @@ const Select = ({
           transition-all duration-200 ease-in-out
           disabled:cursor-not-allowed disabled:opacity-50
           [&>span]:line-clamp-1 
-          ${isInvalid ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
+          ${
+            isInvalid
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : ''
+          }
           ${disabled ? 'select-disabled cursor-not-allowed' : ''}
-          ${className}`
-        }
+          ${className}`}
         style={{
           '--tw-ring-color': isInvalid ? '#ef4444' : '#3b82f6',
         }}>
