@@ -2,6 +2,7 @@ import {Button} from 'react-bootstrap';
 import {usePayment} from '../../hooks/usePayment';
 import PaymentModal from './PaymentModal';
 import {PaymentButtonProps} from '../../types/payment.types';
+import {createPortal} from 'react-dom';
 
 const PaymentButton = ({
   paymentDetails,
@@ -26,11 +27,15 @@ const PaymentButton = ({
         Pay ₹{paymentDetails.chargeRate.toFixed(2)}
       </Button>
 
-      <PaymentModal
-        isOpen={isOpen}
-        iframeUrl={iframeUrl}
-        onClose={handleClose}
-      />
+      {isOpen &&
+        createPortal(
+          <PaymentModal
+            isOpen={isOpen}
+            iframeUrl={iframeUrl}
+            onClose={handleClose}
+          />,
+          document.getElementById('modal-root')!
+        )}
     </>
   );
 };
