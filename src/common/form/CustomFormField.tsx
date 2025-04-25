@@ -77,7 +77,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
   const selectOptions = useMemo(() => {
     return options.map((option) => (
       <option key={option.value} value={option.value}>
-        option.label
+        {capitalize(option.label)}
       </option>
     ));
   }, [options]);

@@ -20,14 +20,15 @@ const Select = ({
   isInvalid = false,
   errorMessage = '',
   className = '',
-  middleEllipsis = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   const selectOptions = useMemo(() => {
     return options.map((option) => (
       <option key={option.value} value={option.value} title={option.label}>
-        {option.label}
+        {option.label.length > 14
+          ? `${option.label.slice(0, 11)}...`
+          : option.label}
       </option>
     ));
   }, [options]);
@@ -35,7 +36,7 @@ const Select = ({
   const selectOptionsOnBlur = useMemo(() => {
     return options.map((option) => (
       <option key={option.value} value={option.value}>
-        {option.label}
+        {capitalize(option.label)}
       </option>
     ));
   }, [options]);
