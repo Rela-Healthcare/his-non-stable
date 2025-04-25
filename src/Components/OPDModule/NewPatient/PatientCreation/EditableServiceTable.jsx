@@ -206,6 +206,7 @@ const EditableServiceTable = ({
                 </th>
                 <th className="px-2 py-3 min-w-[160px] text-left">Service</th>
                 <th className="px-2 py-3 min-w-[160px] text-left">Priority</th>
+                <th className="px-2 py-3 min-w-[160px] text-left">Amount</th>
                 <th className="px-2 py-3 min-w-[160px] text-left">
                   Discount Type
                 </th>
@@ -213,7 +214,6 @@ const EditableServiceTable = ({
                 <th className="px-2 py-3 min-w-[160px] text-left">
                   Discount Reason
                 </th>
-                <th className="px-2 py-3 min-w-[160px] text-left">Amount</th>
                 <th className="px-2 py-3 min-w-[160px] text-left">Remarks</th>
                 <th className="px-2 py-3 text-center sticky right-0 bg-gray-300 z-20 min-w-[120px]">
                   Actions
@@ -228,7 +228,7 @@ const EditableServiceTable = ({
                   className="border-b hover:bg-gray-50 transition-colors"
                   aria-label={`Service row ${index + 1}`}
                   ref={(el) => (rowRefs.current[index] = el)}>
-                  <td className="px-2 py-2 min-w-[160px]">
+                  <td className="px-2 py-2 min-w-[200px]">
                     {renderFieldWithError(
                       'Service_Group',
                       index,
@@ -252,7 +252,7 @@ const EditableServiceTable = ({
                             }
                             onFocus={handleFocus}
                             placeholder="Service Group"
-                            options={serviceGroupListResponse}
+                            options={serviceGroupListResponse.slice(1)}
                             disabled={service.saved}
                             aria-label={`Service Group for row ${index + 1}`}
                             className={
@@ -266,7 +266,7 @@ const EditableServiceTable = ({
                     )}
                   </td>
 
-                  <td className="px-2 py-2 min-w-[160px]">
+                  <td className="px-2 py-2 min-w-[200px]">
                     {renderFieldWithError(
                       'Service',
                       index,
@@ -286,6 +286,7 @@ const EditableServiceTable = ({
                             name="Service"
                             isLabelNeeded={false}
                             value={service.Service || ''}
+                            middleEllipsis={true}
                             onChange={(e) =>
                               onChange(index, 'Service', e.target.value)
                             }
@@ -326,6 +327,28 @@ const EditableServiceTable = ({
                         className={
                           errors[`${index}-Priority`] ? 'border-red-500' : ''
                         }
+                      />
+                    )}
+                  </td>
+
+                  <td className="px-2 py-2 min-w-[160px]">
+                    {renderFieldWithError(
+                      'Amount',
+                      index,
+                      <Input
+                        value={formatPrice(service.Amount) || 0}
+                        onChange={(e) =>
+                          onChange(index, 'Amount', e.target.value)
+                        }
+                        onKeyDown={(e) => handleKeyDown(e, index, 'Amount')}
+                        onFocus={handleFocus}
+                        placeholder="Amount"
+                        type="number"
+                        disabled
+                        aria-label={`Amount for row ${index + 1}`}
+                        className={`bg-white ${
+                          errors[`${index}-Amount`] ? 'border-red-500' : ''
+                        }`}
                       />
                     )}
                   </td>
@@ -417,28 +440,6 @@ const EditableServiceTable = ({
 
                   <td className="px-2 py-2 min-w-[160px]">
                     {renderFieldWithError(
-                      'Amount',
-                      index,
-                      <Input
-                        value={formatPrice(service.Amount) || 0}
-                        onChange={(e) =>
-                          onChange(index, 'Amount', e.target.value)
-                        }
-                        onKeyDown={(e) => handleKeyDown(e, index, 'Amount')}
-                        onFocus={handleFocus}
-                        placeholder="Amount"
-                        type="number"
-                        disabled
-                        aria-label={`Amount for row ${index + 1}`}
-                        className={`bg-white ${
-                          errors[`${index}-Amount`] ? 'border-red-500' : ''
-                        }`}
-                      />
-                    )}
-                  </td>
-
-                  <td className="px-2 py-2 min-w-[160px]">
-                    {renderFieldWithError(
                       'Remarks',
                       index,
                       <Input
@@ -516,7 +517,7 @@ const EditableServiceTable = ({
         {/* Custom scrollbar track */}
         <div className="h-2 bg-gray-200 rounded-b-md overflow-hidden">
           <div
-            className="h-full bg-blue-500 rounded-b-md"
+            className="h-full rounded-b-md"
             style={{
               width: `${
                 (scrollRef.current?.scrollLeft /
