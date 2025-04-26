@@ -67,6 +67,9 @@ import PaymentCheckout from './PaymentCheckout';
 import {toast} from 'react-toastify';
 import {transformToApiPayload} from './transformToApiPayload';
 import {Button} from 'react-bootstrap';
+import ConfirmationButton from '../../../../common/ConfirmationButton';
+import {RotateCcw, ChevronUp, ChevronDown} from 'lucide-react';
+import TruncatedText from '../../../../common/TruncatedText';
 
 const PatientCreation = ({UserId, setShowPatientCreation}) => {
   const dispatch = useDispatch();
@@ -220,14 +223,6 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     setAdditionalAreaData(areaListByPincodeResponse);
     setKinAreaData(areaListByPincodeResponse);
   }, [areaListByPincodeResponse]);
-
-  const openAllAccordions = () => {
-    setActiveAccordions([0, 1, 2, 3, 4, 5]); // Adjust indices based on your accordion count
-  };
-
-  const closeAllAccordions = () => {
-    setActiveAccordions([]);
-  };
 
   const markFormAsCompleted = (index) => {
     const updatedFormStatus = [...formStatus];
@@ -919,17 +914,59 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
           className="mb-2 no-underline">
           ⬅️ Back
         </Button>
-
-        <Button
-          type="button"
-          variant="link"
-          onClick={() => {
-            resetAllForms();
-            toast.success('Form cleared successfully');
-          }}
-          className="mb-2 no-underline">
-          🔃 Clear Form
-        </Button>
+        <div className="flex justify-center items-center gap-2">
+          <div className="btn-group">
+            <TruncatedText
+              text={
+                <ConfirmationButton
+                  buttonText={<RotateCcw size={18} />}
+                  variant="link"
+                  title="Clear Form"
+                  message="Are you sure you want to clear all this form?"
+                  confirmText="Clear All"
+                  cancelText="Cancel"
+                  maxLength={14}
+                  onConfirm={() => {
+                    resetAllForms();
+                    toast.success('Form cleared successfully');
+                  }}
+                />
+              }
+              alwaysShowTooltip={true}
+              tooltipText={`Clear all form data`}
+              className="border border-slate-800 rounded-md"
+            />
+          </div>
+          <div className="btn-group">
+            <TruncatedText
+              text={
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  onClick={() =>
+                    setActiveAccordions((prev) =>
+                      prev.length === 0 ? [0, 1, 2, 3, 4, 5, 6] : []
+                    )
+                  }>
+                  <ChevronDown
+                    size={22}
+                    className={
+                      activeAccordions.length === 0 ? '' : 'rotate-180'
+                    }
+                  />
+                </Button>
+              }
+              alwaysShowTooltip={true}
+              className="border border-slate-800 rounded-md"
+              tooltipText={
+                activeAccordions.length === 0
+                  ? `Open all accordions`
+                  : `Close all accordions`
+              }
+            />
+          </div>
+        </div>
       </div>
       <CustomAccordion
         activeIndex={activeAccordions}

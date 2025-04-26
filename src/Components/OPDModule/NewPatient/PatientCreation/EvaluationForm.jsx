@@ -7,6 +7,7 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 import {motion} from 'framer-motion';
+import FormActionButtons from './FormActionButtons';
 
 const EvaluationForm = ({
   formData,
@@ -170,14 +171,7 @@ const EvaluationForm = ({
             </motion.div>
           )}
         </div>
-        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-6">
-          <Button variant="secondary" type="button" onClick={onReset}>
-            Clear
-          </Button>
-          <Button variant="primary" type="submit" size="md">
-            Save & Continue
-          </Button>
-        </div>
+        <FormActionButtons onClear={onReset} /> {/* Clear and Save Button */}
       </Form>
     </Container>
   );

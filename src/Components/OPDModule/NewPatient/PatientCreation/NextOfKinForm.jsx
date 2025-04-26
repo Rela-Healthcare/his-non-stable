@@ -4,6 +4,7 @@ import CustomFormField from '../../../../common/form/CustomFormField';
 import {capitalize} from '../../../../utils/utils';
 import {useMediaQuery} from '@mui/material';
 import TruncatedText from '../../../../common/TruncatedText';
+import FormActionButtons from './FormActionButtons';
 
 const NextOfKinForm = ({
   formData,
@@ -183,15 +184,7 @@ const NextOfKinForm = ({
             errorMessage={errors.Kin_Address}
           />
         </div>
-
-        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-6">
-          <Button variant="secondary" type="button" onClick={onReset}>
-            Clear
-          </Button>
-          <Button variant="primary" type="submit" size="md">
-            Save & Continue
-          </Button>
-        </div>
+        <FormActionButtons onClear={onReset} /> {/* Clear and Save Button */}
       </Form>
     </Container>
   );

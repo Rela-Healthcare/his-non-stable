@@ -2,6 +2,7 @@ import React from 'react';
 import {Button, Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
 import {capitalize} from '../../../../utils/utils';
+import FormActionButtons from './FormActionButtons';
 
 const AdditionalDetailsForm = ({
   formData,
@@ -190,14 +191,7 @@ const AdditionalDetailsForm = ({
               />
             )}
         </div>
-        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-6">
-          <Button variant="secondary" type="button" onClick={onReset}>
-            Clear
-          </Button>
-          <Button variant="primary" type="submit" size="md">
-            Save & Continue
-          </Button>
-        </div>
+        <FormActionButtons onClear={onReset} /> {/* Clear and Save Button */}
       </Form>
     </Container>
   );

@@ -1,9 +1,10 @@
 import React, {useState, useCallback, useMemo} from 'react';
-import {Container, Form, Button} from 'react-bootstrap';
+import {Container, Form} from 'react-bootstrap';
 import {useDispatch} from 'react-redux';
 import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
 import {formatPrice} from '../../../../utils/utils';
 import EditableServiceTable from './EditableServiceTable';
+import FormActionButtons from './FormActionButtons';
 
 const initialService = {
   Service_Group: '',
@@ -186,7 +187,7 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
 
   return (
     <Container className="px-2 md:px-6">
-      <Form noValidate onSubmit={handleSubmit}>
+      <Form noValidate onSubmit={handleSubmit} className="pt-4">
         <EditableServiceTable
           services={services}
           serviceGroupListResponse={dropdownData.serviceGroupListResponse || []}
@@ -205,18 +206,8 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
               totalAmount
             )}`}</span>
           </div>
-          <div>
-            <Button
-              variant="primary"
-              type="button"
-              size="md"
-              onClick={resetForm}>
-              Clear
-            </Button>
-            <Button variant="primary" type="submit" size="md">
-              Save & Continue
-            </Button>
-          </div>
+          <FormActionButtons onClear={resetForm} />{' '}
+          {/* Clear and Save Button */}
         </div>
       </Form>
     </Container>
