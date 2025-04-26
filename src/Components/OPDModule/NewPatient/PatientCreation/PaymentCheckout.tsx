@@ -62,6 +62,8 @@ interface PaymentCheckoutProps {
   onSubmit: (data: any) => void;
   taxRate?: number;
   serviceCharge?: number;
+  onPaymentSuccess?: (response: any) => void;
+  onPaymentError?: (error: string) => void;
 }
 
 // Constants
@@ -77,15 +79,6 @@ const DISCOUNT_TYPES = [
   {label: 'Flat', value: 'flat'},
 ];
 
-/**
- * World-class Payment Checkout Component with:
- * - Comprehensive payment processing
- * - Discount and coupon handling
- * - Split payment support
- * - Tax and service charge calculation
- * - Robust validation
- * - Accessibility support
- */
 const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   id,
   couponAmount = 0,
@@ -96,6 +89,8 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   onSubmit,
   taxRate = 0,
   serviceCharge = 0,
+  onPaymentSuccess,
+  onPaymentError,
 }) => {
   // State
   const [payment, setPayment] = useState({
@@ -108,16 +103,19 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     cashAmount: null as number | null,
   });
 
-  const [myPaymentDetails, setMyPaymentDetails] = useState<
+  const [paymentButtonDetails, setPaymentButtonDetails] = useState<
     PaymentButtonProps['paymentDetails']
   >({
-    patientName: '',
-    uhid: '000000',
-    chargeRate: 1,
-    email: '',
-    mobileNo: '',
-    processingId: '',
+    patientName: patientDetails?.Name || '',
+    patientID: patientDetails?.UHID || '000000',
+    amount: 1,
+    email: patientDetails?.Email_ID || '',
+    phone: patientDetails?.Mobile_No || '',
+    processingId: generateProcessingId(patientDetails?.Mobile_No || ''),
+    paymode: 'cards-upi',
+    cashierId: userId || 'WEB_CASHIER_01',
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const toastShownRef = useRef(false);
 
@@ -130,7 +128,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     }));
   }, [payment.discountType, payment.discount, payment.couponApplied]);
 
-  // Calculate payment details using custom hook
+  // Update payment details when netPayable changes
   const {
     grossAmount,
     serviceLevelDiscount,
@@ -154,6 +152,16 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     serviceCharge,
     applyServiceCharge: true,
   });
+
+  useEffect(() => {
+    if (patientDetails) {
+      setPaymentButtonDetails((prev) => ({
+        ...prev,
+        amount: netPayable,
+        processingId: generateProcessingId(patientDetails.Mobile_No),
+      }));
+    }
+  }, [patientDetails, netPayable]);
 
   // Memoized patient data fallback
   const patientData = useMemo(
@@ -295,24 +303,33 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   ]);
 
   /**
-   * Processes payment and generates payment URL if needed
+   * Handles payment success
    */
-  const processPayment = useCallback(async () => {
-    if (!patientDetails) {
-      toast.error('Patient details are required for payment');
-      return null;
+  const handlePaymentSuccess = (response: any) => {
+    // Check both possible response formats
+    const success =
+      response.response_token?.response_code === '1200' ||
+      response.status === 'success';
+
+    if (success) {
+      toast.success('Payment processed successfully');
+      const payload = constructPaymentData();
+      onSubmit(payload);
+    } else {
+      const errorMsg =
+        response.response_token?.response_message ||
+        response.message ||
+        'Payment verification failed';
+      toast.error(errorMsg);
     }
-    setMyPaymentDetails({
-      patientName: patientDetails.Name,
-      uhid: patientDetails.UHID || '000000',
-      chargeRate: netPayable,
-      email: patientDetails.Email_ID,
-      mobileNo: patientDetails.Mobile_No,
-      processingId: generateProcessingId(patientDetails.Mobile_No),
-      payMode: PayModes.CARDS_UPI,
-    });
-    return null;
-  }, [patientDetails, netPayable]);
+  };
+
+  /**
+   * Handles payment error
+   */
+  const handlePaymentError = (error: string) => {
+    toast.error(`Payment failed: ${error}`);
+  };
 
   /**
    * Handles form submission
@@ -322,20 +339,21 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
 
     if (!validateForm()) return;
 
-    const payload = constructPaymentData();
+    // For online payments, just return - PaymentButton handles it
+    if (payment.mode === 'full' && payment.type === 'cards-upi') {
+      return;
+    }
 
+    // For other payment types, submit directly
     try {
-      // For online payments, generate URL and open modal
-      if (payment.mode === 'full' && payment.type === 'R') {
-        await processPayment();
-        return;
-      }
-
-      // For other payment types, submit directly
-      onSubmit(payload);
+      const payload = constructPaymentData();
+      await onSubmit(payload);
     } catch (error) {
-      console.error('Payment submission error:', error);
-      toast.error('Failed to process payment');
+      toast.error(
+        `Payment submission failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      );
     }
   };
 
@@ -383,10 +401,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                 />
               </Col>
               <Col sm={2} />
-              {/* space between */}
               <Col className="!m-0 !p-0" sm={5}>
-                {' '}
-                {/* or use `ml-2` for smaller gap */}
                 <PatientDetailRow label="UHID" value={patientData.UHID} />
               </Col>
             </Row>
@@ -715,11 +730,15 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           </div>
 
           {/* Submit Button - Conditionally render PaymentButton for online payments */}
-          {(payment.mode === 'full' && payment.type === 'R') ||
-          payment.mode === 'split' ? (
+          {payment.mode === 'full' && payment.type === 'R' ? (
             <PaymentButton
-              paymentDetails={myPaymentDetails && myPaymentDetails}
+              paymentDetails={{
+                ...paymentButtonDetails,
+                paymode: 'cards-upi',
+              }}
               className="w-full mt-6 py-2 font-bold"
+              onPaymentSuccess={handlePaymentSuccess}
+              onPaymentError={handlePaymentError}
             />
           ) : (
             <Button

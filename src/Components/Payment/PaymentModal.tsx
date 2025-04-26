@@ -4,12 +4,16 @@ interface PaymentModalProps {
   isOpen: boolean;
   iframeUrl: string;
   onClose: () => void;
+  onPaymentSuccess?: (data: any) => void;
+  onPaymentError?: (error: string) => void;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   isOpen,
   iframeUrl,
   onClose,
+  onPaymentSuccess,
+  onPaymentError,
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -18,18 +22,54 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       }
     };
 
+    const handleMessage = (event: MessageEvent) => {
+      console.log('Modal received message:', event.data);
+
+      // Verify origin in production
+      // if (event.origin !== "https://testing.momentpay.in") return;
+
+      try {
+        // Handle different response formats
+        let responseData;
+
+        if (typeof event.data === 'string') {
+          responseData = JSON.parse(event.data);
+        } else {
+          responseData = event.data;
+        }
+
+        // Check for success in different response formats
+        if (responseData?.response_token?.response_code === '1200') {
+          onPaymentSuccess?.(responseData.response_token);
+        } else if (responseData?.status === 'success') {
+          onPaymentSuccess?.(responseData);
+        } else {
+          const errorMsg =
+            responseData?.response_token?.response_message ||
+            responseData?.message ||
+            'Payment failed';
+          onPaymentError?.(errorMsg);
+        }
+      } catch (error) {
+        console.error('Error processing payment response:', error);
+        onPaymentError?.('Invalid payment response format');
+      } finally {
+        onClose();
+      }
+    };
+
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
-    } else {
-      document.body.style.overflow = 'auto';
+      window.addEventListener('message', handleMessage);
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('message', handleMessage);
       document.body.style.overflow = 'auto';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, onPaymentSuccess, onPaymentError]);
 
   if (!isOpen) return null;
 
@@ -47,7 +87,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           title="Payment Gateway"
           className="w-full h-full border-0"
           referrerPolicy="no-referrer"
+          allow="payment *"
           allowFullScreen
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals"
         />
       </div>
     </div>

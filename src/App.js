@@ -58,6 +58,7 @@ import {loginInformation} from './features/Login/LoginSlice';
 import Refund from './Components/OPDModule/Deposit/Refund.js';
 import ErrorBoundary from './Components/ErrorBoundary.js';
 import PatientCreation from './Components/OPDModule/NewPatient/PatientCreation/index.jsx';
+import PaymentResult from './Page/PaymentResult.tsx';
 
 const App = () => {
   const navigate = useNavigate();
@@ -96,6 +97,7 @@ const App = () => {
       <PatientDataProvider>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/payment-result" element={<PaymentResult />} />
           {JSON.parse(check) ? (
             <>
               {' '}

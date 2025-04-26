@@ -7,17 +7,6 @@ export const PayModes = {
 
 export type PayMode = (typeof PayModes)[keyof typeof PayModes];
 
-export interface PaymentURLParams {
-  patientName: string;
-  uhid: string;
-  chargeRate: number;
-  email: string;
-  mobileNo: string;
-  processingId: string;
-  uname?: string;
-  payMode?: PayMode;
-}
-
 /**
  * Payload sent to the backend to initiate a payment session
  * (used for Stripe, Razorpay, or MomentPay)
@@ -61,16 +50,36 @@ export interface PaymentVerificationResponse {
   couponCode?: string;
 }
 
-// Optional cash-remote-deposit is sent link to patient via whatsapp
+export interface PaymentURLParams {
+  patientName: string;
+  uhid: string;
+  chargeRate: number;
+  email: string;
+  mobileNo: string;
+  processingId: string;
+  uname?: string;
+  payMode?: string;
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  transactionId?: string;
+  redirectUrl?: string;
+  error?: string;
+}
+
 export interface PaymentButtonProps {
   paymentDetails: {
     patientName: string;
-    uhid: string;
-    chargeRate: number;
+    patientID: string;
+    amount: number;
     email: string;
-    mobileNo: string;
+    phone: string;
     processingId: string;
-    payMode?: PayMode;
+    paymode: PayMode;
+    cashierId?: string;
   };
   className?: string;
+  onPaymentSuccess?: (response: any) => void;
+  onPaymentError?: (error: string) => void;
 }
