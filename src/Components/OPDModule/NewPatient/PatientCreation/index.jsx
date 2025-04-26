@@ -40,6 +40,26 @@ import {
   validateRequired,
   validateScheduleAppointment,
 } from './patientFormValidation';
+import {
+  fetchSalutations,
+  fetchMaritalStatus,
+  fetchRelationType,
+  fetchBloodGroup,
+  fetchReligion,
+  fetchLanguage,
+  fetchCountries,
+  fetchState,
+  fetchOccupation,
+  fetchNationality,
+  fetchIdType,
+  fetchMobileCodes,
+  fetchDepartments,
+  fetchRefSrcList,
+  fetchInternalDoctorList,
+  fetchExternalDoctorList,
+  fetchServiceGroupList,
+  fetchPriorityList,
+} from '../../../../store/Slices/dropdownSlice';
 import ScheduleAppointmentForm from './ScheduleAppointmentForm';
 import {updateService} from '../../../../store/Slices/OPModule/Service/opServiceSlice';
 import ServiceForm from './ServiceForm';
@@ -50,6 +70,30 @@ import {Button} from 'react-bootstrap';
 
 const PatientCreation = ({UserId, setShowPatientCreation}) => {
   const dispatch = useDispatch();
+
+  // Optimized useEffect for fetching all necessary data
+  useEffect(() => {
+    // persional, addional details, next of kin, evaluation, appointment
+    dispatch(fetchSalutations());
+    dispatch(fetchMaritalStatus());
+    dispatch(fetchOccupation());
+    dispatch(fetchBloodGroup());
+    dispatch(fetchReligion());
+    dispatch(fetchLanguage());
+    dispatch(fetchIdType());
+    dispatch(fetchMobileCodes());
+    dispatch(fetchNationality());
+    dispatch(fetchCountries());
+    dispatch(fetchState());
+    dispatch(fetchRelationType());
+    dispatch(fetchDepartments());
+    dispatch(fetchPayorsList());
+    dispatch(fetchRefSrcList());
+    dispatch(fetchInternalDoctorList());
+    dispatch(fetchExternalDoctorList());
+    dispatch(fetchServiceGroupList());
+    dispatch(fetchPriorityList());
+  }, [dispatch]);
   const dropdownData = useSelector((state) => state.dropdown.data);
   const opServices = useSelector((state) => state.opService);
   const [formStatus, setFormStatus] = useLocalStorage('formStatus', [
@@ -867,13 +911,26 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
 
   return (
     <>
-      <Button
-        type="button"
-        variant="link"
-        onClick={() => setShowPatientCreation(false)}
-        className="mb-2 no-underline">
-        ⬅️ Back
-      </Button>
+      <div className="flex justify-between items-center">
+        <Button
+          type="button"
+          variant="link"
+          onClick={() => setShowPatientCreation(false)}
+          className="mb-2 no-underline">
+          ⬅️ Back
+        </Button>
+
+        <Button
+          type="button"
+          variant="link"
+          onClick={() => {
+            resetAllForms();
+            toast.success('Form cleared successfully');
+          }}
+          className="mb-2 no-underline">
+          🔃 Clear Form
+        </Button>
+      </div>
       <CustomAccordion
         activeIndex={activeAccordions}
         setActiveIndex={setActiveAccordions}

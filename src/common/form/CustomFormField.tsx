@@ -128,7 +128,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
             onChange={onChange}
             onBlur={handleBlur}
             disabled={disabled}
-            className={`select w-full ${className} ${
+            className={`select w-full focus:!border-2 focus:!border-blue-500 ${className} ${
               disabled ? disabledStyle : ''
             }`}
             {...props}>
@@ -140,7 +140,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
         </div>
       ) : type === 'date' ? (
         <DatePicker
-          className={`select w-full !my-0 form-control placeholder:text-gray-900 ${
+          className={`select w-full !my-0 form-control placeholder:text-gray-900 focus:!border-2 focus:!border-blue-500 ${
             disabled ? 'select-disabled' : className
           }`}
           dateFormat="MMMM d, yyyy"
@@ -188,7 +188,9 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
             onBlur={handleBlur}
             disabled={disabled}
             required={required}
-            className={`select w-full ${disabled ? disabledStyle : className}`}
+            className={`select w-full focus:!border-2 focus:!border-blue-500 ${
+              disabled ? disabledStyle : className
+            }`}
             {...props}
           />
           {validIcon && (

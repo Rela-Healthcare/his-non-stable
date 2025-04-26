@@ -1,19 +1,8 @@
-import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
-import {Input} from '../../../../common/ui/input';
-import {Button as CustomButton} from '../../../../common/ui/button';
-import Select from '../../../../common/ui/select';
-import {
-  Container,
-  Form,
-  OverlayTrigger,
-  Tooltip,
-  Button,
-} from 'react-bootstrap';
-import {Info, PencilIcon, TrashIcon} from 'lucide-react';
+import React, {useState, useCallback, useMemo} from 'react';
+import {Container, Form, Button} from 'react-bootstrap';
 import {useDispatch} from 'react-redux';
 import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
 import {formatPrice} from '../../../../utils/utils';
-import TruncatedText from '../../../../common/TruncatedText';
 import EditableServiceTable from './EditableServiceTable';
 
 const initialService = {
@@ -33,7 +22,6 @@ const initialService = {
 };
 
 const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
-  const {serviceGroupListResponse, priorityListResponse} = dropdownData;
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
 
@@ -123,7 +111,13 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
 
       const newErrors = requiredFields.reduce((acc, key) => {
         if (!updatedService[key]) {
-          acc[`${index}-${key}`] = `${key.replace(/_/g, ' ')} is required.`;
+          if (
+            key !== 'Discount_Type' &&
+            key !== 'Discount_Reason' &&
+            key !== 'Discount'
+          ) {
+            acc[`${index}-${key}`] = `${key.replace(/_/g, ' ')} is required.`;
+          }
         }
         return acc;
       }, {});
@@ -166,21 +160,12 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
   // Validate services before submission
   const validateServices = useCallback((servicesToValidate) => {
     return servicesToValidate.slice(0, -1).reduce((acc, service, index) => {
-      const {
-        Service_Group,
-        Service,
-        Priority,
-        Discount_Type,
-        Discount,
-        Amount,
-      } = service;
+      const {Service_Group, Service, Priority, Amount} = service;
 
       if (!Service_Group) acc[`${index}-Service_Group`] = 'Required';
       if (!Service) acc[`${index}-Service`] = 'Required';
       if (!Priority) acc[`${index}-Priority`] = 'Required';
-      if (Discount_Type && !Discount) acc[`${index}-Discount`] = 'Required';
-      if (Discount && !Amount) acc[`${index}-Amount`] = 'Required';
-
+      if (!Amount) acc[`${index}-Amount`] = 'Required';
       return acc;
     }, {});
   }, []);

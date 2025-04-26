@@ -575,13 +575,14 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                 <CustomFormField
                   type="number"
                   name="discount"
-                  value={payment.discount || ''}
-                  onChange={(e) =>
+                  value={String(payment.discount) ?? ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
                     setPayment((prev) => ({
                       ...prev,
-                      discount: parseFloat(e.target.value) || null,
-                    }))
-                  }
+                      discount: value === '' ? null : parseFloat(value),
+                    }));
+                  }}
                   disabled={!payment.discountType}
                   placeholder="Amount"
                   min="0"

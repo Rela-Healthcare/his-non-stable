@@ -1,7 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {FaInfoCircle} from 'react-icons/fa';
-import TruncatedText from '../TruncatedText';
 
 const capitalize = (str = '') =>
   str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
