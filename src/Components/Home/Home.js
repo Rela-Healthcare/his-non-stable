@@ -25,7 +25,7 @@ import {
 } from '../../store/Slices/dropdownSlice'; // Assume we create a batch fetch action
 import PatientCreation from '../OPDModule/NewPatient/PatientCreation';
 import ErrorBoundary from '../ErrorBoundary';
-import PaymentForm from '../Payment/PaymentForm';
+import MomentPayIntegration from '../Payment/MomentPayIntegration';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -73,17 +73,17 @@ const Home = () => {
         </style>
 
         <ErrorBoundary>
-          <>
-            <PaymentForm />
-            {/* {showPatientCreation ? (
+          <MomentPayIntegration />
+          {/* <>
+            {showPatientCreation ? (
               <PatientCreation
                 UserId={UserId}
                 setShowPatientCreation={setShowPatientCreation}
               />
             ) : (
               <PatientSearch setShowPatientCreation={setShowPatientCreation} />
-            )} */}
-          </>
+            )}
+          </> */}
         </ErrorBoundary>
       </div>
     </Container>

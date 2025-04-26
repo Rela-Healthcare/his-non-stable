@@ -25,9 +25,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     const handleMessage = (event: MessageEvent) => {
       console.log('Modal received message:', event.data);
 
-      // Verify origin in production
-      // if (event.origin !== "https://testing.momentpay.in") return;
-
       try {
         // Handle different response formats
         let responseData;

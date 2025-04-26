@@ -23,8 +23,8 @@ const paymentConfig: PaymentConfig = {
     'Mbs1dj8pZerMyv7cnhxIqSMKhievG5aWGOdyuGw1rFujoQGTH',
   merchantId: process.env.REACT_APP_MOMENTPAY_MERCHANT_ID || '26',
   paymentLocation: 'Rela Hospital - Test',
-  callbackUrl: '', // Empty for frontend-only
-  redirectUrl: 'http://localhost:3000/payment-result',
+  callbackUrl: 'http://192.168.36.26:3000/payment-result',
+  redirectUrl: 'http://192.168.36.26:3000/payment-result',
 };
 
 export const generateChecksum = (params: {

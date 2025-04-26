@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import axios, {AxiosError} from 'axios';
 import {createMomentPayPayload} from '../utils/PaymentUtil';
-import { PayMode } from '../types/payment.types';   
+import {PayMode} from '../types/payment.types';
 
 interface PaymentResponse {
   success: boolean;
@@ -17,8 +17,6 @@ export const usePayment = () => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // For security, verify the origin in production
-      // if (event.origin !== "https://testing.momentpay.in") return;
 
       console.log('Received message:', event.data);
 
