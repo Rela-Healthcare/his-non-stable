@@ -251,6 +251,7 @@ const ScheduleAppointmentForm = ({
                   {value: 1, label: 'TCS'},
                   {value: 2, label: 'CTS'},
                   {value: 3, label: 'Infosys'},
+                  {value: 4, label: 'others'},
                 ]}
                 placeholder="Select Company Name"
                 isInvalid={!!errors?.Cor_Company_name}

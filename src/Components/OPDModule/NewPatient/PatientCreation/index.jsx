@@ -69,7 +69,6 @@ import {Button} from 'react-bootstrap';
 import ConfirmationButton from '../../../../common/ConfirmationButton';
 import {RotateCcw, ChevronDown} from 'lucide-react';
 import TruncatedText from '../../../../common/TruncatedText';
-import {REFERRAL} from './patientFormConstants';
 
 const PatientCreation = ({UserId, setShowPatientCreation}) => {
   const dispatch = useDispatch();
