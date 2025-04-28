@@ -67,7 +67,8 @@ interface PaymentCheckoutProps {
 // Constants
 const PAYMENT_TYPES = [
   {label: '💵 Cash', value: 'C'},
-  {label: '💳 Card / UPI', value: 'R'},
+  {label: '💳 Card', value: 'R'},
+  {label: '📲 UPI', value: 'U'},
   {label: '📝 Cheque', value: 'Q'},
   {label: '🔁 Contra', value: 'T'},
 ];
@@ -326,7 +327,10 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
 
     try {
       // For online payments, generate URL and open modal
-      if (payment.mode === 'full' && payment.type === 'R') {
+      if (
+        payment.mode === 'full' &&
+        (payment.type === 'R' || payment.type === 'U')
+      ) {
         await processPayment();
         return;
       }
@@ -716,7 +720,8 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           </div>
 
           {/* Submit Button - Conditionally render PaymentButton for online payments */}
-          {(payment.mode === 'full' && payment.type === 'R') ||
+          {(payment.mode === 'full' &&
+            (payment.type === 'R' || payment.type === 'U')) ||
           payment.mode === 'split' ? (
             <PaymentButton
               paymentDetails={myPaymentDetails && myPaymentDetails}

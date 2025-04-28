@@ -158,6 +158,7 @@ export const OPModuleAgent = {
   getPriorityList: () => requests.get('get_priority'),
   getServicesList: (serviceGroupCode) =>
     requests.get(`Get_ChargeMaster_v1?Code=${serviceGroupCode}`),
+  getPackageList: () => requests.get(`Get_Packages_Dtl`),
 
   //Save OPD Visit, Patient Creation, Service Addition Endpoints
   saveOPDModule: (payload) => requests.post('Insert_OPDMaster_Porc', payload),
@@ -258,7 +259,7 @@ export const OPModuleAgent = {
 
   updatePOSPayment: (saveInfo) =>
     requests.post(`updatePOSPayment`, saveInfo, true),
-  
+
   verifyPaymentInfo: (processingId) =>
     requests.get(`getTransactionStatus?processingid=${processingId}`),
 

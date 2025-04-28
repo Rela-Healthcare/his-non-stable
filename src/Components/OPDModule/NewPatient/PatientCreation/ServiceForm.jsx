@@ -1,7 +1,10 @@
 import React, {useState, useCallback, useMemo} from 'react';
 import {Container, Form} from 'react-bootstrap';
 import {useDispatch} from 'react-redux';
-import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
+import {
+  fetchPackageList,
+  fetchServicesList,
+} from '../../../../store/Slices/dropdownSlice';
 import {formatPrice} from '../../../../utils/utils';
 import EditableServiceTable from './EditableServiceTable';
 import FormActionButtons from './FormActionButtons';
@@ -34,6 +37,11 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
     }, 0);
   }, [services]);
 
+  const getAmountFromString = (str) => {
+    const parts = str.split(':');
+    return parts[parts.length - 1].trim();
+  };
+
   // Handle field changes
   const handleChange = useCallback(
     async (index, field, e) => {
@@ -44,21 +52,30 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
       currentService[field] = value;
 
       if (field === 'Service_Group') {
-        const response = await dispatch(fetchServicesList(value)).unwrap();
-        currentService.servicesListResponse = response;
-        currentService.Service = '';
+        if (value === 'Packages') {
+          const response = await dispatch(fetchPackageList()).unwrap();
+          currentService.servicesListResponse = response;
+          currentService.Service = '';
+        } else {
+          const response = await dispatch(fetchServicesList(value)).unwrap();
+          currentService.servicesListResponse = response;
+          currentService.Service = '';
+        }
       }
 
       if (field === 'Service') {
         const selectedService = currentService.servicesListResponse.find(
-          (option) => option?.value === Number(value)
+          (option) =>
+            typeof option?.value === 'number'
+              ? option.value === Number(value)
+              : option.value === value
         );
 
         if (selectedService) {
-          const rate = Number(selectedService.label.split(':')[1]);
+          const rate = Number(getAmountFromString(selectedService.label));
           currentService.Amount = rate;
           currentService.Actual_Amount = Math.max(rate, 0);
-          currentService.ServiceName = selectedService.label.split(':')[0];
+          currentService.ServiceName = selectedService.label;
         }
       }
 
@@ -192,6 +209,7 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
           services={services}
           serviceGroupListResponse={dropdownData.serviceGroupListResponse || []}
           priorityListResponse={dropdownData.priorityListResponse || []}
+          packageListResponse={dropdownData.packageListResponse || []}
           onChange={handleChange}
           onDelete={deleteService}
           onToggleSave={toggleSaveEdit}

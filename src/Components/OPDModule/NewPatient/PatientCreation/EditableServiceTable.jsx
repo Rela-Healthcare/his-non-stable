@@ -16,6 +16,7 @@ const EditableServiceTable = ({
   errors,
   serviceGroupListResponse = [],
   priorityListResponse = [],
+  packageListResponse = [],
 }) => {
   const [showScrollHint, setShowScrollHint] = useState(true);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -252,7 +253,13 @@ const EditableServiceTable = ({
                             }
                             onFocus={handleFocus}
                             placeholder="Service Group"
-                            options={serviceGroupListResponse.slice(1)}
+                            options={[
+                              ...serviceGroupListResponse.slice(1),
+                              {
+                                value: 'Packages',
+                                label: 'Packages',
+                              },
+                            ]}
                             disabled={service.saved}
                             aria-label={`Service Group for row ${index + 1}`}
                             className={
@@ -404,7 +411,7 @@ const EditableServiceTable = ({
                         onKeyDown={(e) => handleKeyDown(e, index, 'Discount')}
                         onFocus={handleFocus}
                         placeholder="Discount"
-                        disabled={service.saved}
+                        disabled={service.saved || !service.Discount_Type}
                         aria-label={`Discount for row ${index + 1}`}
                         className={`bg-white ${
                           errors[`${index}-Discount`] ? 'border-red-500' : ''
@@ -427,7 +434,7 @@ const EditableServiceTable = ({
                         }
                         onFocus={handleFocus}
                         placeholder="Discount Reason"
-                        disabled={service.saved}
+                        disabled={service.saved || !service.Discount}
                         aria-label={`Discount Reason for row ${index + 1}`}
                         className={`bg-white ${
                           errors[`${index}-Discount_Reason`]

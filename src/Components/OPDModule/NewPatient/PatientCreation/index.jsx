@@ -58,6 +58,7 @@ import {
   fetchInternalDoctorList,
   fetchServiceGroupList,
   fetchPriorityList,
+  fetchPackageList,
 } from '../../../../store/Slices/dropdownSlice';
 import ScheduleAppointmentForm from './ScheduleAppointmentForm';
 import {updateService} from '../../../../store/Slices/OPModule/Service/opServiceSlice';
@@ -94,6 +95,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     dispatch(fetchInternalDoctorList());
     dispatch(fetchServiceGroupList());
     dispatch(fetchPriorityList());
+    dispatch(fetchPackageList());
   }, [dispatch]);
   const dropdownData = useSelector((state) => state.dropdown.data);
   const opServices = useSelector((state) => state.opService);
@@ -173,6 +175,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     serviceGroupListResponse = [],
     priorityListResponse = [],
     servicesListResponse = [],
+    packageListResponse = [],
   } = dropdownData || {};
 
   useEffect(() => {
@@ -1129,6 +1132,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
               serviceGroupListResponse,
               priorityListResponse,
               servicesListResponse,
+              packageListResponse,
             }}
           />
         </CustomAccordionItem>
