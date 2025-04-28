@@ -67,7 +67,6 @@ const additionalDetailsValidations = {
   Religion: {required: true},
   Language: {required: true},
   BloodGroup: {required: true},
-  Special_Assistance: {required: true},
   Pincode: {
     required: true,
     pattern: (val) => validateID('pincode', val),
@@ -79,7 +78,6 @@ const additionalDetailsValidations = {
   },
   Select_Special_Assistance: {
     conditional: (formData) => formData.Special_Assistance,
-    required: true,
   },
 };
 

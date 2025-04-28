@@ -36,8 +36,12 @@ type CustomFormFieldProps = {
   onSalutationChange?: (e: any) => void;
   salutationName?: string;
   maxLength?: number;
+  min?: number;
   TextCase?: 'Capital' | 'Upper' | 'Lower';
-  [x: string]: any; // allows spreading additional props
+  autoFocus?: boolean;
+  loading?: boolean;
+  labelTooltip?: string;
+  [x: string]: any;
 };
 
 const CustomFormField: React.FC<CustomFormFieldProps> = ({
@@ -62,7 +66,11 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
   onSalutationChange,
   salutationName,
   maxLength,
+  min = 0,
   TextCase = 'Capital',
+  autoFocus = false,
+  loading = false,
+  labelTooltip,
   ...props
 }) => {
   const handleBlur = (e: any) => {
@@ -74,29 +82,48 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
     }
   };
 
-  const selectOptions = useMemo(() => {
-    return options.map((option) => (
-      <option key={option.value} value={option.value}>
-        {capitalize(option.label)}
-      </option>
-    ));
-  }, [options]);
+  const selectOptions = useMemo(
+    () =>
+      options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {capitalize(option.label)}
+        </option>
+      )),
+    [options]
+  );
 
-  const disabledStyle = 'select-disabled cursor-not-allowed';
+  const disabledStyle = useMemo(() => 'select-disabled cursor-not-allowed', []);
 
   return (
     <Form.Group
       as={combinedField ? Col : undefined}
-      className={`${className}`}
+      className={className}
       style={{position: 'relative'}}>
       {label && (
-        <label className={`block mb-[1.3em] text-sm font-bold`}>
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
+        <div className="flex items-center gap-1 mb-[1.3em]">
+          <label className="block text-sm font-bold">
+            {label} {required && <span className="text-red-500">*</span>}
+          </label>
+          {labelTooltip && (
+            <OverlayTrigger
+              placement="top"
+              overlay={
+                <Tooltip id={`tooltip-label-${name}`}>{labelTooltip}</Tooltip>
+              }>
+              <span className="text-gray-400 cursor-pointer">
+                <FaInfoCircle size={14} />
+              </span>
+            </OverlayTrigger>
+          )}
+        </div>
       )}
 
       {isInvalid && errorMessage && (
-        <div style={{position: 'absolute', top: 25, right: -12, zIndex: 10}}>
+        <motion.div
+          initial={{opacity: 0, x: 10}}
+          animate={{opacity: 1, x: 0}}
+          transition={{type: 'spring', stiffness: 300}}
+          style={{position: 'absolute', top: 25, right: -12, zIndex: 10}}>
           <OverlayTrigger
             placement="top"
             overlay={<Tooltip id={`tooltip-${name}`}>{errorMessage}</Tooltip>}>
@@ -106,14 +133,16 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
               />
             </span>
           </OverlayTrigger>
-        </div>
+        </motion.div>
       )}
 
-      {combinedField ? (
+      {loading ? (
+        <div className="h-[38px] bg-gray-200 animate-pulse rounded w-full" />
+      ) : combinedField ? (
         <SalutationNameField
           salutationValue={salutationValue ?? ''}
           salutationOptions={salutationOptions ?? []}
-          onSalutationChange={onChange}
+          onSalutationChange={onSalutationChange ?? (() => {})}
           salutationName={salutationName ?? ''}
           name={name}
           value={capitalize(value)}
@@ -128,12 +157,14 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
             onChange={onChange}
             onBlur={handleBlur}
             disabled={disabled}
-            className={`select w-full focus:!border-2 focus:!border-blue-500 ${className} ${
+            autoFocus={autoFocus}
+            className={`select w-full focus:!border-2 focus:!border-blue-500 ${
               disabled ? disabledStyle : ''
             }`}
+            aria-invalid={isInvalid}
             {...props}>
-            <option value="" className="bg-slate-300">
-              {placeholder || `Select ${label === 'Salutation' ? '' : label}`}
+            <option value="" disabled hidden className="bg-slate-300">
+              {placeholder || `Select ${label}`}
             </option>
             {selectOptions}
           </Form.Select>
@@ -141,7 +172,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
       ) : type === 'date' ? (
         <DatePicker
           className={`select w-full !my-0 form-control placeholder:text-gray-900 focus:!border-2 focus:!border-blue-500 ${
-            disabled ? 'select-disabled' : className
+            disabled ? 'select-disabled' : ''
           }`}
           dateFormat="MMMM d, yyyy"
           placeholderText={placeholder || 'Select a date'}
@@ -160,6 +191,38 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
           onBlur={handleBlur}
           disabled={disabled}
           required={required}
+          autoFocus={autoFocus}
+          {...props}
+        />
+      ) : type === 'textarea' ? (
+        <Form.Control
+          as="textarea"
+          rows={props.rows || 4}
+          name={name}
+          placeholder={placeholder}
+          value={
+            TextCase === 'Capital'
+              ? capitalize(value ?? '')
+              : TextCase === 'Upper'
+              ? upperCase(value)
+              : lowerCase(value)
+          }
+          onChange={(e) => {
+            const newValue = e.target.value;
+            if (maxLength) {
+              if (newValue.length <= maxLength) {
+                onChange(e);
+              }
+            } else {
+              onChange(e);
+            }
+          }}
+          onBlur={handleBlur}
+          disabled={disabled}
+          required={required}
+          className={`select w-full focus:!border-2 focus:!border-blue-500 ${
+            disabled ? disabledStyle : className
+          }`}
           {...props}
         />
       ) : (
@@ -168,6 +231,7 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
             type={type}
             name={name}
             placeholder={placeholder}
+            min={min}
             value={
               TextCase === 'Capital'
                 ? capitalize(value ?? '')

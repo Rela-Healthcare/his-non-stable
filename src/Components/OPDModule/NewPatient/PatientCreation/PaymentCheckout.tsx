@@ -585,7 +585,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                   }}
                   disabled={!payment.discountType}
                   placeholder="Amount"
-                  min="0"
+                  min={0}
                   className="m-0 w-1/2"
                   isInvalid={!!errors.discount}
                   errorMessage={errors.discount}

@@ -241,7 +241,7 @@ export const stringToObjectDate = (dateValue) => {
 
 export const capitalize = (str) => {
   if (typeof str !== 'string') return '';
-  return str.trim().charAt(0).toUpperCase() + str.trim().slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
 export const upperCase = (value) => {

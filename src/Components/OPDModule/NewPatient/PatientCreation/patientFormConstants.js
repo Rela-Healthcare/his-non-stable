@@ -70,20 +70,31 @@ export const initialEvaluationDetails = {
 };
 
 export const initialAppointmentDetails = {
-  Department_Name: '', // number
-  Doctor_Name: '', // number
-  Visit_Type: '', // number
-  Appointment_Date: '', // string
-  Sequence_No: '', // number
-  Patient_Type: '', // string
-  Payor_Name: '', // number
-  Referral_Source: '', // number
-  Doctor_Type: '', // string
-  Internal_Doctor_Name: '', // number
-  External_Doctor_Name: '', // number
-  Staff_Employee_ID: '', // string
-  Package_Details: '', // string
-  Modified_Id: '', // string
+  Department_Name: '',
+  Doctor_Name: '',
+  Visit_Type: '',
+  Appointment_Date: '',
+  Sequence_No: '',
+  Patient_Type: '',
+  Payor_Name: '',
+  Referral_Source: '',
+  Doctor_Type: '',
+  Internal_Doctor_Name: '',
+  External_Doctor_Name: '',
+  Staff_Employee_ID: '',
+  Package_Details: '',
+  Modified_Id: '',
+  VIP_Txt: '',
+  Cor_Company_name: '',
+  Cor_Employee_Id: '',
+  Cor_Relationship: '',
+};
+
+export const REFERRAL = {
+  STAFF: 76,
+  DOCTOR: 58,
+  CORPORATE: 56,
+  VIP: 77,
 };
 
 export const emptyOPService = {
