@@ -821,6 +821,10 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
             appointmentDetails?.Staff_Employee_ID || 'EMP56789',
           Package_Details: appointmentDetails?.Package_Details,
           Modified_Id: UserId,
+          VIP_Txt: appointmentDetails?.VIP_Txt,
+          Cor_Company_name: appointmentDetails?.Cor_Company_name,
+          Cor_Employee_Id: appointmentDetails?.Cor_Employee_Id,
+          Cor_Relationship: appointmentDetails?.Cor_Relationship,
         };
         const res = await OPModuleAgent.updateTempOPDPatientAppointment(
           payload

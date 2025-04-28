@@ -232,7 +232,7 @@ const ScheduleAppointmentForm = ({
               value={formData?.VIP_Txt}
               onChange={onChange}
               onBlur={onBlur}
-              placeholder="Enter vip detial"
+              placeholder="Enter vip's detial"
               isInvalid={!!errors?.VIP_Txt}
               errorMessage={errors?.VIP_Txt}
             />
