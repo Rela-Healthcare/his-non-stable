@@ -73,8 +73,8 @@ const Home = () => {
         </style>
 
         <ErrorBoundary>
-          <MomentPayIntegration />
-          {/* <>
+          {/* <MomentPayIntegration /> */}
+          <>
             {showPatientCreation ? (
               <PatientCreation
                 UserId={UserId}
@@ -83,7 +83,7 @@ const Home = () => {
             ) : (
               <PatientSearch setShowPatientCreation={setShowPatientCreation} />
             )}
-          </> */}
+          </>
         </ErrorBoundary>
       </div>
     </Container>

@@ -9,14 +9,13 @@ const MomentPayIntegration = () => {
     key: process.env.REACT_APP_MOMENTPAY_KEY,
     secret: process.env.REACT_APP_MOMENTPAY_SECRET,
     merchantId: process.env.REACT_APP_MOMENTPAY_MERCHANT_ID,
-    callbackUrl: 'http://192.168.36.26:3000/payment-result',
-    redirectUrl:
-      'https://www.relainstitute.in/his_payment/Forms/payment_result_live.aspx',
+    callbackUrl: 'http://localhost:3000/payment-result',
+    redirectUrl: 'http://localhost:3000/payment-result',
   };
 
   // State for payment details
   const [paymentDetails, setPaymentDetails] = useState({
-    amount: '10.00',
+    amount: '1.00',
     customerName: 'Test Customer',
     customerId: 'CUST' + Date.now(),
     email: 'test@example.com',
@@ -81,10 +80,6 @@ const MomentPayIntegration = () => {
   // Handle payment response
   useEffect(() => {
     const handleMessage = (event) => {
-      // Security: Verify origin in production
-      // const allowedOrigin = new URL(config.baseUrl).origin;
-      // if (event.origin !== allowedOrigin) return;
-
       try {
         const data =
           typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
