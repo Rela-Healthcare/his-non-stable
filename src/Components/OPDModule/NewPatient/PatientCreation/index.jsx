@@ -68,35 +68,49 @@ import {toast} from 'react-toastify';
 import {transformToApiPayload} from './transformToApiPayload';
 import {Button} from 'react-bootstrap';
 import ConfirmationButton from '../../../../common/ConfirmationButton';
-import {RotateCcw, ChevronDown} from 'lucide-react';
+import {RotateCcw, ChevronDown, ArrowLeft} from 'lucide-react';
 import TruncatedText from '../../../../common/TruncatedText';
+import LoadingSpinner from '../../../../common/LoadingSpinner';
 
-const PatientCreation = ({UserId, setShowPatientCreation}) => {
+const PatientCreation = ({UserId, onClose, patient}) => {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
 
   // Optimized useEffect for fetching all necessary data
   useEffect(() => {
-    // persional, addional details, next of kin, evaluation, appointment
-    dispatch(fetchSalutations());
-    dispatch(fetchMaritalStatus());
-    dispatch(fetchOccupation());
-    dispatch(fetchBloodGroup());
-    dispatch(fetchReligion());
-    dispatch(fetchLanguage());
-    dispatch(fetchIdType());
-    dispatch(fetchMobileCodes());
-    dispatch(fetchNationality());
-    dispatch(fetchCountries());
-    dispatch(fetchState());
-    dispatch(fetchRelationType());
-    dispatch(fetchDepartments());
-    dispatch(fetchPayorsList());
-    dispatch(fetchRefSrcList());
-    dispatch(fetchInternalDoctorList());
-    dispatch(fetchServiceGroupList());
-    dispatch(fetchPriorityList());
-    dispatch(fetchPackageList());
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          dispatch(fetchSalutations()),
+          dispatch(fetchMaritalStatus()),
+          dispatch(fetchOccupation()),
+          dispatch(fetchBloodGroup()),
+          dispatch(fetchReligion()),
+          dispatch(fetchLanguage()),
+          dispatch(fetchIdType()),
+          dispatch(fetchMobileCodes()),
+          dispatch(fetchNationality()),
+          dispatch(fetchCountries()),
+          dispatch(fetchState()),
+          dispatch(fetchRelationType()),
+          dispatch(fetchDepartments()),
+          dispatch(fetchPayorsList()),
+          dispatch(fetchRefSrcList()),
+          dispatch(fetchInternalDoctorList()),
+          dispatch(fetchServiceGroupList()),
+          dispatch(fetchPriorityList()),
+          dispatch(fetchPackageList()),
+        ]);
+        setIsLoading(false); // STEP 2: after all dispatches complete
+      } catch (error) {
+        console.error('Error loading initial data', error);
+        setIsLoading(false); // Optional: you can show error UI
+      }
+    };
+
+    loadData();
   }, [dispatch]);
+
   const dropdownData = useSelector((state) => state.dropdown.data);
   const opServices = useSelector((state) => state.opService);
   const [formStatus, setFormStatus] = useLocalStorage('formStatus', [
@@ -477,7 +491,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
         );
         if (userConfirmed) {
           resetAllForms();
-          setShowPatientCreation(false);
+          onClose(false);
           return;
         }
       }
@@ -966,16 +980,33 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     setActiveAccordions([0, 1, 2, 3, 4, 5, 6]);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <LoadingSpinner centered />
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="flex justify-between items-center">
-        <Button
-          type="button"
-          variant="link"
-          onClick={() => setShowPatientCreation(false)}
-          className="mb-2 no-underline">
-          ⬅️ Back
-        </Button>
+      <div className="flex justify-between items-center mb-1">
+        <div className="btn-group">
+          <TruncatedText
+            text={
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={() => onClose(false)}>
+                <ArrowLeft size={22} />
+              </Button>
+            }
+            alwaysShowTooltip={true}
+            className="border border-slate-800 rounded-md"
+            tooltipText={'Back'}
+          />
+        </div>
         <div className="flex justify-center items-center gap-2">
           <div className="btn-group">
             <TruncatedText

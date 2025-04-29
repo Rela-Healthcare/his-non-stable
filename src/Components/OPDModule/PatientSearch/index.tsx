@@ -1,60 +1,44 @@
 import React, {useState} from 'react';
-import {Button, Spinner} from 'react-bootstrap';
+import {Button} from 'react-bootstrap';
 import {Search, X} from 'lucide-react';
 import CustomFormField from '../../../common/form/CustomFormField';
-import {OPModuleAgent} from '../../../agent/agent';
-import {toast} from 'react-toastify';
 import CustomTable from '../../../common/CustomTable';
+import LoadingSpinner from '../../../common/LoadingSpinner';
+import {OPModuleAgent} from '../../../agent/agent';
 
-export default function PatientSearch({setShowPatientCreation}) {
+type Props = {
+  setShowPatientCreation: (val: boolean) => void;
+  onEditPatient?: (patient: any) => void;
+  defaultData?: any;
+};
+
+const PatientSearch: React.FC<Props> = ({
+  setShowPatientCreation,
+  onEditPatient,
+  defaultData,
+}) => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
-  const [editModalShow, setEditModalShow] = useState(false);
-  const [currentPatient, setCurrentPatient] = useState(null);
 
   const handleSearch = async () => {
     setLoading(true);
     setSearched(false);
-    const filtered = await fetchData(query);
-    setTimeout(() => {
-      setResults(filtered);
-      setLoading(false);
-      setSearched(true);
-    }, 1000);
-  };
-
-  const handleEdit = (patient) => {
-    setCurrentPatient(patient);
-    setEditModalShow(true);
-  };
-
-  const handleSaveEdit = () => {
-    setResults((prev) =>
-      prev.map((patient) =>
-        patient.uhid === currentPatient.uhid ? currentPatient : patient
-      )
-    );
-    setEditModalShow(false);
-  };
-
-  async function fetchData(searchInput) {
     try {
-      const getExistingResponse = await OPModuleAgent.getExistingPatientDetails(
-        searchInput
-      );
-
-      if (getExistingResponse.status === 'success') {
-        return getExistingResponse.data;
+      const res = await OPModuleAgent.getExistingPatientDetails(query);
+      if (res.status === 'success') {
+        setResults(res.data);
       } else {
-        toast.warn('No records found!');
-        return [];
+        setResults([]);
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
+      setSearched(true);
     }
-  }
+  };
 
   return (
     <div className="search-wrapper p-4">
@@ -77,33 +61,28 @@ export default function PatientSearch({setShowPatientCreation}) {
           <Button
             variant="primary"
             onClick={handleSearch}
-            className="w-md-auto mx-0 border-l-0 rounded-l-none absolute right-[-2.9rem] hover:bg-slate-900">
+            className="absolute right-[-2.9rem]">
             <Search size={26} />
           </Button>
         </div>
-        <Button
-          variant="primary"
-          onClick={() => setShowPatientCreation(true)}
-          className="w-md-auto">
+        <Button variant="primary" onClick={() => setShowPatientCreation(true)}>
           New Patient
         </Button>
       </div>
 
       {loading && (
         <div className="text-center my-4">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
+          <LoadingSpinner centered />
         </div>
       )}
 
       {!loading && searched && results.length === 0 && (
-        <div className="flex justify-center items-center text-center font-inter font-bold text-lg mt-4 h-[70vh]">
+        <div className="flex justify-center items-center text-center font-bold text-lg mt-4 h-[70vh]">
           No patients found
         </div>
       )}
 
-      {!loading && (
+      {!loading && results.length > 0 && (
         <CustomTable
           rowsPerPage={5}
           data={results}
@@ -114,9 +93,32 @@ export default function PatientSearch({setShowPatientCreation}) {
             {label: 'Date of Birth', accessor: 'dob'},
             {label: 'Mobile No', accessor: 'mobileNo'},
           ]}
-          onRowAction={handleEdit}
+          onRowAction={onEditPatient}
+        />
+      )}
+      {!loading && defaultData.length > 0 && (
+        <CustomTable
+          rowsPerPage={5}
+          data={defaultData}
+          columns={[
+            {label: 'UHID', accessor: 'id'},
+            {label: 'Name', accessor: 'patient_Name'},
+            {label: 'Gender', accessor: 'gender'},
+            {label: 'Date of Birth', accessor: 'dob'},
+            {label: 'Mobile No', accessor: 'mobile_No'},
+            {label: 'Registere At', accessor: 'created_date'},
+          ]}
+          onRowAction={onEditPatient}
         />
       )}
     </div>
   );
-}
+};
+
+export default React.memo(PatientSearch, (prevProps, nextProps) => {
+  return (
+    prevProps.defaultData === nextProps.defaultData &&
+    prevProps.setShowPatientCreation === nextProps.setShowPatientCreation &&
+    prevProps.onEditPatient === nextProps.onEditPatient
+  );
+});

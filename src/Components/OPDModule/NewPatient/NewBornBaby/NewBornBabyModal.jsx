@@ -2,7 +2,7 @@ import React, {useState, useCallback} from 'react';
 import {Modal, Space} from 'antd';
 import {Button} from 'react-bootstrap';
 import NewBornBabyForm from './NewBornBabyForm';
-import LoadingSpinner from '../../../LoadingSpinner';
+import LoadingSpinner from '../../../../common/LoadingSpinner';
 
 const NewBornBabyModal = ({
   isVisible,
