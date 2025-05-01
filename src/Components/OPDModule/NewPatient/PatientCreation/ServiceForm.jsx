@@ -1,20 +1,13 @@
-import React, {useState, useEffect, useRef, useCallback, useMemo} from 'react';
-import {Input} from '../../../../common/ui/input';
-import {Button as CustomButton} from '../../../../common/ui/button';
-import Select from '../../../../common/ui/select';
-import {
-  Container,
-  Form,
-  OverlayTrigger,
-  Tooltip,
-  Button,
-} from 'react-bootstrap';
-import {Info, PencilIcon, TrashIcon} from 'lucide-react';
+import React, {useState, useCallback, useMemo} from 'react';
+import {Container, Form} from 'react-bootstrap';
 import {useDispatch} from 'react-redux';
-import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
+import {
+  fetchPackageList,
+  fetchServicesList,
+} from '../../../../store/Slices/dropdownSlice';
 import {formatPrice} from '../../../../utils/utils';
-import TruncatedText from '../../../../common/TruncatedText';
 import EditableServiceTable from './EditableServiceTable';
+import FormActionButtons from './FormActionButtons';
 
 const initialService = {
   Service_Group: '',
@@ -33,7 +26,6 @@ const initialService = {
 };
 
 const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
-  const {serviceGroupListResponse, priorityListResponse} = dropdownData;
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
 
@@ -45,6 +37,11 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
     }, 0);
   }, [services]);
 
+  const getAmountFromString = (str) => {
+    const parts = str.split(':');
+    return parts[parts.length - 1].trim();
+  };
+
   // Handle field changes
   const handleChange = useCallback(
     async (index, field, e) => {
@@ -55,21 +52,30 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
       currentService[field] = value;
 
       if (field === 'Service_Group') {
-        const response = await dispatch(fetchServicesList(value)).unwrap();
-        currentService.servicesListResponse = response;
-        currentService.Service = '';
+        if (value === 'Packages') {
+          const response = await dispatch(fetchPackageList()).unwrap();
+          currentService.servicesListResponse = response;
+          currentService.Service = '';
+        } else {
+          const response = await dispatch(fetchServicesList(value)).unwrap();
+          currentService.servicesListResponse = response;
+          currentService.Service = '';
+        }
       }
 
       if (field === 'Service') {
         const selectedService = currentService.servicesListResponse.find(
-          (option) => option?.value === Number(value)
+          (option) =>
+            typeof option?.value === 'number'
+              ? option.value === Number(value)
+              : option.value === value
         );
 
         if (selectedService) {
-          const rate = Number(selectedService.label.split(':')[1]);
+          const rate = Number(getAmountFromString(selectedService.label));
           currentService.Amount = rate;
           currentService.Actual_Amount = Math.max(rate, 0);
-          currentService.ServiceName = selectedService.label.split(':')[0];
+          currentService.ServiceName = selectedService.label;
         }
       }
 
@@ -123,7 +129,13 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
 
       const newErrors = requiredFields.reduce((acc, key) => {
         if (!updatedService[key]) {
-          acc[`${index}-${key}`] = `${key.replace(/_/g, ' ')} is required.`;
+          if (
+            key !== 'Discount_Type' &&
+            key !== 'Discount_Reason' &&
+            key !== 'Discount'
+          ) {
+            acc[`${index}-${key}`] = `${key.replace(/_/g, ' ')} is required.`;
+          }
         }
         return acc;
       }, {});
@@ -166,21 +178,12 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
   // Validate services before submission
   const validateServices = useCallback((servicesToValidate) => {
     return servicesToValidate.slice(0, -1).reduce((acc, service, index) => {
-      const {
-        Service_Group,
-        Service,
-        Priority,
-        Discount_Type,
-        Discount,
-        Amount,
-      } = service;
+      const {Service_Group, Service, Priority, Amount} = service;
 
       if (!Service_Group) acc[`${index}-Service_Group`] = 'Required';
       if (!Service) acc[`${index}-Service`] = 'Required';
       if (!Priority) acc[`${index}-Priority`] = 'Required';
-      if (Discount_Type && !Discount) acc[`${index}-Discount`] = 'Required';
-      if (Discount && !Amount) acc[`${index}-Amount`] = 'Required';
-
+      if (!Amount) acc[`${index}-Amount`] = 'Required';
       return acc;
     }, {});
   }, []);
@@ -201,11 +204,12 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
 
   return (
     <Container className="px-2 md:px-6">
-      <Form noValidate onSubmit={handleSubmit}>
+      <Form noValidate onSubmit={handleSubmit} className="pt-4">
         <EditableServiceTable
           services={services}
           serviceGroupListResponse={dropdownData.serviceGroupListResponse || []}
           priorityListResponse={dropdownData.priorityListResponse || []}
+          packageListResponse={dropdownData.packageListResponse || []}
           onChange={handleChange}
           onDelete={deleteService}
           onToggleSave={toggleSaveEdit}
@@ -220,18 +224,8 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
               totalAmount
             )}`}</span>
           </div>
-          <div>
-            <Button
-              variant="primary"
-              type="button"
-              size="md"
-              onClick={resetForm}>
-              Clear
-            </Button>
-            <Button variant="primary" type="submit" size="md">
-              Save & Continue
-            </Button>
-          </div>
+          <FormActionButtons onClear={resetForm} />{' '}
+          {/* Clear and Save Button */}
         </div>
       </Form>
     </Container>

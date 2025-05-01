@@ -85,6 +85,19 @@ export const fetchPriorityList = createDropdownThunk(
   OPModuleAgent.getPriorityList
 );
 
+export const fetchPackageList = createAsyncThunk(
+  'dropdown/fetchPackageList',
+  async () => {
+    const apiData = (await OPModuleAgent.getPackageList()).data;
+    return apiData
+      .filter((item) => item.package_Dtl)
+      .map((item) => ({
+        value: item.package_Dtl,
+        label: item.package_Dtl,
+      }));
+  }
+);
+
 export const fetchServicesList = createAsyncThunk(
   'dropdown/fetchServicesList',
   async (serviceGroup) => {
@@ -183,6 +196,7 @@ const initialState = {
     serviceGroupListResponse: [],
     priorityListResponse: [],
     servicesListResponse: [],
+    packageListResponse: [],
   },
   loading: false,
   error: null,
@@ -213,6 +227,7 @@ const thunkToKeyMap = [
   {thunk: fetchServiceGroupList, key: 'serviceGroupListResponse'},
   {thunk: fetchPriorityList, key: 'priorityListResponse'},
   {thunk: fetchServicesList, key: 'servicesListResponse'},
+  {thunk: fetchPackageList, key: 'packageListResponse'},
 ];
 
 const dropdownSlice = createSlice({

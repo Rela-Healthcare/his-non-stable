@@ -56,7 +56,7 @@ const SalutationNameField: React.FC<Props> = ({
 
       <div className="flex flex-col md:flex-row w-full mb-[0.9rem]">
         {/* Salutation Select */}
-        <div className="w-full md:w-[20%] h-[40px] border-y border-l border-black border-r-0 rounded-t-md md:rounded-l-md md:rounded-tr-none">
+        <div className="w-full md:w-[20%] h-[40px] border-y border-l border-black border-r-0 rounded-t-md md:rounded-l-md md:rounded-tr-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
           <Form.Select
             name={salutationName}
             value={salutationValue ?? ''}
@@ -77,7 +77,7 @@ const SalutationNameField: React.FC<Props> = ({
         </div>
 
         {/* Name Input */}
-        <div className="w-full md:w-[80%] h-[40px] border-y border-r border-y-black border-r-black border-l-gray-400 border-l-2 rounded-b-md md:rounded-r-md md:rounded-bl-none">
+        <div className="w-full md:w-[80%] h-[40px] border-y border-r border-y-black border-r-black border-l-gray-400 border-l-2 rounded-b-md md:rounded-r-md md:rounded-bl-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
           <Form.Control
             type="text"
             name={name}

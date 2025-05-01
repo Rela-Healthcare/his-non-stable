@@ -1,7 +1,18 @@
 import {Modal} from 'react-bootstrap';
 import {motion} from 'framer-motion';
+import React from 'react';
 
-const ConfirmDialog = ({
+interface ConfirmDialogProps {
+  show: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title?: string;
+  message?: string | React.ReactNode;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   show,
   onClose,
   onConfirm,
@@ -16,7 +27,7 @@ const ConfirmDialog = ({
       onHide={onClose}
       centered
       backdrop="static"
-      keyboard={false}>
+      keyboard={true}>
       <motion.div
         initial={{opacity: 0, scale: 0.85}}
         animate={{opacity: 1, scale: 1}}

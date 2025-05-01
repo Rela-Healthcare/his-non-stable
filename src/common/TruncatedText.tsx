@@ -2,7 +2,7 @@ import React from 'react';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 interface TruncatedTextProps {
-  text?: string | null;
+  text?: string | React.ReactNode | null;
   maxLength?: number;
   className?: string;
   placement?: 'top' | 'bottom' | 'left' | 'right';
@@ -23,35 +23,44 @@ const TruncatedText: React.FC<TruncatedTextProps> = ({
   as = 'span',
   hideTooltipIfFits = true,
   middleEllipsis = false,
-  alwaysShowTooltip = false, // ✅ Default false
-  tooltipText, // ✅ Optional override
+  alwaysShowTooltip = false,
+  tooltipText,
 }) => {
-  if (typeof text !== 'string') return null;
+  const Wrapper = as;
 
-  const shouldTruncate = text.length > maxLength;
+  const isString = typeof text === 'string';
+
+  if (!isString && !React.isValidElement(text)) {
+    return null; // if it's not a valid react node, return nothing
+  }
+
+  const shouldTruncate = isString && (text as string).length > maxLength;
   let displayText = text;
 
-  if (shouldTruncate) {
+  if (isString && shouldTruncate) {
     if (middleEllipsis) {
       const frontLen = Math.floor(maxLength / 2);
       const backLen = maxLength - frontLen;
-      displayText = `${text.slice(0, frontLen)}...${text.slice(-backLen)}`;
+      displayText = `${(text as string).slice(0, frontLen)}...${(
+        text as string
+      ).slice(-backLen)}`;
     } else {
-      displayText = text.slice(0, maxLength) + '...';
+      displayText = (text as string).slice(0, maxLength) + '...';
     }
   }
 
-  const Wrapper = as;
   const tooltip = (
     <Tooltip id={tooltipId || `tooltip-${Math.random()}`}>
-      {tooltipText || text}
+      {tooltipText || (isString ? text : '')}
     </Tooltip>
   );
 
-  const showTooltip = shouldTruncate || alwaysShowTooltip || !hideTooltipIfFits;
+  const showTooltip =
+    (isString && (shouldTruncate || alwaysShowTooltip)) ||
+    (!isString && alwaysShowTooltip);
 
   if (!showTooltip) {
-    return <Wrapper className={className}>{text}</Wrapper>;
+    return <Wrapper className={className}>{displayText}</Wrapper>;
   }
 
   return (

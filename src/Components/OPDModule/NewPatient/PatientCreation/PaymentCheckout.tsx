@@ -69,7 +69,8 @@ interface PaymentCheckoutProps {
 // Constants
 const PAYMENT_TYPES = [
   {label: '💵 Cash', value: 'C'},
-  {label: '💳 Card / UPI', value: 'R'},
+  {label: '💳 Card', value: 'R'},
+  {label: '📲 UPI', value: 'U'},
   {label: '📝 Cheque', value: 'Q'},
   {label: '🔁 Contra', value: 'T'},
 ];
@@ -339,10 +340,17 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
 
     if (!validateForm()) return;
 
-    // For online payments, just return - PaymentButton handles it
-    if (payment.mode === 'full' && payment.type === 'cards-upi') {
-      return;
-    }
+    const payload = constructPaymentData();
+
+    try {
+      // For online payments, generate URL and open modal
+      if (
+        payment.mode === 'full' &&
+        (payment.type === 'R' || payment.type === 'U')
+      ) {
+        await processPayment();
+        return;
+      }
 
     // For other payment types, submit directly
     try {
@@ -590,16 +598,17 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
                 <CustomFormField
                   type="number"
                   name="discount"
-                  value={payment.discount || ''}
-                  onChange={(e) =>
+                  value={String(payment.discount) ?? ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
                     setPayment((prev) => ({
                       ...prev,
-                      discount: parseFloat(e.target.value) || null,
-                    }))
-                  }
+                      discount: value === '' ? null : parseFloat(value),
+                    }));
+                  }}
                   disabled={!payment.discountType}
                   placeholder="Amount"
-                  min="0"
+                  min={0}
                   className="m-0 w-1/2"
                   isInvalid={!!errors.discount}
                   errorMessage={errors.discount}
@@ -730,7 +739,9 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           </div>
 
           {/* Submit Button - Conditionally render PaymentButton for online payments */}
-          {payment.mode === 'full' && payment.type === 'R' ? (
+          {(payment.mode === 'full' &&
+            (payment.type === 'R' || payment.type === 'U')) ||
+          payment.mode === 'split' ? (
             <PaymentButton
               paymentDetails={{
                 ...paymentButtonDetails,

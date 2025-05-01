@@ -1,6 +1,8 @@
-import {Button, Container, Form} from 'react-bootstrap';
+import {Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
 import {stringToObjectDate} from '../../../../utils/utils';
+import FormActionButtons from './FormActionButtons';
+import {REFERRAL} from './patientFormConstants';
 
 const ScheduleAppointmentForm = ({
   formData,
@@ -18,7 +20,7 @@ const ScheduleAppointmentForm = ({
     payorsListResponse,
     refSrcListResponse,
     internalDoctorListResponse,
-    externalDoctorListResponse,
+    relationTypeResponse,
   } = dropdownData;
   return (
     <Container className="px-2 md:px-6">
@@ -158,7 +160,7 @@ const ScheduleAppointmentForm = ({
             errorMessage={errors?.Referral_Source}
           />
 
-          {Number(formData?.Referral_Source) === 58 && (
+          {Number(formData?.Referral_Source) === REFERRAL.DOCTOR && (
             <CustomFormField
               label="Doctor Type"
               type="select"
@@ -176,7 +178,7 @@ const ScheduleAppointmentForm = ({
               errorMessage={errors?.Doctor_Type}
             />
           )}
-          {Number(formData?.Referral_Source) === 58 &&
+          {Number(formData?.Referral_Source) === REFERRAL.DOCTOR &&
             formData?.Doctor_Type === '1' && (
               <CustomFormField
                 label="Internal Doctor Name"
@@ -192,23 +194,22 @@ const ScheduleAppointmentForm = ({
                 errorMessage={errors?.Internal_Doctor_Name}
               />
             )}
-          {Number(formData?.Referral_Source) === 58 &&
+          {Number(formData?.Referral_Source) === REFERRAL.DOCTOR &&
             formData?.Doctor_Type === '0' && (
               <CustomFormField
                 label="External Doctor Name"
-                type="select"
+                type="text"
                 name="External_Doctor_Name"
                 required
                 value={formData?.External_Doctor_Name}
                 onChange={onChange}
                 onBlur={onBlur}
-                options={externalDoctorListResponse}
-                placeholder="Select External Doctor"
+                placeholder="Enter External Doctor ID"
                 isInvalid={!!errors?.External_Doctor_Name}
                 errorMessage={errors?.External_Doctor_Name}
               />
             )}
-          {Number(formData?.Referral_Source) === 76 && (
+          {Number(formData?.Referral_Source) === REFERRAL.STAFF && (
             <CustomFormField
               label="Staff Employee ID"
               type="text"
@@ -222,29 +223,69 @@ const ScheduleAppointmentForm = ({
               errorMessage={errors?.Staff_Employee_ID}
             />
           )}
-
-          <CustomFormField
-            label="Package Details"
-            type="text"
-            name="Package_Details"
-            required
-            value={formData?.Package_Details}
-            onChange={onChange}
-            onBlur={onBlur}
-            placeholder="Enter Package Details"
-            isInvalid={!!errors?.Package_Details}
-            errorMessage={errors?.Package_Details}
-          />
+          {Number(formData?.Referral_Source) === REFERRAL.VIP && (
+            <CustomFormField
+              label="VIP Details"
+              type="textarea"
+              name="VIP_Txt"
+              required
+              value={formData?.VIP_Txt}
+              onChange={onChange}
+              onBlur={onBlur}
+              placeholder="Enter vip's detial"
+              isInvalid={!!errors?.VIP_Txt}
+              errorMessage={errors?.VIP_Txt}
+            />
+          )}
+          {Number(formData?.Referral_Source) === REFERRAL.CORPORATE && (
+            <>
+              <CustomFormField
+                label="Corporate Company Name"
+                type="select"
+                name="Cor_Company_name"
+                required
+                value={formData?.Cor_Company_name}
+                onChange={onChange}
+                onBlur={onBlur}
+                options={[
+                  {value: 1, label: 'TCS'},
+                  {value: 2, label: 'CTS'},
+                  {value: 3, label: 'Infosys'},
+                  {value: 4, label: 'others'},
+                ]}
+                placeholder="Select Company Name"
+                isInvalid={!!errors?.Cor_Company_name}
+                errorMessage={errors?.Cor_Company_name}
+              />
+              <CustomFormField
+                label="Corporate Employee ID"
+                type="text"
+                name="Cor_Employee_Id"
+                required
+                value={formData?.Cor_Employee_Id}
+                onChange={onChange}
+                onBlur={onBlur}
+                placeholder="Enter employee id"
+                isInvalid={!!errors?.Cor_Employee_Id}
+                errorMessage={errors?.Cor_Employee_Id}
+              />
+              <CustomFormField
+                label="Relation of employee"
+                type="select"
+                name="Cor_Relationship"
+                required
+                value={formData?.Cor_Relationship}
+                onChange={onChange}
+                onBlur={onBlur}
+                options={relationTypeResponse}
+                placeholder="Select relation of employee"
+                isInvalid={!!errors?.Cor_Relationship}
+                errorMessage={errors?.Cor_Relationship}
+              />
+            </>
+          )}
         </div>
-
-        <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 mt-2">
-          <Button variant="secondary" type="button" onClick={onReset}>
-            Clear
-          </Button>
-          <Button variant="primary" type="submit" size="md">
-            Save & Continue
-          </Button>
-        </div>
+        <FormActionButtons onClear={onReset} /> {/* Clear and Save Button */}
       </Form>
     </Container>
   );

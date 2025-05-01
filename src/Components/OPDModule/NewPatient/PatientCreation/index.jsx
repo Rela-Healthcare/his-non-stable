@@ -40,6 +40,26 @@ import {
   validateRequired,
   validateScheduleAppointment,
 } from './patientFormValidation';
+import {
+  fetchSalutations,
+  fetchMaritalStatus,
+  fetchRelationType,
+  fetchBloodGroup,
+  fetchReligion,
+  fetchLanguage,
+  fetchCountries,
+  fetchState,
+  fetchOccupation,
+  fetchNationality,
+  fetchIdType,
+  fetchMobileCodes,
+  fetchDepartments,
+  fetchRefSrcList,
+  fetchInternalDoctorList,
+  fetchServiceGroupList,
+  fetchPriorityList,
+  fetchPackageList,
+} from '../../../../store/Slices/dropdownSlice';
 import ScheduleAppointmentForm from './ScheduleAppointmentForm';
 import {updateService} from '../../../../store/Slices/OPModule/Service/opServiceSlice';
 import ServiceForm from './ServiceForm';
@@ -47,9 +67,50 @@ import PaymentCheckout from './PaymentCheckout';
 import {toast} from 'react-toastify';
 import {transformToApiPayload} from './transformToApiPayload';
 import {Button} from 'react-bootstrap';
+import ConfirmationButton from '../../../../common/ConfirmationButton';
+import {RotateCcw, ChevronDown, ArrowLeft} from 'lucide-react';
+import TruncatedText from '../../../../common/TruncatedText';
+import LoadingSpinner from '../../../../common/LoadingSpinner';
 
-const PatientCreation = ({UserId, setShowPatientCreation}) => {
+const PatientCreation = ({UserId, onClose, patient}) => {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Optimized useEffect for fetching all necessary data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          dispatch(fetchSalutations()),
+          dispatch(fetchMaritalStatus()),
+          dispatch(fetchOccupation()),
+          dispatch(fetchBloodGroup()),
+          dispatch(fetchReligion()),
+          dispatch(fetchLanguage()),
+          dispatch(fetchIdType()),
+          dispatch(fetchMobileCodes()),
+          dispatch(fetchNationality()),
+          dispatch(fetchCountries()),
+          dispatch(fetchState()),
+          dispatch(fetchRelationType()),
+          dispatch(fetchDepartments()),
+          dispatch(fetchPayorsList()),
+          dispatch(fetchRefSrcList()),
+          dispatch(fetchInternalDoctorList()),
+          dispatch(fetchServiceGroupList()),
+          dispatch(fetchPriorityList()),
+          dispatch(fetchPackageList()),
+        ]);
+        setIsLoading(false); // STEP 2: after all dispatches complete
+      } catch (error) {
+        console.error('Error loading initial data', error);
+        setIsLoading(false); // Optional: you can show error UI
+      }
+    };
+
+    loadData();
+  }, [dispatch]);
+
   const dropdownData = useSelector((state) => state.dropdown.data);
   const opServices = useSelector((state) => state.opService);
   const [formStatus, setFormStatus] = useLocalStorage('formStatus', [
@@ -124,11 +185,11 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     payorsListResponse = [],
     refSrcListResponse = [],
     internalDoctorListResponse = [],
-    externalDoctorListResponse = [],
     departmentsResponse = [],
     serviceGroupListResponse = [],
     priorityListResponse = [],
     servicesListResponse = [],
+    packageListResponse = [],
   } = dropdownData || {};
 
   useEffect(() => {
@@ -176,14 +237,6 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     setAdditionalAreaData(areaListByPincodeResponse);
     setKinAreaData(areaListByPincodeResponse);
   }, [areaListByPincodeResponse]);
-
-  const openAllAccordions = () => {
-    setActiveAccordions([0, 1, 2, 3, 4, 5]); // Adjust indices based on your accordion count
-  };
-
-  const closeAllAccordions = () => {
-    setActiveAccordions([]);
-  };
 
   const markFormAsCompleted = (index) => {
     const updatedFormStatus = [...formStatus];
@@ -271,18 +324,28 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     if (personalErrors[name]) {
       setPersonalErrors((prev) => ({...prev, [name]: ''}));
     }
+
     if (name === 'ID_Type' && personalDetails.ID_No?.length > 1) {
       const id =
         typeof personalDetails.ID_No === 'string'
           ? personalDetails.ID_No.toUpperCase()
           : personalDetails.ID_No;
       const idType = value.toLowerCase();
-      setIsIdValid(validateIDType(idType, id));
+      updatedDetails[name] = value;
+      setIsIdValid(() => {
+        const result = validateIDType(idType, id) ? true : false;
+        if (!result) {
+          updatedDetails['ID_No'] = '';
+        }
+        return result;
+      });
     } else if (name === 'ID_No') {
-      updatedDetails[name] = value.toUpperCase();
-      setIsIdValid(
-        validateIDType(personalDetails.ID_Type, value.toUpperCase())
-      );
+      if (personalDetails.ID_Type) {
+        updatedDetails[name] = value.toUpperCase();
+        const id = typeof value === 'string' ? value.toUpperCase() : value;
+        const idType = personalDetails.ID_Type.toLowerCase();
+        setIsIdValid(validateIDType(idType, id));
+      }
     } else if (name === 'DOB') {
       const date = new Date(value);
       if (!isNaN(date.getTime())) {
@@ -388,7 +451,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     setNextOfKinDetails(updatedDetails);
   };
 
-  const handleEvaluationChange = (e) => {
+  const handleEvaluationChange = async (e) => {
     const {name, value, type, checked} = e.target;
     const parsedValue =
       type === 'checkbox'
@@ -399,6 +462,43 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
         ? false
         : value;
 
+    setEvaluationDetails(async (prev) => {
+      const updatedDetails = {
+        ...prev,
+        [name]: parsedValue,
+      };
+
+      const trueCount = Object.values(updatedDetails).filter(
+        (value) => value === '1'
+      ).length;
+
+      if (trueCount >= 3) {
+        const userConfirmed = await confirm(
+          'Alert Submission',
+          <>
+            <p>
+              <b className="text-blue-500 font-serif font-semibold">
+                Please ask the patient to visit the ER
+              </b>
+              , the patient has three medical problems, so we cannot proceed as
+              an Out Patient.
+              <br />
+            </p>
+            <p className="font-bold text-slate-800 font-sans">
+              Are you sure you want to abort OP registration?
+            </p>
+          </>
+        );
+        if (userConfirmed) {
+          resetAllForms();
+          onClose(false);
+          return;
+        }
+      }
+
+      return updatedDetails;
+    });
+
     setEvaluationDetails({...evaluationDetails, [name]: parsedValue});
   };
 
@@ -407,7 +507,16 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     const updatedDetails = {...appointmentDetails, [name]: value};
     if (name === 'Appointment_Date') {
       updatedDetails[name] = dateObjectToString(value);
+    } else if (name === 'Referral_Source') {
+      updatedDetails['Internal_Doctor_Name'] = '';
+      updatedDetails['External_Doctor_Name'] = '';
+      updatedDetails['Staff_Employee_ID'] = '';
+      updatedDetails['VIP_Txt'] = '';
+      updatedDetails['Cor_Company_name'] = '';
+      updatedDetails['Cor_Employee_Id'] = '';
+      updatedDetails['Cor_Relationship'] = '';
     }
+
     setAppointmentDetails(updatedDetails);
   };
 
@@ -672,6 +781,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
       const allFalseOrNull = Object.values(evaluationDetails).every(
         (value) => value === null || value === false || value === 0
       );
+
       if (allFalseOrNull) {
         const userConfirmed = await confirm(
           'Confirm Submission',
@@ -714,7 +824,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
               ? Number(appointmentDetails?.Payor_Name)
               : 0,
           Referral_Source: Number(appointmentDetails?.Referral_Source),
-          Doctor_Type: appointmentDetails?.Doctor_Type,
+          Doctor_Type: appointmentDetails?.Doctor_Type ?? 'Consultant',
           Internal_Doctor_Name:
             appointmentDetails?.Internal_Doctor_Name !== null
               ? Number(appointmentDetails?.Internal_Doctor_Name)
@@ -723,9 +833,14 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
             appointmentDetails?.External_Doctor_Name !== null
               ? Number(appointmentDetails?.External_Doctor_Name)
               : 0,
-          Staff_Employee_ID: appointmentDetails?.Staff_Employee_ID,
+          Staff_Employee_ID:
+            appointmentDetails?.Staff_Employee_ID || 'EMP56789',
           Package_Details: appointmentDetails?.Package_Details,
           Modified_Id: UserId,
+          VIP_Txt: appointmentDetails?.VIP_Txt,
+          Cor_Company_name: appointmentDetails?.Cor_Company_name,
+          Cor_Employee_Id: appointmentDetails?.Cor_Employee_Id,
+          Cor_Relationship: appointmentDetails?.Cor_Relationship,
         };
         const res = await OPModuleAgent.updateTempOPDPatientAppointment(
           payload
@@ -865,15 +980,87 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
     setActiveAccordions([0, 1, 2, 3, 4, 5, 6]);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <LoadingSpinner centered />
+      </div>
+    );
+  }
+
   return (
     <>
-      <Button
-        type="button"
-        variant="link"
-        onClick={() => setShowPatientCreation(false)}
-        className="mb-2 no-underline">
-        ⬅️ Back
-      </Button>
+      <div className="flex justify-between items-center mb-1">
+        <div className="btn-group">
+          <TruncatedText
+            text={
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                onClick={() => onClose(false)}>
+                <ArrowLeft size={22} />
+              </Button>
+            }
+            alwaysShowTooltip={true}
+            className="border border-slate-800 rounded-md"
+            tooltipText={'Back'}
+          />
+        </div>
+        <div className="flex justify-center items-center gap-2">
+          <div className="btn-group">
+            <TruncatedText
+              text={
+                <ConfirmationButton
+                  buttonText={<RotateCcw size={18} />}
+                  variant="link"
+                  title="Clear Form"
+                  message="Are you sure you want to clear all this form?"
+                  confirmText="Clear All"
+                  cancelText="Cancel"
+                  maxLength={14}
+                  onConfirm={() => {
+                    resetAllForms();
+                    toast.success('Form cleared successfully');
+                  }}
+                />
+              }
+              alwaysShowTooltip={true}
+              tooltipText={`Clear all form data`}
+              className="border border-slate-800 rounded-md"
+            />
+          </div>
+          <div className="btn-group">
+            <TruncatedText
+              text={
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  onClick={() =>
+                    setActiveAccordions((prev) =>
+                      prev.length === 0 ? [0, 1, 2, 3, 4, 5, 6] : []
+                    )
+                  }>
+                  <ChevronDown
+                    size={22}
+                    className={
+                      activeAccordions.length === 0 ? '' : 'rotate-180'
+                    }
+                  />
+                </Button>
+              }
+              alwaysShowTooltip={true}
+              className="border border-slate-800 rounded-md"
+              tooltipText={
+                activeAccordions.length === 0
+                  ? `Open all accordions`
+                  : `Close all accordions`
+              }
+            />
+          </div>
+        </div>
+      </div>
       <CustomAccordion
         activeIndex={activeAccordions}
         setActiveIndex={setActiveAccordions}
@@ -958,7 +1145,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
               payorsListResponse,
               refSrcListResponse,
               internalDoctorListResponse,
-              externalDoctorListResponse,
+              relationTypeResponse,
             }}
             onChange={handleAppointmentChange}
             onSubmit={handleAppointmentSubmit}
@@ -976,6 +1163,7 @@ const PatientCreation = ({UserId, setShowPatientCreation}) => {
               serviceGroupListResponse,
               priorityListResponse,
               servicesListResponse,
+              packageListResponse,
             }}
           />
         </CustomAccordionItem>
