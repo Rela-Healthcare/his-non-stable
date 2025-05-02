@@ -1,8 +1,13 @@
-import {usePayment} from '../../hooks/usePayment';
-import PaymentModal from './PaymentModal';
+import {useDispatch, useSelector} from 'react-redux';
+import {useEffect} from 'react';
+import {Button} from 'react-bootstrap';
+import type {AppDispatch} from '../../store/store';
+import {
+  initiatePayment,
+  initializeMomentPay,
+} from '../../store/Slices/momentPay/momentPayThunks';
+import {selectPaymentStatus} from '../../store/Slices/momentPay/momentPaySlice';
 import {PaymentButtonProps} from '../../types/payment.types';
-import {createPortal} from 'react-dom';
-import {useEffect, useState} from 'react';
 
 const PaymentButton = ({
   paymentDetails,
@@ -10,63 +15,63 @@ const PaymentButton = ({
   onPaymentSuccess,
   onPaymentError,
 }: PaymentButtonProps) => {
-  const {initiatePayment, isLoading, error, iframeUrl, resetError} =
-    usePayment();
+  const dispatch = useDispatch<AppDispatch>();
+  const {isLoading, error, status} = useSelector(selectPaymentStatus);
+  const UserId = localStorage.getItem('userName');
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  useEffect(() => {
+    dispatch(initializeMomentPay());
+  }, [dispatch]);
 
-  const handlePaymentInitiation = async () => {
-    const response = await initiatePayment(paymentDetails);
+  const handlePaymentInitiation = () => {
+    const {
+      patientID = 'PAT12345',
+      patientName = 'John Doe',
+      amount = 1,
+      email = 'john@example.com',
+      phone = '9876543210',
+      processingId = `ORDER_${Date.now()}`,
+      paymode = 'cards-upi',
+      cashierId = UserId ?? 'WEB_CASHIER_01',
+    } = paymentDetails;
 
-    if (response.success && response.iframeUrl) {
-      setIsModalOpen(true);
-      onPaymentSuccess?.({message: 'Payment initialized successfully'});
-    } else if (response.error) {
-      onPaymentError?.(response.error);
-    }
-  };
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    // You might want to verify payment status here if needed
+    dispatch(
+      initiatePayment(
+        {
+          patientID,
+          patientName,
+          amount,
+          email,
+          phone,
+          processingId,
+          paymode,
+          cashierId,
+        },
+        onPaymentSuccess,
+        (error, isUserClosed = false) => {
+          if (!isUserClosed) {
+            onPaymentError?.(error);
+          }
+        }
+      )
+    );
   };
 
   useEffect(() => {
-    if (error) {
-      onPaymentError?.(error);
-      resetError();
+    if (status === 'success') {
+      onPaymentSuccess?.('Payment successful');
+    } else if (status === 'failed') {
+      onPaymentError?.(error || 'Payment failed');
     }
-  }, [error, onPaymentError, resetError]);
-
-  useEffect(() => {
-    if (error) {
-      onPaymentError?.(error);
-      resetError();
-    }
-  }, [error, onPaymentError, resetError]);
+  }, [status, error, onPaymentSuccess, onPaymentError]);
 
   return (
-    <>
-      <button
-        onClick={handlePaymentInitiation}
-        disabled={isLoading}
-        className={`flex items-center justify-center gap-2 bg-gradient-to-r from-green-700 to-teal-800 text-white hover:from-green-700 hover:to-teal-900 transition-all duration-300 ease-in-out px-6 py-2 rounded-lg shadow-lg font-bold text-sm tracking-wide ${className}`}>
-        {isLoading
-          ? 'Processing...'
-          : `Pay ₹${paymentDetails.amount.toFixed(2)}`}
-      </button>
-
-      {isModalOpen &&
-        iframeUrl &&
-        createPortal(
-          <PaymentModal
-            isOpen={isModalOpen}
-            iframeUrl={iframeUrl}
-            onClose={handleModalClose}
-          />,
-          document.getElementById('modal-root')!
-        )}
-    </>
+    <Button
+      onClick={handlePaymentInitiation}
+      disabled={isLoading}
+      className={`flex items-center justify-center gap-2 bg-gradient-to-r from-green-700 to-teal-800 text-white hover:from-green-700 hover:to-teal-900 transition-all duration-300 ease-in-out px-6 py-2 rounded-lg shadow-lg text-sm tracking-wide w-full mt-6 ${className}`}>
+      {isLoading ? 'Processing...' : `Pay ₹${paymentDetails.amount.toFixed(2)}`}
+    </Button>
   );
 };
 

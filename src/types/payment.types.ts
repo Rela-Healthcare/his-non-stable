@@ -77,9 +77,21 @@ export interface PaymentButtonProps {
     phone: string;
     processingId: string;
     paymode: PayMode;
-    cashierId?: string;
+    cashierId: string;
   };
   className?: string;
   onPaymentSuccess?: (response: any) => void;
   onPaymentError?: (error: string) => void;
 }
+
+export interface PatientDetails {
+  Name: string;
+  Mobile_No: string;
+  Email_ID: string;
+  Age: string;
+  Gender: string;
+  UHID?: string;
+}
+
+export type PaymentMode = 'full' | 'split';
+export type DiscountType = 'percentage' | 'flat' | '';

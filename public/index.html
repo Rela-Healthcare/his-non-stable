@@ -65,5 +65,146 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
+
+    <!-- <script>
+      class MomentPay {
+        constructor() {
+          this.iframe = null;
+          this.modal = null;
+          this.responseCallback = null;
+          this.closeCallback = null;
+          this._handleMessage = this._handleMessage.bind(this);
+        }
+
+        init(options) {
+          // Remove existing modal if it exists
+          if (this.modal) {
+            document.body.removeChild(this.modal);
+            this.modal = null;
+            this.iframe = null;
+          }
+
+          // Create form elements dynamically
+          const form = document.createElement('form');
+          form.method = 'post';
+          form.action = options.actionUrl;
+          form.target = 'momentPayFrame';
+
+          // Add hidden input fields for each option
+          for (const key in options) {
+            if (options.hasOwnProperty(key) && key !== 'actionUrl') {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = key;
+              input.value = options[key];
+              form.appendChild(input);
+            }
+          }
+
+          // Create modal container
+          this.modal = document.createElement('div');
+          this.modal.style.position = 'fixed';
+          this.modal.style.left = '0';
+          this.modal.style.top = '0';
+          this.modal.style.width = '100%';
+          this.modal.style.height = '100%';
+          this.modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+          this.modal.style.display = 'flex';
+          this.modal.style.justifyContent = 'center';
+          this.modal.style.alignItems = 'center';
+          this.modal.style.zIndex = '10000';
+
+          // Create iframe container
+          const iframeContainer = document.createElement('div');
+          iframeContainer.style.position = 'relative';
+          iframeContainer.style.width = '90%';
+          iframeContainer.style.maxWidth = '600px';
+          iframeContainer.style.height = '80%';
+          iframeContainer.style.backgroundColor = '#fff';
+          iframeContainer.style.borderRadius = '8px';
+          iframeContainer.style.overflow = 'hidden';
+
+          // Create close button
+          const closeButton = document.createElement('button');
+          closeButton.innerText = 'X';
+          closeButton.style.position = 'absolute';
+          closeButton.style.top = '10px';
+          closeButton.style.right = '10px';
+          closeButton.style.background = '#eee';
+          closeButton.style.border = 'none';
+          closeButton.style.borderRadius = '50%';
+          closeButton.style.width = '30px';
+          closeButton.style.height = '30px';
+          closeButton.style.cursor = 'pointer';
+          closeButton.style.fontSize = '16px';
+          closeButton.style.lineHeight = '30px';
+          closeButton.style.textAlign = 'center';
+          closeButton.onclick = () => this.close();
+
+          // Create iframe
+          this.iframe = document.createElement('iframe');
+          this.iframe.name = 'momentPayFrame';
+          this.iframe.style.width = '100%';
+          this.iframe.style.height = '100%';
+          this.iframe.style.border = 'none';
+
+          // Append elements
+          iframeContainer.appendChild(this.iframe);
+          iframeContainer.appendChild(closeButton);
+          this.modal.appendChild(iframeContainer);
+          document.body.appendChild(this.modal);
+          document.body.appendChild(form);
+
+          // Submit the form to load the iframe content
+          form.submit();
+          document.body.removeChild(form);
+
+          // Add message listener
+          window.addEventListener('message', this._handleMessage);
+        }
+
+        _handleMessage(event) {
+          if (event.data && event.data.type === 'momentPayResponse') {
+            if (this.responseCallback) {
+              this.responseCallback(event.data.payload);
+            }
+            this.close();
+          } else if (event.data && typeof event.data === 'string') {
+            try {
+              const parsedData = JSON.parse(event.data);
+              if (this.responseCallback) {
+                this.responseCallback({response: event.data});
+              }
+              this.close();
+            } catch (e) {
+              console.error('Received non-JSON message:', event.data);
+            }
+          }
+        }
+
+        onResponse(callback) {
+          this.responseCallback = callback;
+        }
+
+        onClose(callback) {
+          this.closeCallback = callback;
+        }
+
+        close() {
+          if (this.modal) {
+            document.body.removeChild(this.modal);
+            this.modal = null;
+            this.iframe = null;
+            window.removeEventListener('message', this._handleMessage);
+            if (this.closeCallback) {
+              this.closeCallback();
+            }
+          }
+        }
+      }
+
+      // Make it available globally
+      window.MomentPay = MomentPay;
+    </script> -->
   </body>
 </html>

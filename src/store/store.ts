@@ -1,4 +1,4 @@
-import {configureStore} from '@reduxjs/toolkit';
+import {Action, configureStore, ThunkAction} from '@reduxjs/toolkit';
 import loginReducer from '../features/Login/LoginSlice';
 import patientCreationReducer from '../features/OPDModule/PatientCreation/PatientCreationSlice';
 import appointmentVisitReducer from '../features/OPDModule/AppointmentSchedule/AppointmentScheduleSlice';
@@ -25,6 +25,9 @@ import depositReducer from '../features/OPDModule/DepositAllocation/DepositSlice
 import dropdownReducer from './Slices/dropdownSlice';
 import opServiceReducer from './Slices/OPModule/Service/opServiceSlice';
 
+//MomentPay
+import momentPayReducer from './Slices/momentPay/momentPaySlice';
+
 export const store = configureStore({
   reducer: {
     loginInfo: loginReducer,
@@ -42,5 +45,24 @@ export const store = configureStore({
     depositInfo: depositReducer,
     dropdown: dropdownReducer,
     opService: opServiceReducer,
+    momentPay: momentPayReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these field paths in all actions
+        ignoredActionPaths: ['payload.instance'],
+        // Ignore these paths in the state
+        ignoredPaths: ['momentPay.instance'],
+      },
+    }),
 });
+
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  RootState,
+  unknown,
+  Action<string>
+>;

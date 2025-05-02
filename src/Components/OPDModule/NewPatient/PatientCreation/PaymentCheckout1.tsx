@@ -26,9 +26,9 @@ import {Button as CustomButton} from '../../../../common/ui/button';
 import {Tags, HelpCircle} from 'lucide-react';
 import {toast} from 'react-toastify';
 import TruncatedText from '../../../../common/TruncatedText';
-import PaymentButton from '../../../../Components/Payment/PaymentButton';
-import {PaymentButtonProps, PayModes} from '../../../../types/payment.types';
-import {usePaymentCalculation} from '../../../../hooks/usePaymentCalculation';
+import PaymentButton from '../../../Payment/PaymentButton';
+import {PaymentButtonProps} from '../../../../types/payment.types';
+import {usePaymentCalculation} from '../../../../hooks/payment/usePaymentCalculation';
 import {getConvertPercentageToDecimal} from '../../../../utils/PaymentUtil';
 
 // Types
@@ -158,7 +158,8 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     if (patientDetails) {
       setPaymentButtonDetails((prev) => ({
         ...prev,
-        amount: netPayable,
+        // amount: netPayable,
+        amount: 1,
         processingId: generateProcessingId(patientDetails.Mobile_No),
       }));
     }
@@ -306,31 +307,67 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   /**
    * Handles payment success
    */
-  const handlePaymentSuccess = (response: any) => {
-    // Check both possible response formats
-    const success =
-      response.response_token?.response_code === '1200' ||
-      response.status === 'success';
+  const handlePaymentSuccess = useCallback(
+    (response: any) => {
+      // Check both possible response formats
+      const success =
+        response.response_token?.response_code === '1200' ||
+        response.status === 'success';
 
-    if (success) {
-      toast.success('Payment processed successfully');
-      const payload = constructPaymentData();
-      onSubmit(payload);
-    } else {
-      const errorMsg =
-        response.response_token?.response_message ||
-        response.message ||
-        'Payment verification failed';
-      toast.error(errorMsg);
-    }
-  };
+      if (success) {
+        toast.success('Payment processed successfully');
+        const payload = constructPaymentData();
+        onSubmit(payload);
+        if (onPaymentSuccess) {
+          onPaymentSuccess(response);
+        }
+      } else {
+        const errorMsg =
+          response.response_token?.response_message ||
+          response.message ||
+          'Payment verification failed';
+        toast.error(errorMsg);
+        if (onPaymentError) {
+          onPaymentError(errorMsg);
+        }
+      }
+    },
+    [constructPaymentData, onSubmit, onPaymentSuccess, onPaymentError]
+  );
 
   /**
    * Handles payment error
    */
-  const handlePaymentError = (error: string) => {
-    toast.error(`Payment failed: ${error}`);
-  };
+  const handlePaymentError = useCallback(
+    (error: string, isUserClosed = false) => {
+      if (!isUserClosed) {
+        toast.error(`Payment failed: ${error}`);
+      }
+      if (onPaymentError) {
+        onPaymentError(error);
+      }
+    },
+    [onPaymentError]
+  );
+
+  /**
+   * Processes online payment
+   */
+  const processPayment = useCallback(async () => {
+    try {
+      // This would be your actual payment processing logic
+      // For now, we'll just simulate a successful payment
+      const mockResponse = {
+        status: 'success',
+        transactionId: 'txn_' + Math.random().toString(36).substr(2, 9),
+      };
+      handlePaymentSuccess(mockResponse);
+    } catch (error) {
+      handlePaymentError(
+        error instanceof Error ? error.message : 'Payment processing failed'
+      );
+    }
+  }, [handlePaymentSuccess, handlePaymentError]);
 
   /**
    * Handles form submission
@@ -339,8 +376,6 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     e.preventDefault();
 
     if (!validateForm()) return;
-
-    const payload = constructPaymentData();
 
     try {
       // For online payments, generate URL and open modal
@@ -352,8 +387,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
         return;
       }
 
-    // For other payment types, submit directly
-    try {
+      // For other payment types, submit directly
       const payload = constructPaymentData();
       await onSubmit(payload);
     } catch (error) {

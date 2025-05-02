@@ -5,14 +5,14 @@ interface PaymentConfig {
   secret: string;
   merchantId: string;
   paymentLocation: string;
-  returnUrl: string;
-  responseUrl: string;
+  callbackUrl: string;
+  redirectUrl: string;
 }
 
 export const paymentConfig: PaymentConfig = {
   baseUrl:
     process.env.REACT_APP_MOMENT_PAY_BASE_URL ||
-    'https://testing.momentpay.in/ma/v2/extended-iframe-payment/',
+    'https://testing.momentpay.in/ma/v2/extended-iframe-payment',
   user: process.env.REACT_APP_MOMENTPAY_USER || 'jrsuperspecialityadmin',
   key:
     process.env.REACT_APP_MOMENTPAY_KEY ||
@@ -22,8 +22,6 @@ export const paymentConfig: PaymentConfig = {
     'Mbs1dj8pZerMyv7cnhxIqSMKhievG5aWGOdyuGw1rFujoQGTHu',
   merchantId: process.env.REACT_APP_MOMENTPAY_MERCHANT_ID || '27',
   paymentLocation: 'Test Hospital',
-  returnUrl:
-    'https://www.relainstitute.in/his_payment/Forms/payment_result_live.aspx',
-  responseUrl:
-    'https://www.relainstitute.in/his_payment/Forms/payment_result_live.aspx',
+  callbackUrl: 'http://192.168.36.26:3000/payment-result',
+  redirectUrl: 'http://192.168.36.26:3000/payment-result',
 };

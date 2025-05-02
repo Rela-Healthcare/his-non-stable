@@ -1172,7 +1172,7 @@ const PatientCreation = ({UserId, onClose, patient}) => {
           {serviceDetails.length > 1 && (
             <PaymentCheckout
               id={1}
-              userId="admin123"
+              userId={UserId}
               paymentDetails={paymentDetails}
               patientDetails={personalDetails}
               serviceDetails={serviceDetails}
