@@ -192,6 +192,9 @@ const CustomFormField: React.FC<CustomFormFieldProps> = ({
           disabled={disabled}
           required={required}
           autoFocus={autoFocus}
+          portalId="modal-root"
+          popperClassName="z-[9999]"
+          popperPlacement="bottom-start"
           {...props}
         />
       ) : type === 'textarea' ? (

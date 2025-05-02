@@ -113,3 +113,7 @@ a {
   .ant-menu-item-selected {
   background-color: black !important;
 }
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}

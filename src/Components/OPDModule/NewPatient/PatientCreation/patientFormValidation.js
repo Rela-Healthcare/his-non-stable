@@ -132,7 +132,6 @@ const appointmentDetailsValidations = {
     conditional: (formData) => Number(formData.Referral_Source) === 76,
     required: true,
   },
-  Package_Details: {required: true},
 };
 
 // Main validation functions
