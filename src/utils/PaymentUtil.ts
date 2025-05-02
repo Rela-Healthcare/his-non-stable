@@ -6,7 +6,7 @@ import forge from 'node-forge';
 export const generateChecksum = (params: {
   amount: number;
   processingId: string;
-  merchantId: string;
+  merchantId: number;
   secret: string;
 }): string => {
   const hashString = `${params.amount}|${params.processingId}+${params.merchantId}+${params.secret}`;

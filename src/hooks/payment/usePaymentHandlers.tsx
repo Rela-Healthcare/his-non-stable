@@ -76,8 +76,10 @@ export const usePaymentHandlers = ({
   }, [patientDetails]);
 
   const handleChange = useCallback((field: string, value: any) => {
+    if (value === '') {
+      setErrors((prev) => ({...prev, [field]: ''}));
+    }
     setPayment((prev) => ({...prev, [field]: value}));
-    setErrors((prev) => ({...prev, [field]: ''}));
   }, []);
 
   const handleSplitAmountChange = useCallback(

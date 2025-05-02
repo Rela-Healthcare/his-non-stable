@@ -4,6 +4,7 @@ import {
   paymentSuccess,
   paymentFailed,
   initializeSDK,
+  resetState,
 } from '../../Slices/momentPay/momentPaySlice';
 import {generateChecksum} from '../../../utils/PaymentUtil';
 import {paymentConfig} from '../../../config/payment';
@@ -26,6 +27,12 @@ export const initiatePayment =
     onError?: (err: string) => void
   ): AppThunk =>
   async (dispatch, getState) => {
+    // Clean up previous state
+    dispatch(resetState());
+
+    // Initialize fresh instance
+    dispatch(initializeSDK());
+
     const {instance} = getState().momentPay;
 
     if (!instance) {
@@ -108,12 +115,15 @@ export const initiatePayment =
 
         instance.onClose(() => {
           const closeMsg = 'Payment window closed';
+          dispatch(paymentFailed(closeMsg));
           reject(new Error(closeMsg));
         });
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Payment failed';
       dispatch(paymentFailed(message));
+    } finally {
+      dispatch(resetState());
     }
   };
 

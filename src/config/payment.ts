@@ -3,7 +3,7 @@ interface PaymentConfig {
   user: string;
   key: string;
   secret: string;
-  merchantId: string;
+  merchantId: number;
   paymentLocation: string;
   callbackUrl: string;
   redirectUrl: string;
@@ -20,7 +20,7 @@ export const paymentConfig: PaymentConfig = {
   secret:
     process.env.REACT_APP_MOMENTPAY_SECRET ||
     'Mbs1dj8pZerMyv7cnhxIqSMKhievG5aWGOdyuGw1rFujoQGTHu',
-  merchantId: process.env.REACT_APP_MOMENTPAY_MERCHANT_ID || '27',
+  merchantId: Number(process.env.REACT_APP_MOMENTPAY_MERCHANT_ID) || 8,
   paymentLocation: 'Test Hospital',
   callbackUrl: 'http://192.168.36.26:3000/payment-result',
   redirectUrl: 'http://192.168.36.26:3000/payment-result',

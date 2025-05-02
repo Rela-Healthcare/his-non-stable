@@ -59,7 +59,7 @@ export class MomentPay {
     iframeContainer.style.cssText = `
       position: relative;
       width: 100%;
-      max-width: 750px;
+      max-width: 70%;
       height: 95%;
       background-color: #fff;
       border-radius: 8px;
