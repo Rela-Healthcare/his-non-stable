@@ -121,12 +121,12 @@ export const initialPaymentDetails = {
       CardNo: '',
     },
   ],
-  Id: null, // Assuming this comes from backend after save
+  Id: null,
   Gross_Amount: 0,
   Final_Discount: 0,
   Total_Amount: 0,
   Coupon_Balance: 0,
   Apply_Coupon: false,
   Net_Payable_Amount: 0,
-  UserId: '', // To be filled with logged-in user's ID
+  UserId: '',
 };

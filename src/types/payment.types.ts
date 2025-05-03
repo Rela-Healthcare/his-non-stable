@@ -95,3 +95,14 @@ export interface PatientDetails {
 
 export type PaymentMode = 'full' | 'split';
 export type DiscountType = 'percentage' | 'flat' | '';
+
+export interface UsePaymentHandlersProps {
+  id: string;
+  couponAmount?: number;
+  patientDetails?: PatientDetails;
+  userId?: string;
+  onPaymentSuccess?: (response: any) => void;
+  onPaymentError?: (error: string) => void;
+  onSubmit: (data: any) => void;
+  initialPaymentDetails?: any;
+}

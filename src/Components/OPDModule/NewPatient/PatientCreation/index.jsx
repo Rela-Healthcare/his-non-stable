@@ -894,10 +894,19 @@ const PatientCreation = ({UserId, onClose, patient}) => {
   };
 
   const handlePaymentSubmit = async (payload) => {
-    setPaymentDetails(payload);
-    markFormAsCompleted(6);
-    setActiveAccordions([7]);
-    submitAllData();
+    try {
+      const response = await OPModuleAgent.insertPaymentInformation(payload);
+      if (!response?.data?.id) {
+        console.error('❌ Submission failed:', response?.data?.id);
+        toast.error('❌ Payment submission failed');
+      }
+      setPaymentDetails(payload);
+      markFormAsCompleted(6);
+      setActiveAccordions([7]);
+      // submitAllData();
+    } catch (error) {
+      console.error('❌ Network error:', error);
+    }
   };
 
   const submitAllData = async () => {

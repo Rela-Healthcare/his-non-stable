@@ -1,10 +1,11 @@
 import {Container} from 'react-bootstrap';
 import PaymentForm from './PaymentForm';
-import {usePaymentHandlers} from '../../../../../hooks/payment/usePaymentHandlers';
+import {usePaymentHandlers} from '../../../../../hooks/payment/usePaymentHandlers-old';
 import {PatientDetailsCard} from './PatientDetailsCard';
 import {ServicesTable} from './ServicesTable';
 import BillingSummary from './BillingSummary';
 import {usePaymentCalculation} from '../../../../../hooks/payment/usePaymentCalculation';
+import {UsePaymentHandlersProps} from '../../../../../types/payment.types';
 
 interface PatientDetails {
   Name: string;
@@ -53,13 +54,15 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     handleSplitAmountChange,
     handlePaymentSuccess,
     handlePaymentError,
+    handleSubmit,
   } = usePaymentHandlers({
     id,
     couponAmount,
     patientDetails,
     userId,
     onSubmit,
-  });
+    initialPaymentDetails: paymentDetails || {},
+  } as UsePaymentHandlersProps);
 
   const {
     serviceLevelDiscount,
@@ -82,18 +85,17 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
     applyServiceCharge: true,
   });
 
-  // Updated handleSubmit to only take the event parameter
-  const handleSubmit = async (e: React.FormEvent) => {
+  const wrappedSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSubmit({
-        payment,
+      await handleSubmit(
+        e,
         netPayable,
         grossAmount,
         totalDiscount,
         afterDiscount,
-        taxAmount,
-      });
+        taxAmount
+      );
     } catch (error) {
       console.error('Submission error:', error);
     }
@@ -125,7 +127,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
           couponAmount={Number(couponAmount || 0)}
           serviceLevelDiscount={serviceLevelDiscount}
           onChange={handleChange}
-          onSubmit={handleSubmit}
+          onSubmit={wrappedSubmit}
           onPaymentSuccess={handlePaymentSuccess}
           onPaymentError={handlePaymentError}
           paymentButtonDetails={{

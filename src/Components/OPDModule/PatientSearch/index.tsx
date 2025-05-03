@@ -5,6 +5,7 @@ import CustomFormField from '../../../common/form/CustomFormField';
 import CustomTable from '../../../common/CustomTable';
 import LoadingSpinner from '../../../common/LoadingSpinner';
 import {OPModuleAgent} from '../../../agent/agent';
+import {getFormattedShortDate} from '../../../utils/utils';
 
 type Props = {
   setShowPatientCreation: (val: boolean) => void;
@@ -82,7 +83,7 @@ const PatientSearch: React.FC<Props> = ({
         </div>
       )}
 
-      {!loading && results.length > 0 && (
+      {!loading && results.length > 0 ? (
         <CustomTable
           rowsPerPage={5}
           data={results}
@@ -95,21 +96,34 @@ const PatientSearch: React.FC<Props> = ({
           ]}
           onRowAction={onEditPatient}
         />
-      )}
-      {!loading && defaultData.length > 0 && (
-        <CustomTable
-          rowsPerPage={5}
-          data={defaultData}
-          columns={[
-            {label: 'UHID', accessor: 'id'},
-            {label: 'Name', accessor: 'patient_Name'},
-            {label: 'Gender', accessor: 'gender'},
-            {label: 'Date of Birth', accessor: 'dob'},
-            {label: 'Mobile No', accessor: 'mobile_No'},
-            {label: 'Registere At', accessor: 'created_date'},
-          ]}
-          onRowAction={onEditPatient}
-        />
+      ) : (
+        !loading &&
+        defaultData.length > 0 && (
+          <CustomTable
+            rowsPerPage={5}
+            data={defaultData.slice(-1)}
+            columns={[
+              {label: 'UHID', accessor: 'id'},
+              {label: 'Name', accessor: 'patient_Name'},
+              {
+                label: 'Gender',
+                accessor: 'gender',
+                render: (item) => {
+                  const gender = item.gender?.toLowerCase();
+                  const icon = gender === 'male' ? '♂️' : '♀️';
+                  return `${icon} ${item.gender.slice(0, 1).toUpperCase()}`;
+                },
+              },
+              {
+                label: 'Date of Birth',
+                accessor: 'dob',
+                render: (item) => getFormattedShortDate(item.dob),
+              },
+              {label: 'Mobile No', accessor: 'mobile_No'},
+            ]}
+            onRowAction={onEditPatient}
+          />
+        )
       )}
     </div>
   );

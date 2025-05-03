@@ -98,10 +98,9 @@ export const getFormattedDate = (date = new Date()) => {
  * @param {Date} [date] - The date to format. Defaults to the current date.
  * @returns {string} The formatted date string.
  */
-export const getFormattedShortDate = (date = new Date()) => {
+export const getFormattedShortDate = (inputDate = new Date()) => {
   const pad = (num) => num.toString().padStart(2, '0');
 
-  // Month abbreviations
   const monthNames = [
     'Jan',
     'Feb',
@@ -117,7 +116,14 @@ export const getFormattedShortDate = (date = new Date()) => {
     'Dec',
   ];
 
-  // Extract parts of the date
+  // Try to coerce string/number inputs into a valid Date object
+  const date = inputDate instanceof Date ? inputDate : new Date(inputDate);
+
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date passed to getFormattedShortDate:', inputDate);
+    return ''; // or return a fallback value like 'Invalid Date'
+  }
+
   const day = pad(date.getDate());
   const month = monthNames[date.getMonth()];
   const year = date.getFullYear();
@@ -126,7 +132,7 @@ export const getFormattedShortDate = (date = new Date()) => {
 };
 
 export const generateProcessingId = (patientMobileNo) => {
-  const mobileNo = patientMobileNo ? patientMobileNo.toString() : '0000'; // Default to "0000"
+  const mobileNo = patientMobileNo ? patientMobileNo.toString() : '0000';
 
   return (
     mobileNo.slice(-4) +
