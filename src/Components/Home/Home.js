@@ -24,7 +24,7 @@ const Home = () => {
             setDefaultData(res.data);
           }
         } else {
-          setDefaultData([]);
+          defaultData && defaultData.length > 0 && setDefaultData([]);
         }
       } catch (error) {
         console.error(error);
