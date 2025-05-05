@@ -1,11 +1,12 @@
 import {Container} from 'react-bootstrap';
 import PaymentForm from './PaymentForm';
-import {usePaymentHandlers} from '../../../../../hooks/payment/usePaymentHandlers-old';
+import {usePaymentHandlers} from '../../../../../hooks/payment/usePaymentHandlers';
 import {PatientDetailsCard} from './PatientDetailsCard';
 import {ServicesTable} from './ServicesTable';
 import BillingSummary from './BillingSummary';
 import {usePaymentCalculation} from '../../../../../hooks/payment/usePaymentCalculation';
 import {UsePaymentHandlersProps} from '../../../../../types/payment.types';
+import {generateProcessingId} from '../../../../../utils/PaymentUtil';
 
 interface PatientDetails {
   Name: string;
@@ -34,8 +35,6 @@ interface PaymentCheckoutProps {
   onSubmit: (data: any) => void;
   taxRate?: number;
   serviceCharge?: number;
-  // onPaymentSuccess: (response: any) => void; // Made required
-  // onPaymentError: (error: string) => void; // Made required
 }
 
 const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
@@ -137,7 +136,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
             amount: 1,
             email: patientDetails?.Email_ID || '',
             phone: patientDetails?.Mobile_No || '',
-            processingId: id,
+            processingId: generateProcessingId('TXN'),
             paymode: 'cards-upi',
             cashierId: userId,
           }}

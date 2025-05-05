@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {MomentPay} from '../../../sdk/momentPaySdk';
+import {StatusCheckResponse} from '../../../types/types';
 
 interface MomentPayState {
   instance: MomentPay | null;
@@ -41,6 +42,24 @@ const momentPaySlice = createSlice({
       state.error = action.payload;
       state.transactionStatus = 'failed';
     },
+    startPaymentVerification(state) {
+      state.isLoading = true;
+      state.error = null;
+    },
+    paymentVerificationSuccess(
+      state,
+      action: PayloadAction<StatusCheckResponse>
+    ) {
+      state.isLoading = false;
+      state.transactionStatus = 'success';
+      state.lastTransactionId =
+        action.payload.response_token?.transaction_id ?? null;
+    },
+    paymentVerificationFailed(state, action: PayloadAction<string>) {
+      state.isLoading = false;
+      state.error = action.payload;
+      state.transactionStatus = 'failed';
+    },
     resetState(state) {
       Object.assign(state, initialState);
       if (state.instance) {
@@ -55,6 +74,9 @@ export const {
   startPayment,
   paymentSuccess,
   paymentFailed,
+  startPaymentVerification,
+  paymentVerificationSuccess,
+  paymentVerificationFailed,
   resetState,
 } = momentPaySlice.actions;
 

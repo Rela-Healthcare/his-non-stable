@@ -2,6 +2,7 @@ import CryptoJS from 'crypto-js';
 import {PayMode} from '../types/payment.types';
 import {paymentConfig} from '../config/payment';
 import forge from 'node-forge';
+import {StatusCheckResponse} from '@/types/types';
 
 export const generateChecksum = (params: {
   amount: number;
@@ -80,4 +81,66 @@ export const getConvertPercentageToDecimal = (
   Amount: number
 ) => {
   return (percentage / 100) * Amount;
+};
+
+export const pollForPaymentStatus = async (
+  processingId: string,
+  maxAttempts = 5,
+  delay = 3000
+): Promise<StatusCheckResponse> => {
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const response = await fetch(
+        `${paymentConfig.baseUrl}/status-check`, // Confirm the actual endpoint with MomentPay
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            processing_id: processingId,
+            merchant_id: paymentConfig.merchantId,
+            auth_user: paymentConfig.user,
+            auth_key: paymentConfig.key,
+            username: paymentConfig.user,
+            check_sum_hash: generateStatusChecksum(processingId),
+          }),
+        }
+      );
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data: StatusCheckResponse = await response.json();
+
+      if (
+        data.response_token?.transaction_status === 'SUCCESS' ||
+        data.status === 'SUCCESS'
+      ) {
+        return data;
+      }
+
+      if (attempt < maxAttempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    } catch (error) {
+      console.error('Polling attempt failed:', error);
+      if (attempt === maxAttempts - 1) throw error;
+    }
+  }
+  throw new Error('Payment status could not be verified');
+};
+
+export const generateProcessingId = (prefix = 'MP'): string => {
+  // Timestamp component (13 digits)
+  const timestamp = Date.now().toString();
+
+  // Random component (4 alphanumeric chars)
+  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+
+  // Sequence component (from counter if needed)
+  const sequence = Math.floor(Math.random() * 1000)
+    .toString()
+    .padStart(3, '0');
+
+  return `${prefix}-${timestamp}-${random}-${sequence}`;
 };

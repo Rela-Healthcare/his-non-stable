@@ -17,36 +17,20 @@ const PaymentButton = ({
 }: PaymentButtonProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const {isLoading, error, status} = useSelector(selectPaymentStatus);
-  const UserId = localStorage.getItem('userName');
 
   useEffect(() => {
     dispatch(initializeMomentPay());
   }, [dispatch]);
 
   const handlePaymentInitiation = () => {
-    const {
-      patientID = 'PAT12345',
-      patientName = 'John Doe',
-      amount = 1,
-      email = 'john@example.com',
-      phone = '9876543210',
-      processingId = `ORDER_${Date.now()}`,
-      paymode = 'cards-upi',
-      cashierId = UserId ?? 'WEB_CASHIER_01',
-    } = paymentDetails;
+    if (!paymentDetails) {
+      onPaymentError?.('Invalid payment details');
+      return;
+    }
 
     dispatch(
       initiatePayment(
-        {
-          patientID,
-          patientName,
-          amount,
-          email,
-          phone,
-          processingId,
-          paymode,
-          cashierId,
-        },
+        paymentDetails,
         onPaymentSuccess,
         (error, isUserClosed = false) => {
           if (!isUserClosed) {

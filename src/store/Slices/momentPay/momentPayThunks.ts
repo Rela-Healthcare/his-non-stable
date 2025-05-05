@@ -6,7 +6,10 @@ import {
   initializeSDK,
   resetState,
 } from '../../Slices/momentPay/momentPaySlice';
-import {generateChecksum} from '../../../utils/PaymentUtil';
+import {
+  generateChecksum,
+  pollForPaymentStatus,
+} from '../../../utils/PaymentUtil';
 import {paymentConfig} from '../../../config/payment';
 
 interface PaymentParams {
@@ -24,7 +27,7 @@ export const initiatePayment =
   (
     params: PaymentParams,
     onSuccess?: (res: any) => void,
-    onError?: (err: string) => void
+    onError?: (err: string, isUserClosed?: boolean) => void
   ): AppThunk =>
   async (dispatch, getState) => {
     // Clean up previous state
@@ -113,17 +116,94 @@ export const initiatePayment =
           }
         });
 
-        instance.onClose(() => {
-          const closeMsg = 'Payment window closed';
-          dispatch(paymentFailed(closeMsg));
-          reject(new Error(closeMsg));
+        instance.onClose(async () => {
+          try {
+            const status = await pollForPaymentStatus(params.processingId);
+
+            if (status.response_token?.transaction_status === 'SUCCESS') {
+              dispatch(
+                paymentSuccess({
+                  transactionId:
+                    status.response_token.transaction_id || params.processingId,
+                })
+              );
+              onSuccess?.(status);
+              resolve();
+            } else {
+              const errorMsg =
+                status.response_token?.response_message ||
+                'Payment status unknown - please verify manually';
+              dispatch(paymentFailed(errorMsg));
+              onError?.(errorMsg, true);
+              reject(new Error(errorMsg));
+            }
+          } catch (error) {
+            const message =
+              error instanceof Error
+                ? error.message
+                : 'Status verification failed';
+            dispatch(paymentFailed(message));
+            onError?.(message, true);
+            reject(error);
+          }
         });
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Payment failed';
+      let errorMessage = 'Payment failed';
+
+      if (error instanceof Error) {
+        // Handle specific error cases
+        if (error.message.includes('404')) {
+          errorMessage =
+            'Payment gateway unavailable (404) - please verify payment status';
+          // Attempt to poll status on 404 errors
+          try {
+            const status = await pollForPaymentStatus(params.processingId);
+            if (status.response_token?.transaction_status === 'SUCCESS') {
+              dispatch(
+                paymentSuccess({
+                  transactionId:
+                    status.response_token.transaction_id || params.processingId,
+                })
+              );
+              onSuccess?.(status);
+              return;
+            }
+          } catch (pollError) {
+            console.error('Status polling failed:', pollError);
+          }
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
+      dispatch(paymentFailed(errorMessage));
+      onError?.(errorMessage, true);
+    }
+  };
+
+export const verifyPaymentStatus =
+  (processingId: string): AppThunk =>
+  async (dispatch) => {
+    try {
+      dispatch(startPayment());
+      const status = await pollForPaymentStatus(processingId);
+
+      if (status.response_token?.transaction_status === 'SUCCESS') {
+        dispatch(
+          paymentSuccess({
+            transactionId: status.response_token.transaction_id || processingId,
+          })
+        );
+      } else {
+        const errorMsg =
+          status.response_token?.response_message || 'Payment not verified';
+        dispatch(paymentFailed(errorMsg));
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Verification failed';
       dispatch(paymentFailed(message));
-    } finally {
-      dispatch(resetState());
     }
   };
 
