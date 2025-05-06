@@ -284,3 +284,27 @@ export const formatPrice = (price) => {
   if (typeof price !== 'number' || isNaN(price)) return '0.00';
   return price.toFixed(2);
 };
+
+// function populateFormState(apiData, initialFormState, fieldMappings) {
+//   // Handle case where apiData is an array (take first element)
+//   const data = Array.isArray(apiData) ? apiData[0] || {} : apiData;
+
+//   // Create a copy of the initial state
+//   const updatedState = { ...initialFormState };
+
+//   // Special case for salutation if you need to map to both ID and Name
+//   if (data.salutation) {
+//     updatedState.SalutionId = data.salutation;
+//     // If you have a way to get SalutationName from the ID, you would add it here
+//     // updatedState.SalutationName = getSalutationName(data.salutation);
+//   }
+
+//   // Map all other fields
+//   for (const [apiKey, formKey] of Object.entries(fieldMappings)) {
+//     if (apiKey in data && formKey in updatedState) {
+//       updatedState[formKey] = data[apiKey];
+//     }
+//   }
+
+//   return updatedState;
+// }

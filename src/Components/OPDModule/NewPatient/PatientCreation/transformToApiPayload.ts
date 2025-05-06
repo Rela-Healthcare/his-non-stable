@@ -1,7 +1,8 @@
 import {convertToApiDate} from '../../../../utils/utils';
 
 export function transformToApiPayload(
-  currentPayload: Record<string, any>
+  currentPayload: Record<string, any>,
+  isEditMode = false
 ): Record<string, any> {
   const apiPayload: Record<string, any> = {
     HM_Web_Service_Order: [],
@@ -119,6 +120,10 @@ export function transformToApiPayload(
     VISAValidity:
       convertToApiDate('1900-01-01 00:00:00') || '1900-01-01 00:00:00',
   };
+
+  if (isEditMode) {
+    apiPayload.ID = currentPayload.ID;
+  }
 
   return {
     ...apiPayload,

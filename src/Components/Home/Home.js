@@ -64,8 +64,10 @@ const Home = () => {
           )}
           {showEdit && selectedPatient && (
             <PatientCreation
+              isEditMode={true}
               patient={selectedPatient}
               onClose={() => setShowEdit(false)}
+              UserId={UserId}
             />
           )}
         </>

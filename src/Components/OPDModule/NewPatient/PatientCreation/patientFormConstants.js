@@ -112,6 +112,10 @@ export const emptyOPService = {
   totalAmount: 0,
   saved: false,
 };
+export const initialServiceDetails = {
+  UserId: '',
+  OP_Master: [{...emptyOPService}],
+};
 
 export const initialPaymentDetails = {
   Web_OPReceipt_Payment_Type: [

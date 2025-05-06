@@ -32,6 +32,7 @@ import {
   initialEvaluationDetails,
   initialAppointmentDetails,
   initialPaymentDetails,
+  emptyOPService,
 } from './patientFormConstants';
 import {
   validatePersonalDetails,
@@ -71,12 +72,43 @@ import ConfirmationButton from '../../../../common/ConfirmationButton';
 import {RotateCcw, ChevronDown, ArrowLeft} from 'lucide-react';
 import TruncatedText from '../../../../common/TruncatedText';
 import LoadingSpinner from '../../../../common/LoadingSpinner';
+import {transformApiToFormState} from './transformApiToFormState';
 
-const PatientCreation = ({UserId, onClose, patient}) => {
+const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
+  const opServices = useSelector(
+    (state) => state.opService?.OP_Master || [{...emptyOPService}]
+  );
 
-  // Optimized useEffect for fetching all necessary data
+  const initialFormStates = {
+    initialPersonalDetails: {...initialPersonalDetails},
+    initialAdditionalDetails: {...initialAdditionalDetails},
+    initialNextOfKinDetails: {...initialNextOfKinDetails},
+    initialEvaluationDetails: {...initialEvaluationDetails},
+    initialAppointmentDetails: {...initialAppointmentDetails},
+    initialPaymentDetails: {...initialPaymentDetails},
+    initialServiceDetails: {OP_Master: [...opServices]},
+  };
+
+  const initialState = isEditMode
+    ? transformApiToFormState(patient, initialFormStates)
+    : initialFormStates;
+
+  useEffect(() => {
+    if (isEditMode) {
+      localStorage.removeItem('formStatus');
+      localStorage.removeItem('activeAccordions');
+      localStorage.removeItem('personalDetails');
+      localStorage.removeItem('additionalDetails');
+      localStorage.removeItem('nextOfKinDetails');
+      localStorage.removeItem('evaluationDetails');
+      localStorage.removeItem('appointmentDetails');
+      localStorage.removeItem('paymentDetails');
+      localStorage.removeItem('serviceDetails');
+    }
+  }, [isEditMode]);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -112,7 +144,6 @@ const PatientCreation = ({UserId, onClose, patient}) => {
   }, [dispatch]);
 
   const dropdownData = useSelector((state) => state.dropdown.data);
-  const opServices = useSelector((state) => state.opService);
   const [formStatus, setFormStatus] = useLocalStorage('formStatus', [
     false, // 0.personal details
     false, // 1.additional details
@@ -128,31 +159,31 @@ const PatientCreation = ({UserId, onClose, patient}) => {
   );
   const [personalDetails, setPersonalDetails] = useLocalStorage(
     'personalDetails',
-    initialPersonalDetails
+    initialState.initialPersonalDetails
   );
   const [additionalDetails, setAdditionalDetails] = useLocalStorage(
     'additionalDetails',
-    initialAdditionalDetails
+    initialState.initialAdditionalDetails
   );
   const [nextOfKinDetails, setNextOfKinDetails] = useLocalStorage(
     'nextOfKinDetails',
-    initialNextOfKinDetails
+    initialState.initialNextOfKinDetails
   );
   const [evaluationDetails, setEvaluationDetails] = useLocalStorage(
     'evaluationDetails',
-    initialEvaluationDetails
+    initialState.initialEvaluationDetails
   );
   const [appointmentDetails, setAppointmentDetails] = useLocalStorage(
     'appointmentDetails',
-    initialAppointmentDetails
+    initialState.initialAppointmentDetails
   );
   const [paymentDetails, setPaymentDetails] = useLocalStorage(
     'paymentDetails',
-    initialPaymentDetails
+    initialState.initialPaymentDetails
   );
   const [serviceDetails, setServiceDetails] = useLocalStorage(
     'serviceDetails',
-    opServices.OP_Master
+    initialState.initialServiceDetails?.OP_Master || [...opServices]
   );
 
   const {confirm, ConfirmDialogComponent} = useConfirmDialog();
@@ -200,6 +231,32 @@ const PatientCreation = ({UserId, onClose, patient}) => {
       dispatch(fetchAreaListByPincode(nextOfKinDetails?.Kin_Pincode));
     }
   }, [dispatch, additionalDetails?.Pincode, nextOfKinDetails?.Kin_Pincode]);
+
+  useEffect(() => {
+    if (
+      isEditMode &&
+      initialState.initialAdditionalDetails?.Pincode?.length === 6
+    ) {
+      autoSelectStateAndCity(
+        'Pincode',
+        initialState.initialAdditionalDetails.Pincode
+      );
+    }
+    if (
+      isEditMode &&
+      initialState.initialNextOfKinDetails?.Kin_Pincode?.length === 6
+    ) {
+      autoSelectStateAndCity(
+        'Pincode',
+        initialState.initialNextOfKinDetails.Kin_Pincode
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isEditMode,
+    initialState.initialAdditionalDetails.Pincode,
+    initialState.initialNextOfKinDetails?.Kin_Pincode,
+  ]);
 
   useEffect(() => {
     if (appointmentDetails?.Department_Name) {
@@ -522,18 +579,29 @@ const PatientCreation = ({UserId, onClose, patient}) => {
 
   const handleServiceChange = (e, index) => {
     const {name, value} = e.target;
-    const updatedService = {...opServices.OP_Master[index], [name]: value};
-    dispatch(updateService({index, newData: updatedService}));
+    const currentServices = Array.isArray(serviceDetails)
+      ? [...serviceDetails]
+      : [{...emptyOPService}];
+
+    if (index >= 0 && index < currentServices.length) {
+      const updatedService = {...currentServices[index], [name]: value};
+      currentServices[index] = updatedService;
+      setServiceDetails(currentServices);
+
+      dispatch(updateService({index, newData: updatedService}));
+    }
   };
 
   const handleBlur = (e) => {
     const {name, value} = e.target;
 
     // Convert object keys to arrays for checks
-    const personalFields = Object.keys(initialPersonalDetails);
-    const additionalFields = Object.keys(initialAdditionalDetails);
-    const nextOfKinFields = Object.keys(initialNextOfKinDetails);
-    const appointmentFields = Object.keys(initialAppointmentDetails);
+    const personalFields = Object.keys(initialState.initialPersonalDetails);
+    const additionalFields = Object.keys(initialState.initialAdditionalDetails);
+    const nextOfKinFields = Object.keys(initialState.initialNextOfKinDetails);
+    const appointmentFields = Object.keys(
+      initialState.initialAppointmentDetails
+    );
 
     let requiredFields = [];
 
@@ -656,14 +724,20 @@ const PatientCreation = ({UserId, onClose, patient}) => {
         validateIDType
       );
       setPersonalErrors(errors);
+
       if (Object.keys(errors)?.length === 0) {
         const DOB = formatDate(personalDetails.DOB);
         const payload = {
           ...personalDetails,
           DOB,
           UserId,
+          ID: isEditMode ? Number(patient.id) : undefined,
         };
-        const res = await OPModuleAgent.createTemporaryOPDPatient(payload);
+
+        const res = isEditMode
+          ? await OPModuleAgent.updateTemporaryOPDPersonalDetails(payload)
+          : await OPModuleAgent.createTemporaryOPDPatient(payload);
+
         if (res?.data?.s_No) {
           const sNo = res.data.s_No;
           setPersonalDetails({
@@ -921,7 +995,10 @@ const PatientCreation = ({UserId, onClose, patient}) => {
         ...paymentDetails,
       };
 
-      const formattedPayload = await transformToApiPayload(combinedPayload);
+      const formattedPayload = await transformToApiPayload(
+        combinedPayload,
+        isEditMode
+      );
 
       // Send to API or wherever
       const response = await OPModuleAgent.saveOPDModule(formattedPayload);
@@ -941,7 +1018,7 @@ const PatientCreation = ({UserId, onClose, patient}) => {
 
   // Form reset handlers
   const resetPersonalDetails = () => {
-    setPersonalDetails(initialPersonalDetails);
+    setPersonalDetails({...initialState.initialPersonalDetails});
     setIsIdValid(false);
     setIsMobileValid(false);
     setIsEmailValid(false);
@@ -949,32 +1026,36 @@ const PatientCreation = ({UserId, onClose, patient}) => {
   };
 
   const resetAdditionalDetails = () => {
-    setAdditionalDetails(initialAdditionalDetails);
+    setAdditionalDetails({...initialState.initialAdditionalDetails});
     setAdditionalErrors({});
   };
 
   const resetNextOfKinDetails = () => {
-    setNextOfKinDetails(initialNextOfKinDetails);
+    setNextOfKinDetails({...initialState.initialNextOfKinDetails});
     setIsRelationMobileValid(false);
     setIsCheckedSameAsPatientAddress(false);
     setNextOfKinErrors({});
   };
 
   const resetEvaluationDetails = () => {
-    setEvaluationDetails(initialEvaluationDetails);
+    setEvaluationDetails({...initialState.initialEvaluationDetails});
   };
 
   const resetAppointmentDetails = () => {
-    setAppointmentDetails(initialAppointmentDetails);
+    setAppointmentDetails({...initialState.initialAppointmentDetails});
     setAppointmentErrors({});
   };
 
   const resetServiceDetails = () => {
-    setServiceDetails(opServices.OP_Master);
+    // Fix: Ensure we always reset to a valid array of services
+    const defaultServices = opServices?.length
+      ? [...opServices]
+      : [{...emptyOPService}];
+    setServiceDetails(defaultServices);
   };
 
   const resetPaymentDetails = () => {
-    setPaymentDetails(initialPaymentDetails);
+    setPaymentDetails({...initialState.initialPaymentDetails});
   };
 
   const resetAllForms = () => {
@@ -985,8 +1066,19 @@ const PatientCreation = ({UserId, onClose, patient}) => {
     resetAppointmentDetails();
     resetServiceDetails();
     resetPaymentDetails();
+
     setFormStatus([false, false, false, false, false, false, false]);
     setActiveAccordions([0, 1, 2, 3, 4, 5, 6]);
+
+    localStorage.removeItem('formStatus');
+    localStorage.removeItem('activeAccordions');
+    localStorage.removeItem('personalDetails');
+    localStorage.removeItem('additionalDetails');
+    localStorage.removeItem('nextOfKinDetails');
+    localStorage.removeItem('evaluationDetails');
+    localStorage.removeItem('appointmentDetails');
+    localStorage.removeItem('paymentDetails');
+    localStorage.removeItem('serviceDetails');
   };
 
   if (isLoading) {
@@ -1137,7 +1229,9 @@ const PatientCreation = ({UserId, onClose, patient}) => {
             handleChange={handleEvaluationChange}
             setEvaluationDetails={setEvaluationDetails}
             onSubmit={handleEvaluationSubmit}
-            onReset={() => setEvaluationDetails(initialEvaluationDetails)}
+            onReset={() =>
+              setEvaluationDetails(initialState.initialEvaluationDetails)
+            }
             shouldAnimate={activeAccordions === 3}
           />
         </CustomAccordionItem>

@@ -16,7 +16,7 @@ interface ServicesTableProps {
 
 export const ServicesTable: React.FC<ServicesTableProps> = ({services}) => {
   return (
-    <div className="border-b-2 border-slate-200 pb-2 h-full mt-3">
+    <div className="border-b-2 border-slate-200 pb-2 mt-3">
       <h3 className="text-lg font-bold text-gray-800 mb-4">Services</h3>
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse border">
@@ -29,7 +29,7 @@ export const ServicesTable: React.FC<ServicesTableProps> = ({services}) => {
               <th className="border px-1 py-0 text-left w-3/12">Amount (₹)</th>
             </tr>
           </thead>
-          <tbody className="block max-h-64 overflow-y-auto w-full">
+          <tbody className="block max-h-[20vh] overflow-y-auto w-full">
             {services.slice(0, -1).length > 0 ? (
               services.slice(0, -1).map((service, index) => (
                 <tr key={index} className="table m-0 w-full table-fixed">

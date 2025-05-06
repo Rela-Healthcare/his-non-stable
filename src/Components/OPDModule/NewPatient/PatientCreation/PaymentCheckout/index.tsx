@@ -102,7 +102,7 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
 
   return (
     <Container className="flex justify-between items-center pt-4">
-      <div className="h-[75vh] w-4/6 flex flex-col justify-between">
+      <div className="h-[75vh] max-h-[75vh] w-4/6 flex flex-col justify-between">
         <PatientDetailsCard patient={patientDetails} />
         <ServicesTable services={serviceDetails} />
         <BillingSummary

@@ -166,6 +166,8 @@ export const OPModuleAgent = {
     requests.get(`Get_NewReg_dtl?UserId=${UserId}`),
   createTemporaryOPDPatient: (payload) =>
     requests.post('Insert_NewPatient_Registration', payload),
+  updateTemporaryOPDPersonalDetails: (payload) =>
+    requests.put('Update_NewPatient_Registration', payload),
   updateTempOPDPatientAdditionalDetails: (payload) =>
     requests.put('Update_NewRegistration', payload),
   updateTempOPDPatientKinDetails: (payload) =>
