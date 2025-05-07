@@ -1,3 +1,5 @@
+import {dateObjectToString} from '../../../../utils/utils';
+
 export function transformApiToFormState(apiData: any, initialFormStates: any) {
   if (!apiData) return initialFormStates;
   const apiRecord = Array.isArray(apiData) ? apiData[0] : apiData;
@@ -109,7 +111,7 @@ export function transformApiToFormState(apiData: any, initialFormStates: any) {
       Department_Name: apiRecord.department_Name || '',
       Doctor_Name: apiRecord.doctor_Name || '',
       Visit_Type: apiRecord.visit_Type || '',
-      Appointment_Date: apiRecord.appointment_Date || '',
+      Appointment_Date: dateObjectToString(apiRecord.appointment_Date) || '',
       Sequence_No: apiRecord.sequence_No || '',
       Patient_Type: apiRecord.patient_Type || '',
       Payor_Name: apiRecord.payor_Name || '',

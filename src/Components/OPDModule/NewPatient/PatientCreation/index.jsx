@@ -526,57 +526,6 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     setNextOfKinDetails(updatedDetails);
   };
 
-  // const handleEvaluationChange = async (e) => {
-  //   const {name, value, type, checked} = e.target;
-  //   const parsedValue =
-  //     type === 'checkbox'
-  //       ? checked
-  //       : value === 'true'
-  //       ? true
-  //       : value === 'false'
-  //       ? false
-  //       : value;
-
-  //   setEvaluationDetails(async (prev) => {
-  //     const updatedDetails = {
-  //       ...prev,
-  //       [name]: parsedValue,
-  //     };
-
-  //     const trueCount = Object.values(updatedDetails).filter(
-  //       (value) => value === '1'
-  //     ).length;
-
-  //     if (trueCount >= 3) {
-  //       const userConfirmed = await confirm(
-  //         'Alert Submission',
-  //         <>
-  //           <p>
-  //             <b className="text-blue-500 font-serif font-semibold">
-  //               Please ask the patient to visit the ER
-  //             </b>
-  //             , the patient has three medical problems, so we cannot proceed as
-  //             an Out Patient.
-  //             <br />
-  //           </p>
-  //           <p className="font-bold text-slate-800 font-sans">
-  //             Are you sure you want to abort OP registration?
-  //           </p>
-  //         </>
-  //       );
-  //       if (userConfirmed) {
-  //         resetAllForms();
-  //         onClose(false);
-  //         return;
-  //       }
-  //     }
-
-  //     return updatedDetails;
-  //   });
-
-  //   setEvaluationDetails({...evaluationDetails, [name]: parsedValue});
-  // };
-
   const handleEvaluationChange = async (e) => {
     // Only stop propagation if it's a real event (from radio button)
     if (e.stopPropagation) {
@@ -646,6 +595,9 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
       updatedDetails['Cor_Company_name'] = '';
       updatedDetails['Cor_Employee_Id'] = '';
       updatedDetails['Cor_Relationship'] = '';
+    } else if (name === 'Department_Name') {
+      updatedDetails['Doctor_Name'] = '';
+      updatedDetails['Sequence_No'] = '';
     }
 
     setAppointmentDetails(updatedDetails);
