@@ -30,7 +30,7 @@ export function transformApiToFormState(apiData: any, initialFormStates: any) {
       Religion: apiRecord.religion || '',
       Language: apiRecord.language_id || '',
       BloodGroup: apiRecord.bloodGroup || '',
-      Special_Assistance: apiRecord.special_Assistance === '1' || false,
+      Special_Assistance: apiRecord.special_Assistance === 'True' || false,
       Select_Special_Assistance: apiRecord.select_Special_Assistance || '',
       Spl_Assist_Remarks: apiRecord.spl_Assist_Remarks || '',
     },
@@ -49,36 +49,60 @@ export function transformApiToFormState(apiData: any, initialFormStates: any) {
     initialEvaluationDetails: {
       ...initialFormStates.initialEvaluationDetails,
       pat_Is_symptoms:
-        apiRecord.pat_Is_symptoms === 1 || apiRecord.pat_Is_symptoms === true,
+        apiRecord.pat_Is_symptoms === 1 || apiRecord.pat_Is_symptoms === true
+          ? '1'
+          : false,
       pat_Is_historyoffever:
         apiRecord.pat_Is_historyoffever === 1 ||
-        apiRecord.pat_Is_historyoffever === true,
+        apiRecord.pat_Is_historyoffever === true
+          ? '1'
+          : false,
       pat_Is_outofcountry1month:
         apiRecord.pat_Is_outofcountry1month === 1 ||
-        apiRecord.pat_Is_outofcountry1month === true,
+        apiRecord.pat_Is_outofcountry1month === true
+          ? '1'
+          : false,
       pat_Is_diseaseoutbreak:
         apiRecord.pat_Is_diseaseoutbreak === 1 ||
-        apiRecord.pat_Is_diseaseoutbreak === true,
+        apiRecord.pat_Is_diseaseoutbreak === true
+          ? '1'
+          : false,
       pat_Is_healthcareworker:
         apiRecord.pat_Is_healthcareworker === 1 ||
-        apiRecord.pat_Is_healthcareworker === true,
+        apiRecord.pat_Is_healthcareworker === true
+          ? '1'
+          : false,
       pat_Is_disease_last1month:
         apiRecord.pat_Is_disease_last1month === 1 ||
-        apiRecord.pat_Is_disease_last1month === true,
+        apiRecord.pat_Is_disease_last1month === true
+          ? '1'
+          : false,
       pat_Is_chickenpox:
         apiRecord.pat_Is_chickenpox === 1 ||
-        apiRecord.pat_Is_chickenpox === true,
+        apiRecord.pat_Is_chickenpox === true
+          ? '1'
+          : false,
       pat_Is_measles:
-        apiRecord.pat_Is_measles === 1 || apiRecord.pat_Is_measles === true,
+        apiRecord.pat_Is_measles === 1 || apiRecord.pat_Is_measles === true
+          ? '1'
+          : false,
       pat_Is_mumps:
-        apiRecord.pat_Is_mumps === 1 || apiRecord.pat_Is_mumps === true,
+        apiRecord.pat_Is_mumps === 1 || apiRecord.pat_Is_mumps === true
+          ? '1'
+          : false,
       pat_Is_rubella:
-        apiRecord.pat_Is_rubella === 1 || apiRecord.pat_Is_rubella === true,
+        apiRecord.pat_Is_rubella === 1 || apiRecord.pat_Is_rubella === true
+          ? '1'
+          : false,
       pat_Is_diarrheasymptoms:
         apiRecord.pat_Is_diarrheasymptoms === 1 ||
-        apiRecord.pat_Is_diarrheasymptoms === true,
+        apiRecord.pat_Is_diarrheasymptoms === true
+          ? '1'
+          : false,
       pat_Is_activeTB:
-        apiRecord.pat_Is_activeTB === 1 || apiRecord.pat_Is_activeTB === true,
+        apiRecord.pat_Is_activeTB === 1 || apiRecord.pat_Is_activeTB === true
+          ? '1'
+          : false,
     },
     initialAppointmentDetails: {
       ...initialFormStates.initialAppointmentDetails,

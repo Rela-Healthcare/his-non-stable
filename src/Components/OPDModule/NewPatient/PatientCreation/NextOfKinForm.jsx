@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Container, Form} from 'react-bootstrap';
+import {Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
 import {capitalize} from '../../../../utils/utils';
 import {useMediaQuery} from '@mui/material';
@@ -116,6 +116,7 @@ const NextOfKinForm = ({
                 : formData?.Kin_Pincode
             }
             onChange={onChange}
+            disabled={isCheckedSameAsPatientAddress}
             className="w-full"
             maxLength={6}
             placeholder="Enter pincode"
@@ -153,6 +154,7 @@ const NextOfKinForm = ({
             label="Area"
             type="select"
             name="Kin_Area"
+            disabled={isCheckedSameAsPatientAddress}
             onBlur={onBlur}
             required
             value={
@@ -172,6 +174,7 @@ const NextOfKinForm = ({
             type="text"
             name="Kin_Address"
             onBlur={onBlur}
+            disabled={isCheckedSameAsPatientAddress}
             value={
               isCheckedSameAsPatientAddress
                 ? capitalize(additionalDetails?.Address)

@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  Container,
-  Form,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap';
+import {Container, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {motion} from 'framer-motion';
 import FormActionButtons from './FormActionButtons';
 
@@ -65,6 +60,7 @@ const EvaluationForm = ({
             value={val}
             checked={formData[name] === val}
             onChange={handleChange}
+            onClick={handleChange}
             className="accent-blue-600"
           />
           {val === '1' ? 'Yes' : 'No'}
@@ -91,19 +87,31 @@ const EvaluationForm = ({
     setEvaluationDetails(updatedDetails);
   };
 
+  const handleCardClick = (qKey, e) => {
+    const isRadioInput =
+      e.target.tagName === 'INPUT' && e.target.type === 'radio';
+    const isRadioLabel = e.target.closest('label[class*="cursor-pointer"]');
+
+    if (!isRadioInput && !isRadioLabel) {
+      handleChange({
+        target: {
+          name: qKey,
+          value: '1',
+          type: 'radio',
+        },
+      });
+    }
+  };
+
   return (
     <Container className="px-2 md:px-6">
       <Form noValidate onSubmit={onSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 py-4">
           {questions.map((q, idx) => (
             <motion.div
               key={`${q.key}-${shouldAnimate}`}
               className="shadow-md rounded-2xl border border-gray-200 flex flex-col justify-between"
-              onClick={() =>
-                handleChange({
-                  target: {name: q.key, value: '1'},
-                })
-              }
+              onClick={(e) => handleCardClick(q.key, e)}
               initial={shouldAnimate ? {opacity: 0, y: 40} : false}
               animate={shouldAnimate ? {opacity: 1, y: 0} : false}
               transition={{delay: idx * 0.05, duration: 0.4}}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Container, Form} from 'react-bootstrap';
+import {Container, Form} from 'react-bootstrap';
 import CustomFormField from '../../../../common/form/CustomFormField';
 import {capitalize} from '../../../../utils/utils';
 import FormActionButtons from './FormActionButtons';
@@ -154,7 +154,7 @@ const AdditionalDetailsForm = ({
             isInvalid={!!errors.Special_Assistance}
             errorMessage={errors.Special_Assistance}
           />
-          {formData?.Special_Assistance === 'true' && (
+          {formData?.Special_Assistance === true && (
             <CustomFormField
               label="Select Special Assistance"
               type="select"

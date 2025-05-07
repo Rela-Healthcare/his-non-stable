@@ -230,6 +230,8 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     if (nextOfKinDetails?.Kin_Pincode?.length === 6) {
       dispatch(fetchAreaListByPincode(nextOfKinDetails?.Kin_Pincode));
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, additionalDetails?.Pincode, nextOfKinDetails?.Kin_Pincode]);
 
   useEffect(() => {
@@ -247,10 +249,26 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
       initialState.initialNextOfKinDetails?.Kin_Pincode?.length === 6
     ) {
       autoSelectStateAndCity(
-        'Pincode',
+        'Kin_Pincode',
         initialState.initialNextOfKinDetails.Kin_Pincode
       );
     }
+
+    // if (
+    //   initialState.initialAdditionalDetails?.Pincode?.length === 6 &&
+    //   initialState.initialNextOfKinDetails?.Kin_Pincode?.length === 6 &&
+    //   initialState.initialAdditionalDetails?.Pincode ===
+    //     initialState.initialNextOfKinDetails?.Kin_Pincode &&
+    //   initialState.initialAdditionalDetails?.area ===
+    //     initialState.initialNextOfKinDetails?.kin_Area &&
+    //   initialState.initialAdditionalDetails?.address_txt ===
+    //     initialState.initialNextOfKinDetails?.kin_Address
+    // ) {
+    //   setIsCheckedSameAsPatientAddress(true);
+    // } else {
+    //   setIsCheckedSameAsPatientAddress(false);
+    // }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isEditMode,
@@ -443,8 +461,8 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
         updatedDetails.stateName = '';
         updatedDetails.cityName = '';
       }
-    } else if (name === 'Select_Special_Assistance') {
-      updatedDetails[name] = value;
+    } else if (name === 'Special_Assistance') {
+      updatedDetails[name] = value === 'true' ? true : false;
     } else if (name === 'Area') {
       updatedDetails[name] = value;
     } else {
@@ -508,8 +526,65 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     setNextOfKinDetails(updatedDetails);
   };
 
+  // const handleEvaluationChange = async (e) => {
+  //   const {name, value, type, checked} = e.target;
+  //   const parsedValue =
+  //     type === 'checkbox'
+  //       ? checked
+  //       : value === 'true'
+  //       ? true
+  //       : value === 'false'
+  //       ? false
+  //       : value;
+
+  //   setEvaluationDetails(async (prev) => {
+  //     const updatedDetails = {
+  //       ...prev,
+  //       [name]: parsedValue,
+  //     };
+
+  //     const trueCount = Object.values(updatedDetails).filter(
+  //       (value) => value === '1'
+  //     ).length;
+
+  //     if (trueCount >= 3) {
+  //       const userConfirmed = await confirm(
+  //         'Alert Submission',
+  //         <>
+  //           <p>
+  //             <b className="text-blue-500 font-serif font-semibold">
+  //               Please ask the patient to visit the ER
+  //             </b>
+  //             , the patient has three medical problems, so we cannot proceed as
+  //             an Out Patient.
+  //             <br />
+  //           </p>
+  //           <p className="font-bold text-slate-800 font-sans">
+  //             Are you sure you want to abort OP registration?
+  //           </p>
+  //         </>
+  //       );
+  //       if (userConfirmed) {
+  //         resetAllForms();
+  //         onClose(false);
+  //         return;
+  //       }
+  //     }
+
+  //     return updatedDetails;
+  //   });
+
+  //   setEvaluationDetails({...evaluationDetails, [name]: parsedValue});
+  // };
+
   const handleEvaluationChange = async (e) => {
-    const {name, value, type, checked} = e.target;
+    // Only stop propagation if it's a real event (from radio button)
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+
+    const {name, value, type, checked} = e.target || e;
+
     const parsedValue =
       type === 'checkbox'
         ? checked
@@ -519,14 +594,15 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
         ? false
         : value;
 
-    setEvaluationDetails(async (prev) => {
-      const updatedDetails = {
-        ...prev,
-        [name]: parsedValue,
-      };
+    const updatedDetails = {
+      ...evaluationDetails,
+      [name]: parsedValue,
+    };
 
+    // Only check for confirmation when changing to "Yes"
+    if (parsedValue === '1') {
       const trueCount = Object.values(updatedDetails).filter(
-        (value) => value === '1'
+        (val) => val === '1'
       ).length;
 
       if (trueCount >= 3) {
@@ -539,24 +615,22 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
               </b>
               , the patient has three medical problems, so we cannot proceed as
               an Out Patient.
-              <br />
             </p>
             <p className="font-bold text-slate-800 font-sans">
               Are you sure you want to abort OP registration?
             </p>
           </>
         );
+
         if (userConfirmed) {
           resetAllForms();
           onClose(false);
           return;
         }
       }
+    }
 
-      return updatedDetails;
-    });
-
-    setEvaluationDetails({...evaluationDetails, [name]: parsedValue});
+    setEvaluationDetails(updatedDetails);
   };
 
   const handleAppointmentChange = async (e) => {
@@ -827,9 +901,104 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     }
   };
 
+  // const handleEvaluationSubmit = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const payload = {
+  //       ID: Number(personalDetails?.ID),
+  //       ...evaluationDetails,
+  //       pat_Is_symptoms: evaluationDetails?.pat_Is_symptoms === '1' ? 1 : 0,
+  //       pat_Is_historyoffever:
+  //         evaluationDetails?.pat_Is_historyoffever === '1' ? 1 : 0,
+  //       pat_Is_outofcountry1month:
+  //         evaluationDetails?.pat_Is_outofcountry1month === '1' ? 1 : 0,
+  //       pat_Is_diseaseoutbreak:
+  //         evaluationDetails?.pat_Is_diseaseoutbreak === '1' ? 1 : 0,
+  //       pat_Is_healthcareworker:
+  //         evaluationDetails?.pat_Is_healthcareworker === '1' ? 1 : 0,
+  //       pat_Is_disease_last1month:
+  //         evaluationDetails?.pat_Is_disease_last1month === '1' ? 1 : 0,
+  //       pat_Is_chickenpox: evaluationDetails?.pat_Is_chickenpox === '1' ? 1 : 0,
+  //       pat_Is_measles: evaluationDetails?.pat_Is_measles === '1' ? 1 : 0,
+  //       pat_Is_mumps: evaluationDetails?.pat_Is_mumps === '1' ? 1 : 0,
+  //       pat_Is_rubella: evaluationDetails?.pat_Is_rubella === '1' ? 1 : 0,
+  //       pat_Is_diarrheasymptoms:
+  //         evaluationDetails?.pat_Is_diarrheasymptoms === '1' ? 1 : 0,
+  //       pat_Is_activeTB: evaluationDetails?.pat_Is_activeTB === '1' ? 1 : 0,
+  //     };
+  //     const allFalseOrNull = Object.values(evaluationDetails).every(
+  //       (value) => value === null || value === false || value === 0
+  //     );
+
+  //     if (allFalseOrNull) {
+  //       const userConfirmed = await confirm(
+  //         'Confirm Submission',
+  //         'Are you sure you want to submit? Because all questions are unselected.'
+  //       );
+  //       if (!userConfirmed) return;
+  //     }
+  //     const response = await OPModuleAgent.updateTempOPDPatientEvaluation(
+  //       payload
+  //     );
+  //     if (response?.data?.id) {
+  //       markFormAsCompleted(3);
+  //       setActiveAccordions([4]);
+  //     }
+  //   } catch (error) {
+  //     console.error('Submit error:', error);
+  //     alert('Something went wrong. Please try again.');
+  //   }
+  // };
+
   const handleEvaluationSubmit = async (e) => {
     e.preventDefault();
     try {
+      // First check if there are 3 or more 'Yes' answers
+      const trueCount = Object.values(evaluationDetails).filter(
+        (val) => val === '1'
+      ).length;
+
+      if (trueCount >= 3) {
+        const userConfirmed = await confirm(
+          'Alert Submission',
+          <>
+            <p>
+              <b className="text-blue-500 font-serif font-semibold">
+                Please ask the patient to visit the ER
+              </b>
+              , the patient has three medical problems, so we cannot proceed as
+              an Out Patient.
+            </p>
+            <p className="font-bold text-slate-800 font-sans">
+              Are you sure you want to abort OP registration?
+            </p>
+          </>
+        );
+
+        if (userConfirmed) {
+          resetAllForms();
+          onClose(false);
+          return; // Exit if user confirms to abort
+        } else {
+          return; // Exit if user cancels (don't proceed with submission)
+        }
+      }
+
+      // Check for all false/null case
+      const allFalseOrNull = Object.values(evaluationDetails).every(
+        (value) =>
+          value === null || value === false || value === 0 || value === '0'
+      );
+
+      if (allFalseOrNull) {
+        const userConfirmed = await confirm(
+          'Confirm Submission',
+          'Are you sure you want to submit? Because all questions are unselected.'
+        );
+        if (!userConfirmed) return;
+      }
+
+      // Proceed with normal submission if checks pass
       const payload = {
         ID: Number(personalDetails?.ID),
         ...evaluationDetails,
@@ -852,17 +1021,7 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
           evaluationDetails?.pat_Is_diarrheasymptoms === '1' ? 1 : 0,
         pat_Is_activeTB: evaluationDetails?.pat_Is_activeTB === '1' ? 1 : 0,
       };
-      const allFalseOrNull = Object.values(evaluationDetails).every(
-        (value) => value === null || value === false || value === 0
-      );
 
-      if (allFalseOrNull) {
-        const userConfirmed = await confirm(
-          'Confirm Submission',
-          'Are you sure you want to submit? Because all questions are unselected.'
-        );
-        if (!userConfirmed) return;
-      }
       const response = await OPModuleAgent.updateTempOPDPatientEvaluation(
         payload
       );
