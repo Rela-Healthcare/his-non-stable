@@ -18,6 +18,8 @@ interface PatientDetails {
 }
 
 interface ServiceDetail {
+  Service_Group?: string;
+  Service: string;
   ServiceName: string;
   Discount: number;
   Discount_Type: 'Percentage' | 'Flat';

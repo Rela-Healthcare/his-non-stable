@@ -1043,8 +1043,14 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
   };
 
   const handlePaymentSubmit = async (payload) => {
+    const paymentPayload = {
+      ...payload,
+      Id: Number(personalDetails?.ID),
+    };
     try {
-      const response = await OPModuleAgent.insertPaymentInformation(payload);
+      const response = await OPModuleAgent.insertPaymentInformation(
+        paymentPayload
+      );
       if (!response?.data?.id) {
         console.error('❌ Submission failed:', response?.data?.id);
         toast.error('❌ Payment submission failed');
@@ -1354,7 +1360,7 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
         <CustomAccordionItem title="Payment Checkout">
           {serviceDetails.length > 1 && (
             <PaymentCheckout
-              id={1}
+              id={Number(personalDetails?.ID)}
               userId={UserId}
               paymentDetails={paymentDetails}
               patientDetails={personalDetails}

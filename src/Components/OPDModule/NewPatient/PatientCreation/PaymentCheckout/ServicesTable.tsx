@@ -1,9 +1,13 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {formatPrice} from '../../../../../utils/utils';
 import {getConvertPercentageToDecimal} from '../../../../../utils/PaymentUtil';
 import TruncatedText from '../../../../../common/TruncatedText';
+import {getServiceLabel} from '../../../../../utils/getServiceLabel';
+import {useDispatch} from 'react-redux';
 
 interface ServiceDetail {
+  Service_Group?: string;
+  Service: string;
   ServiceName: string;
   Discount: number;
   Discount_Type: 'Percentage' | 'Flat';
@@ -15,6 +19,28 @@ interface ServicesTableProps {
 }
 
 export const ServicesTable: React.FC<ServicesTableProps> = ({services}) => {
+  const [serviceLabels, setServiceLabels] = useState<any>({});
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    async function fetchLabels() {
+      const labels: Record<number, string> = {};
+
+      for (let i = 0; i < services.length; i++) {
+        const label = await getServiceLabel(
+          dispatch,
+          services[i]?.Service_Group,
+          services[i]?.Service
+        );
+        labels[i] = label;
+      }
+
+      setServiceLabels(labels);
+    }
+
+    fetchLabels();
+  }, [dispatch, services]);
+
   return (
     <div className="border-b-2 border-slate-200 pb-2 mt-3">
       <h3 className="text-lg font-bold text-gray-800 mb-4">Services</h3>
@@ -35,7 +61,7 @@ export const ServicesTable: React.FC<ServicesTableProps> = ({services}) => {
                 <tr key={index} className="table m-0 w-full table-fixed">
                   <td className="border px-1 w-6/12">
                     <TruncatedText
-                      text={service.ServiceName}
+                      text={serviceLabels[index] || ''}
                       maxLength={30}
                       middleEllipsis={true}
                       className="font-semibold text-sm px-2"

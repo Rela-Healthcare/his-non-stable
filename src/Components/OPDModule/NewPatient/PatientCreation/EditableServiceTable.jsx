@@ -7,7 +7,7 @@ import {Info, PencilIcon, TrashIcon} from 'lucide-react';
 import TruncatedText from '../../../../common/TruncatedText';
 import {formatPrice} from '../../../../utils/utils';
 import {useDispatch} from 'react-redux';
-import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
+import {getServiceLabel} from '../../../../utils/getServiceLabel';
 
 const EditableServiceTable = ({
   services = [],
@@ -36,8 +36,9 @@ const EditableServiceTable = ({
       for (let i = 0; i < services.length; i++) {
         if (services[i].saved) {
           const label = await getServiceLabel(
-            services[i].Service,
-            services[i].servicesListResponse,
+            dispatch,
+            services[i]?.Service_Group,
+            services[i]?.Service,
             i
           );
           labels[i] = label;
@@ -48,8 +49,7 @@ const EditableServiceTable = ({
     }
 
     fetchLabels();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [services]);
+  }, [dispatch, services]);
 
   // Initialize row refs
   useEffect(() => {
@@ -109,20 +109,20 @@ const EditableServiceTable = ({
     [serviceGroupListResponse]
   );
 
-  function getServicesList(serviceGroupId) {
-    return dispatch(fetchServicesList(serviceGroupId)).unwrap();
-  }
+  // function getServicesList(serviceGroupId) {
+  //   return dispatch(fetchServicesList(serviceGroupId)).unwrap();
+  // }
 
-  const getServiceLabel = async (value, servicesList, index) => {
-    const servicesListResponse = await getServicesList(
-      services[index].Service_Group
-    );
-    const service = (servicesListResponse || []).find(
-      (option) => option.value === Number(value)
-    );
+  // const getServiceLabel = async (value, servicesList, index) => {
+  //   const servicesListResponse = await getServicesList(
+  //     services[index].Service_Group
+  //   );
+  //   const service = (servicesListResponse || []).find(
+  //     (option) => option.value === Number(value)
+  //   );
 
-    return service?.label || value;
-  };
+  //   return service?.label || value;
+  // };
 
   const renderFieldWithError = useCallback(
     (fieldName, index, component) => {
