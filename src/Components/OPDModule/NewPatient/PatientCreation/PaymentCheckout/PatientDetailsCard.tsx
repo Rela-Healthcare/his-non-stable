@@ -19,9 +19,9 @@ const PatientDetailRow: React.FC<{label: string; value: string}> = ({
   value,
 }) => (
   <div className="w-full flex justify-between items-center py-1">
-    <span className="text-[#838383] font-bold text-sm">{label}</span>
-    <span className="text-black font-bold text-sm ml-2">:</span>
-    <span className="text-black font-bold text-sm flex-1 text-right ml-2">
+    <span className="text-[#838383] font-bold text-xs sm:text-sm">{label}</span>
+    <span className="text-black font-bold text-xs sm:text-sm mx-1">:</span>
+    <span className="text-black font-bold text-xs sm:text-sm flex-1 text-right truncate">
       {value || 'Not Available'}
     </span>
   </div>
@@ -39,30 +39,30 @@ export const PatientDetailsCard: React.FC<PatientDetailsCardProps> = ({
   };
 
   return (
-    <div className="border-b-2 border-slate-200">
-      <h3 className="text-lg font-bold text-gray-800 mb-2">
+    <div className="border-b-2 border-slate-200 px-2 sm:px-4 py-2">
+      <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-2 sm:mb-3">
         Patient Information
       </h3>
-      <div className="flex flex-col items-center justify-between">
-        <div className="w-full">
-          <div className="flex justify-between">
-            <div className="w-5/12">
-              <PatientDetailRow label="Patient Name" value={patientData.Name} />
-            </div>
-            <div className="w-5/12">
-              <PatientDetailRow label="UHID" value={patientData.UHID} />
-            </div>
+      <div className="flex flex-col">
+        {/* Stack rows vertically on small screens */}
+        <div className="w-full flex flex-col sm:flex-row sm:justify-between sm:space-x-4">
+          <div className="w-full sm:w-1/2 mb-2 sm:mb-0">
+            <PatientDetailRow label="Patient Name" value={patientData.Name} />
           </div>
-          <div className="flex justify-between mt-2">
-            <div className="w-5/12">
-              <PatientDetailRow label="Mobile" value={patientData.Mobile_No} />
-            </div>
-            <div className="w-5/12">
-              <PatientDetailRow
-                label="Age/Gender"
-                value={`${patientData.Age}/${patientData.Gender}`}
-              />
-            </div>
+          <div className="w-full sm:w-1/2">
+            <PatientDetailRow label="UHID" value={patientData.UHID} />
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col sm:flex-row sm:justify-between sm:space-x-4 mt-1 sm:mt-2">
+          <div className="w-full sm:w-1/2 mb-2 sm:mb-0">
+            <PatientDetailRow label="Mobile" value={patientData.Mobile_No} />
+          </div>
+          <div className="w-full sm:w-1/2">
+            <PatientDetailRow
+              label="Age/Gender"
+              value={`${patientData.Age}/${patientData.Gender}`}
+            />
           </div>
         </div>
       </div>

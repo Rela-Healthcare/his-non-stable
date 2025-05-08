@@ -1365,7 +1365,7 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
               paymentDetails={paymentDetails}
               patientDetails={personalDetails}
               serviceDetails={serviceDetails}
-              couponAmount={50}
+              couponAmount={0}
               onSubmit={handlePaymentSubmit}
             />
           )}

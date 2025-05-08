@@ -103,47 +103,60 @@ const PaymentCheckout: React.FC<PaymentCheckoutProps> = ({
   };
 
   return (
-    <Container className="flex justify-between items-center pt-4">
-      <div className="h-[75vh] max-h-[75vh] w-4/6 flex flex-col justify-between">
-        <PatientDetailsCard patient={patientDetails} />
-        <ServicesTable services={serviceDetails} />
-        <BillingSummary
-          grossAmount={grossAmount}
-          totalDiscount={totalDiscount}
-          afterDiscount={afterDiscount}
-          couponValue={couponValue}
-          taxAmount={taxAmount}
-          netPayable={netPayable}
-          taxRate={0}
-          serviceCharge={0}
-          couponApplied={payment.couponApplied}
-        />
-      </div>
+    <Container className="px-0 md:px-4">
+      <div className="flex flex-col lg:flex-row gap-4 pt-4">
+        {/* Left Column - Patient Details, Services, Billing Summary */}
+        <div className="w-full lg:w-2/3 flex flex-col">
+          <div>
+            <PatientDetailsCard patient={patientDetails} />
+          </div>
 
-      <div className="h-[75vh] w-2/6 ml-4">
-        <PaymentForm
-          payment={payment}
-          errors={errors}
-          netPayable={netPayable}
-          couponAmount={Number(couponAmount || 0)}
-          serviceLevelDiscount={serviceLevelDiscount}
-          onChange={handleChange}
-          onSubmit={wrappedSubmit}
-          onPaymentSuccess={handlePaymentSuccess}
-          onPaymentError={handlePaymentError}
-          paymentButtonDetails={{
-            patientName: patientDetails?.Name || '',
-            patientID: patientDetails?.UHID || 'UHID0000',
-            // amount: netPayable,
-            amount: 1,
-            email: patientDetails?.Email_ID || '',
-            phone: patientDetails?.Mobile_No || '',
-            processingId: generateProcessingId('TXN'),
-            paymode: 'cards-upi',
-            cashierId: userId,
-          }}
-          onSplitAmountChange={handleSplitAmountChange}
-        />
+          <div className="flex-1 overflow-auto">
+            <ServicesTable services={serviceDetails} />
+          </div>
+
+          <div>
+            <BillingSummary
+              grossAmount={grossAmount}
+              totalDiscount={totalDiscount}
+              afterDiscount={afterDiscount}
+              couponValue={couponValue}
+              taxAmount={taxAmount}
+              netPayable={netPayable}
+              taxRate={0}
+              serviceCharge={0}
+              couponApplied={payment.couponApplied}
+            />
+          </div>
+        </div>
+
+        {/* Right Column - Payment Form */}
+        <div className="w-full lg:w-1/3">
+          <div className="rounded-lg shadow sticky top-4 sm:h-auto lg:h-[72vh] overflow-y-auto">
+            <PaymentForm
+              payment={payment}
+              errors={errors}
+              netPayable={netPayable}
+              couponAmount={Number(couponAmount || 0)}
+              serviceLevelDiscount={serviceLevelDiscount}
+              onChange={handleChange}
+              onSubmit={wrappedSubmit}
+              onPaymentSuccess={handlePaymentSuccess}
+              onPaymentError={handlePaymentError}
+              paymentButtonDetails={{
+                patientName: patientDetails?.Name || '',
+                patientID: patientDetails?.UHID || 'UHID0000',
+                amount: 1,
+                email: patientDetails?.Email_ID || '',
+                phone: patientDetails?.Mobile_No || '',
+                processingId: generateProcessingId('TXN'),
+                paymode: 'cards-upi',
+                cashierId: userId,
+              }}
+              onSplitAmountChange={handleSplitAmountChange}
+            />
+          </div>
+        </div>
       </div>
     </Container>
   );
