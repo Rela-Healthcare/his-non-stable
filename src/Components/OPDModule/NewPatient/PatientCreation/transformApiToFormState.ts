@@ -147,44 +147,26 @@ export function transformApiToFormState(apiData: any, initialFormStates: any) {
     initialServiceDetails: {
       ...initialFormStates.initialServiceDetails,
       UserId: apiRecord.created_id || '',
-      OP_Master:
-        apiRecord.servicelist?.map((service: any) => ({
+      OP_Master: [
+        ...apiRecord.servicelist?.map((service: any) => ({
           ...initialFormStates.initialServiceDetails.OP_Master[0],
           ID: service.id || 0,
           Service_Group: service.service_Group || '',
           Service: service.service || '',
           Priority: service.priority || '',
-          Rate: service.rate || 0,
+          Discount_Type: 'Flat',
           Discount: service.discount || 0,
-          Amount: service.amount || 0,
-          Amount_Ttl: service.amount_Ttl || 0,
-          Remarks: service.remarks || '',
           Discount_Reason: service.discount_Reason || '',
-        })) || [],
+          Actual_Amount: service.rate || 0,
+          Amount: service.amount_Ttl || 0,
+          Remarks: service.remarks || '',
+          totalAmount: service.amount || 0,
+          saved: true,
+        })),
+        ...initialFormStates.initialServiceDetails.OP_Master,
+      ],
     },
   };
 
   return result;
-}
-
-// Helper function to convert salutation ID to name
-function salutationIdToName(salutationId: string): string {
-  const salutations: Record<string, string> = {
-    '11': 'Mr.',
-    '12': 'Mrs.',
-    '21': 'Master',
-    '22': 'Miss',
-    '31': 'Dr.',
-    '32': 'Prof.',
-  };
-  return salutations[salutationId] || '';
-}
-
-// Helper function to calculate age from DOB
-function calculateAge(dob: string): string {
-  if (!dob) return '';
-  const birthDate = new Date(dob);
-  const ageDifMs = Date.now() - birthDate.getTime();
-  const ageDate = new Date(ageDifMs);
-  return Math.abs(ageDate.getUTCFullYear() - 1970).toString();
 }

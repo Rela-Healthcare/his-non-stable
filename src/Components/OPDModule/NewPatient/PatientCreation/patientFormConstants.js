@@ -106,7 +106,7 @@ export const emptyOPService = {
   Discount: '',
   Discount_Reason: '',
   Actual_Amount: 0,
-  Amount: '',
+  Amount: 0,
   Remarks: '',
   servicesListResponse: [],
   totalAmount: 0,

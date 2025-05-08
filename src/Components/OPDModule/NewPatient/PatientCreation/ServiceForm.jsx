@@ -5,7 +5,7 @@ import {
   fetchPackageList,
   fetchServicesList,
 } from '../../../../store/Slices/dropdownSlice';
-import {formatPrice} from '../../../../utils/utils';
+import {extractAmountFromString, formatPrice} from '../../../../utils/utils';
 import EditableServiceTable from './EditableServiceTable';
 import FormActionButtons from './FormActionButtons';
 
@@ -37,11 +37,6 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
     }, 0);
   }, [services]);
 
-  const getAmountFromString = (str) => {
-    const parts = str.split(':');
-    return parts[parts.length - 1].trim();
-  };
-
   // Handle field changes
   const handleChange = useCallback(
     async (index, field, e) => {
@@ -72,7 +67,7 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
         );
 
         if (selectedService) {
-          const rate = Number(getAmountFromString(selectedService.label));
+          const rate = Number(extractAmountFromString(selectedService.label));
           currentService.Amount = rate;
           currentService.Actual_Amount = Math.max(rate, 0);
           currentService.ServiceName = selectedService.label;
@@ -89,7 +84,9 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
         );
 
         if (selectedService) {
-          const originalAmount = Number(selectedService.label.split(':')[1]);
+          const originalAmount = Number(
+            extractAmountFromString(selectedService.label)
+          );
           const discountValue = parseFloat(currentService.Discount) || 0;
           let finalAmount = originalAmount;
 
@@ -175,28 +172,40 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
     setErrors({});
   }, [setServices]);
 
-  // Validate services before submission
   const validateServices = useCallback((servicesToValidate) => {
-    return servicesToValidate.slice(0, -1).reduce((acc, service, index) => {
-      const {Service_Group, Service, Priority, Amount} = service;
+    // Filter out unsaved services and validate only saved ones
+    return servicesToValidate
+      .filter((service) => service.saved)
+      .reduce((acc, service, index) => {
+        const {Service_Group, Service, Priority, Amount} = service;
 
-      if (!Service_Group) acc[`${index}-Service_Group`] = 'Required';
-      if (!Service) acc[`${index}-Service`] = 'Required';
-      if (!Priority) acc[`${index}-Priority`] = 'Required';
-      if (!Amount) acc[`${index}-Amount`] = 'Required';
-      return acc;
-    }, {});
+        if (!Service_Group)
+          acc[`${index}-Service_Group`] = 'Service Group is required';
+        if (!Service) acc[`${index}-Service`] = 'Service is required';
+        if (!Priority) acc[`${index}-Priority`] = 'Priority is required';
+        if (!Amount || isNaN(Amount))
+          acc[`${index}-Amount`] = 'Valid Amount is required';
+
+        return acc;
+      }, {});
   }, []);
 
-  // Handle form submission
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
+
       const newErrors = validateServices(services);
       setErrors(newErrors);
 
       if (Object.keys(newErrors).length === 0) {
-        onSubmit(services, e);
+        const servicesToSubmit = services.filter((service) => service.saved);
+
+        if (servicesToSubmit.length === 0) {
+          setErrors({general: 'Please add and save at least one service'});
+          return;
+        }
+
+        onSubmit(servicesToSubmit, e);
       }
     },
     [services, onSubmit, validateServices]
@@ -207,6 +216,7 @@ const ServiceInvoice = ({services, setServices, dropdownData, onSubmit}) => {
       <Form noValidate onSubmit={handleSubmit} className="pt-4">
         <EditableServiceTable
           services={services}
+          setServices={setServices}
           serviceGroupListResponse={dropdownData.serviceGroupListResponse || []}
           priorityListResponse={dropdownData.priorityListResponse || []}
           packageListResponse={dropdownData.packageListResponse || []}

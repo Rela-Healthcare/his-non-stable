@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   CustomAccordion,
@@ -143,6 +143,14 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     loadData();
   }, [dispatch]);
 
+  const getInitialServiceDetails = () => {
+    if (isEditMode) {
+      const transformed = transformApiToFormState(patient, initialFormStates);
+      return transformed.initialServiceDetails?.OP_Master || [emptyOPService];
+    }
+    return opServices?.length ? [...opServices] : [emptyOPService];
+  };
+
   const dropdownData = useSelector((state) => state.dropdown.data);
   const [formStatus, setFormStatus] = useLocalStorage('formStatus', [
     false, // 0.personal details
@@ -183,7 +191,7 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
   );
   const [serviceDetails, setServiceDetails] = useLocalStorage(
     'serviceDetails',
-    initialState.initialServiceDetails?.OP_Master || [...opServices]
+    getInitialServiceDetails()
   );
 
   const {confirm, ConfirmDialogComponent} = useConfirmDialog();
@@ -614,7 +622,10 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
       currentServices[index] = updatedService;
       setServiceDetails(currentServices);
 
-      dispatch(updateService({index, newData: updatedService}));
+      // Dispatch to Redux if needed
+      if (dispatch) {
+        dispatch(updateService({index, newData: updatedService}));
+      }
     }
   };
 
@@ -853,55 +864,6 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     }
   };
 
-  // const handleEvaluationSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const payload = {
-  //       ID: Number(personalDetails?.ID),
-  //       ...evaluationDetails,
-  //       pat_Is_symptoms: evaluationDetails?.pat_Is_symptoms === '1' ? 1 : 0,
-  //       pat_Is_historyoffever:
-  //         evaluationDetails?.pat_Is_historyoffever === '1' ? 1 : 0,
-  //       pat_Is_outofcountry1month:
-  //         evaluationDetails?.pat_Is_outofcountry1month === '1' ? 1 : 0,
-  //       pat_Is_diseaseoutbreak:
-  //         evaluationDetails?.pat_Is_diseaseoutbreak === '1' ? 1 : 0,
-  //       pat_Is_healthcareworker:
-  //         evaluationDetails?.pat_Is_healthcareworker === '1' ? 1 : 0,
-  //       pat_Is_disease_last1month:
-  //         evaluationDetails?.pat_Is_disease_last1month === '1' ? 1 : 0,
-  //       pat_Is_chickenpox: evaluationDetails?.pat_Is_chickenpox === '1' ? 1 : 0,
-  //       pat_Is_measles: evaluationDetails?.pat_Is_measles === '1' ? 1 : 0,
-  //       pat_Is_mumps: evaluationDetails?.pat_Is_mumps === '1' ? 1 : 0,
-  //       pat_Is_rubella: evaluationDetails?.pat_Is_rubella === '1' ? 1 : 0,
-  //       pat_Is_diarrheasymptoms:
-  //         evaluationDetails?.pat_Is_diarrheasymptoms === '1' ? 1 : 0,
-  //       pat_Is_activeTB: evaluationDetails?.pat_Is_activeTB === '1' ? 1 : 0,
-  //     };
-  //     const allFalseOrNull = Object.values(evaluationDetails).every(
-  //       (value) => value === null || value === false || value === 0
-  //     );
-
-  //     if (allFalseOrNull) {
-  //       const userConfirmed = await confirm(
-  //         'Confirm Submission',
-  //         'Are you sure you want to submit? Because all questions are unselected.'
-  //       );
-  //       if (!userConfirmed) return;
-  //     }
-  //     const response = await OPModuleAgent.updateTempOPDPatientEvaluation(
-  //       payload
-  //     );
-  //     if (response?.data?.id) {
-  //       markFormAsCompleted(3);
-  //       setActiveAccordions([4]);
-  //     }
-  //   } catch (error) {
-  //     console.error('Submit error:', error);
-  //     alert('Something went wrong. Please try again.');
-  //   }
-  // };
-
   const handleEvaluationSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -1041,23 +1003,25 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
     }
   };
 
-  const handleServiceSubmit = async (services, e) => {
+  const handleServiceSubmit = async (validServices, e) => {
     e.preventDefault();
+
+    // No need to filter here since we already did it in ServiceInvoice
     const payload = {
       Id: Number(personalDetails?.ID),
       UserId,
-      OP_Master: services.map((service) => ({
-        ID: 74,
-        Service_Group: service.serviceGroup,
-        Service: service.service,
-        Priority: service.priority,
-        Rate: service.rate,
-        Discount_Type: service.discountType,
-        AMOUNT: service.amount,
-        Discount: service.discount,
-        Amount_Ttl: service.amountTotal,
-        Remarks: service.remarks,
-        Discount_Reason: service.discountReason,
+      OP_Master: validServices.map((service) => ({
+        ID: Number(personalDetails?.ID),
+        Service_Group: service.Service_Group,
+        Service: service.Service,
+        Priority: service.Priority,
+        Rate: service.Actual_Amount,
+        Discount_Type: service.Discount_Type,
+        AMOUNT: service.Actual_Amount,
+        Discount: service.Discount,
+        Amount_Ttl: service.Amount,
+        Remarks: service.Remarks,
+        Discount_Reason: service.Discount_Reason,
       })),
     };
 
@@ -1088,7 +1052,7 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
       setPaymentDetails(payload);
       markFormAsCompleted(6);
       setActiveAccordions([7]);
-      // submitAllData();
+      submitAllData();
     } catch (error) {
       console.error('❌ Network error:', error);
     }
@@ -1117,6 +1081,7 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
         toast.success('Patient created successfully');
         console.log('✅ Final submission data:', combinedPayload, response);
         resetAllForms();
+        onClose();
       } else {
         toast.error('Failed to create patient. Please try again.');
       }
@@ -1369,7 +1334,11 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
 
         <CustomAccordionItem title="Services & Invoice">
           <ServiceForm
-            services={serviceDetails}
+            services={
+              serviceDetails.length === 0
+                ? [{...emptyOPService}]
+                : serviceDetails
+            }
             setServices={setServiceDetails}
             onChange={handleServiceChange}
             onSubmit={handleServiceSubmit}

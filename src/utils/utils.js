@@ -285,26 +285,17 @@ export const formatPrice = (price) => {
   return price.toFixed(2);
 };
 
-// function populateFormState(apiData, initialFormState, fieldMappings) {
-//   // Handle case where apiData is an array (take first element)
-//   const data = Array.isArray(apiData) ? apiData[0] || {} : apiData;
+export function extractAmountFromString(str) {
+  // Split by ':' and get the last part
+  const parts = str.split(':');
+  const lastPart = parts[parts.length - 1].trim();
 
-//   // Create a copy of the initial state
-//   const updatedState = { ...initialFormState };
+  // Extract the numeric value (including decimals)
+  const amountMatch = lastPart.match(/(\d+\.?\d*)/);
 
-//   // Special case for salutation if you need to map to both ID and Name
-//   if (data.salutation) {
-//     updatedState.SalutionId = data.salutation;
-//     // If you have a way to get SalutationName from the ID, you would add it here
-//     // updatedState.SalutationName = getSalutationName(data.salutation);
-//   }
+  if (amountMatch && amountMatch[0]) {
+    return parseFloat(amountMatch[0]);
+  }
 
-//   // Map all other fields
-//   for (const [apiKey, formKey] of Object.entries(fieldMappings)) {
-//     if (apiKey in data && formKey in updatedState) {
-//       updatedState[formKey] = data[apiKey];
-//     }
-//   }
-
-//   return updatedState;
-// }
+  return null; // or 0 if you prefer a default value
+}

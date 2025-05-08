@@ -6,9 +6,12 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {Info, PencilIcon, TrashIcon} from 'lucide-react';
 import TruncatedText from '../../../../common/TruncatedText';
 import {formatPrice} from '../../../../utils/utils';
+import {useDispatch} from 'react-redux';
+import {fetchServicesList} from '../../../../store/Slices/dropdownSlice';
 
 const EditableServiceTable = ({
   services = [],
+  setServices,
   onChange,
   onDelete,
   onToggleSave,
@@ -23,6 +26,30 @@ const EditableServiceTable = ({
   const scrollRef = useRef(null);
   const timeoutRef = useRef();
   const rowRefs = useRef([]);
+  const dispatch = useDispatch();
+  const [serviceLabels, setServiceLabels] = useState({});
+
+  useEffect(() => {
+    async function fetchLabels() {
+      const labels = {};
+
+      for (let i = 0; i < services.length; i++) {
+        if (services[i].saved) {
+          const label = await getServiceLabel(
+            services[i].Service,
+            services[i].servicesListResponse,
+            i
+          );
+          labels[i] = label;
+        }
+      }
+
+      setServiceLabels(labels);
+    }
+
+    fetchLabels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [services]);
 
   // Initialize row refs
   useEffect(() => {
@@ -82,13 +109,20 @@ const EditableServiceTable = ({
     [serviceGroupListResponse]
   );
 
-  const getServiceLabel = useCallback((value, servicesListResponse) => {
-    return (
-      (servicesListResponse || []).find(
-        (option) => option.value === Number(value)
-      )?.label || value
+  function getServicesList(serviceGroupId) {
+    return dispatch(fetchServicesList(serviceGroupId)).unwrap();
+  }
+
+  const getServiceLabel = async (value, servicesList, index) => {
+    const servicesListResponse = await getServicesList(
+      services[index].Service_Group
     );
-  }, []);
+    const service = (servicesListResponse || []).find(
+      (option) => option.value === Number(value)
+    );
+
+    return service?.label || value;
+  };
 
   const renderFieldWithError = useCallback(
     (fieldName, index, component) => {
@@ -280,10 +314,7 @@ const EditableServiceTable = ({
                       <>
                         {service.saved ? (
                           <TruncatedText
-                            text={getServiceLabel(
-                              service.Service,
-                              service.servicesListResponse
-                            )}
+                            text={serviceLabels[index] || ''}
                             maxLength={14}
                             middleEllipsis={true}
                             className="font-semibold text-sm px-2"

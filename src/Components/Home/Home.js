@@ -60,7 +60,10 @@ const Home = () => {
             />
           )}
           {showCreate && (
-            <PatientCreation UserId={UserId} onClose={setShowCreate} />
+            <PatientCreation
+              UserId={UserId}
+              onClose={() => setShowCreate(false)}
+            />
           )}
           {showEdit && selectedPatient && (
             <PatientCreation
