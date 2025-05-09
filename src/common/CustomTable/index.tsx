@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import {Table, Button} from 'react-bootstrap';
+import {TrashIcon, BookA, Eye} from 'lucide-react';
+import TruncatedText from '../TruncatedText';
 
 interface Column<T> {
   label: string;
@@ -12,6 +14,7 @@ interface CustomTableProps<T> {
   columns: Column<T>[];
   onRowAction?: (item: T) => void;
   rowsPerPage?: number;
+  tableName?: string;
 }
 
 export default function CustomTable<T>({
@@ -19,6 +22,7 @@ export default function CustomTable<T>({
   columns,
   onRowAction,
   rowsPerPage = 10,
+  tableName,
 }: CustomTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -42,7 +46,7 @@ export default function CustomTable<T>({
                 </th>
               ))}
               {onRowAction && (
-                <th className="px-4 py-3 font-medium">Actions</th>
+                <th className="px-4 py-3 font-medium text-center">Actions</th>
               )}
             </tr>
           </thead>
@@ -60,12 +64,69 @@ export default function CustomTable<T>({
                     </td>
                   ))}
                   {onRowAction && (
-                    <td className="px-4 py-3">
-                      <Button
-                        className="text-white font-medium py-1 px-3 text-sm"
-                        onClick={() => onRowAction(item)}>
-                        Edit
-                      </Button>
+                    <td className="py-auto px-auto">
+                      <div className="flex justify-center items-center">
+                        <Button
+                          variant="primary"
+                          className="text-white font-medium py-1 px-3 text-sm"
+                          onClick={() => {
+                            tableName === 'Search Results'
+                              ? console.log(item)
+                              : onRowAction(item);
+                          }}>
+                          {tableName === 'Search Results'
+                            ? 'Modify'
+                            : 'continue'}
+                        </Button>
+                        {tableName === 'Search Results' && (
+                          <>
+                            <TruncatedText
+                              text={
+                                <Button
+                                  variant="outline-primary"
+                                  className="text-blue-600 font-medium py-1 px-2 text-sm hover:text-blue-100"
+                                  onClick={() => console.log('view')}>
+                                  <Eye size={17} />
+                                </Button>
+                              }
+                              as={'div'}
+                              alwaysShowTooltip
+                              tooltipText={'View Record'}
+                              className="mr-1"
+                            />
+                            <TruncatedText
+                              text={
+                                <Button
+                                  variant="outline-primary"
+                                  className="text-blue-600 font-medium py-1 px-2 text-sm hover:text-blue-100"
+                                  onClick={() =>
+                                    console.log('book appointment')
+                                  }>
+                                  <BookA size={17} />
+                                </Button>
+                              }
+                              as={'div'}
+                              alwaysShowTooltip
+                              tooltipText={'Book Appointment'}
+                            />
+                          </>
+                        )}
+                        {tableName === 'Inprogress Registration' && (
+                          <TruncatedText
+                            text={
+                              <Button
+                                variant="outline-danger"
+                                className="font-medium py-1 px-2 text-sm text-rose-700 hover:text-rose-100"
+                                onClick={() => console.log('remove')}>
+                                <TrashIcon size={17} />
+                              </Button>
+                            }
+                            as={'div'}
+                            alwaysShowTooltip
+                            tooltipText={'Remove patient from my bin'}
+                          />
+                        )}
+                      </div>
                     </td>
                   )}
                 </tr>

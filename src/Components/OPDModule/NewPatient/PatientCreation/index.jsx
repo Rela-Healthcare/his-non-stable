@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   CustomAccordion,
@@ -261,21 +261,6 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
         initialState.initialNextOfKinDetails.Kin_Pincode
       );
     }
-
-    // if (
-    //   initialState.initialAdditionalDetails?.Pincode?.length === 6 &&
-    //   initialState.initialNextOfKinDetails?.Kin_Pincode?.length === 6 &&
-    //   initialState.initialAdditionalDetails?.Pincode ===
-    //     initialState.initialNextOfKinDetails?.Kin_Pincode &&
-    //   initialState.initialAdditionalDetails?.area ===
-    //     initialState.initialNextOfKinDetails?.kin_Area &&
-    //   initialState.initialAdditionalDetails?.address_txt ===
-    //     initialState.initialNextOfKinDetails?.kin_Address
-    // ) {
-    //   setIsCheckedSameAsPatientAddress(true);
-    // } else {
-    //   setIsCheckedSameAsPatientAddress(false);
-    // }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

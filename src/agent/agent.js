@@ -180,6 +180,10 @@ export const OPModuleAgent = {
     requests.post('Insert_New_Invoice', payload),
   insertPaymentInformation: (payload) =>
     requests.post('Payment_Information_Dtl', payload),
+  getPatientList: (UserId) =>
+    requests.get(
+      `Get_NewRegistration_Pat?Created_Id=admin123&CreateDate=22-Apr-2025&PatientId=221759&MobileNo=8610130371`
+    ),
 
   //Insert_ExsistsOPDMaster_Porc
   saveExistingOPDModule: (existingPayload) =>

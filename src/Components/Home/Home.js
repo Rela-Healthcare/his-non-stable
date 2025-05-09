@@ -12,6 +12,7 @@ const Home = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [defaultData, setDefaultData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isNeedRefresh, setIsNeedRefresh] = useState(false);
   const UserId = localStorage.getItem('userName');
 
   useEffect(() => {
@@ -19,9 +20,14 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const res = await OPModuleAgent.getTemporaryOPDPatient(UserId);
+        const res1 = await OPModuleAgent.getPatientList();
         if (res.status === 'success') {
           if (JSON.stringify(res.data) !== JSON.stringify(defaultData)) {
             setDefaultData(res.data);
+          }
+        } else if (res1.status === 'success') {
+          if (JSON.stringify(res1.data) !== JSON.stringify(defaultData)) {
+            setDefaultData(res1.data);
           }
         } else {
           defaultData && defaultData.length > 0 && setDefaultData([]);
@@ -33,7 +39,7 @@ const Home = () => {
       }
     };
     fetchData();
-  }, [UserId, defaultData]);
+  }, [UserId, defaultData, isNeedRefresh]);
 
   const handleEditPatient = useCallback((patient) => {
     setSelectedPatient(patient);
@@ -71,6 +77,7 @@ const Home = () => {
               patient={selectedPatient}
               onClose={() => setShowEdit(false)}
               UserId={UserId}
+              onRefresh={() => setIsNeedRefresh(!isNeedRefresh)}
             />
           )}
         </>

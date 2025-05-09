@@ -6,6 +6,7 @@ import CustomTable from '../../../common/CustomTable';
 import LoadingSpinner from '../../../common/LoadingSpinner';
 import {OPModuleAgent} from '../../../agent/agent';
 import {getFormattedShortDate} from '../../../utils/utils';
+import {toast} from 'react-toastify';
 
 type Props = {
   setShowPatientCreation: (val: boolean) => void;
@@ -21,23 +22,27 @@ const PatientSearch: React.FC<Props> = ({
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [searched, setSearched] = useState(false);
 
   const handleSearch = async () => {
     setLoading(true);
-    setSearched(false);
+    if (!query) {
+      toast.warn('Please enter UHID or Mobile');
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await OPModuleAgent.getExistingPatientDetails(query);
       if (res.status === 'success') {
         setResults(res.data);
+        res.data.length === 0 && toast.warn('Incorrect UHID or Mobile Number');
       } else {
         setResults([]);
       }
     } catch (error) {
-      console.error(error);
+      toast.error('Something went wrong');
     } finally {
       setLoading(false);
-      setSearched(true);
     }
   };
 
@@ -66,9 +71,21 @@ const PatientSearch: React.FC<Props> = ({
             <Search size={26} />
           </Button>
         </div>
-        <Button variant="primary" onClick={() => setShowPatientCreation(true)}>
-          New Patient
-        </Button>
+        <div>
+          {defaultData && defaultData.length > 0 && (
+            <Button
+              variant="link"
+              className="text-decoration-none hover:border-[#3c4b64] text-[#3c4b64] hover:text-[#3c4b64] font-semibold transition duration-150"
+              onClick={() => setResults([])}>
+              Inprogress Registration
+            </Button>
+          )}
+          <Button
+            variant="primary"
+            onClick={() => setShowPatientCreation(true)}>
+            New Patient
+          </Button>
+        </div>
       </div>
 
       {loading && (
@@ -77,14 +94,9 @@ const PatientSearch: React.FC<Props> = ({
         </div>
       )}
 
-      {!loading && searched && results.length === 0 && (
-        <div className="flex justify-center items-center text-center font-bold text-lg mt-4 h-[70vh]">
-          No patients found
-        </div>
-      )}
-
       {!loading && results.length > 0 ? (
         <CustomTable
+          tableName="Search Results"
           rowsPerPage={5}
           data={results}
           columns={[
@@ -100,6 +112,7 @@ const PatientSearch: React.FC<Props> = ({
         !loading &&
         defaultData.length > 0 && (
           <CustomTable
+            tableName="Inprogress Registration"
             rowsPerPage={5}
             data={defaultData.slice(-1)}
             columns={[
