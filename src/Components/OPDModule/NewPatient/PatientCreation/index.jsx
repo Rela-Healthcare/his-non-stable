@@ -74,7 +74,10 @@ import TruncatedText from '../../../../common/TruncatedText';
 import LoadingSpinner from '../../../../common/LoadingSpinner';
 import {transformApiToFormState} from './transformApiToFormState';
 
-const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
+const PatientCreation = (
+  {UserId, onClose, patient, isEditMode = false, onRefresh},
+  ref
+) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const opServices = useSelector(
@@ -1166,7 +1169,10 @@ const PatientCreation = ({UserId, onClose, patient, isEditMode = false}) => {
                 type="button"
                 variant="link"
                 size="sm"
-                onClick={() => onClose(false)}>
+                onClick={() => {
+                  onClose(false);
+                  onRefresh();
+                }}>
                 <ArrowLeft size={22} />
               </Button>
             }

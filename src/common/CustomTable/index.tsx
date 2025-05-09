@@ -12,48 +12,61 @@ interface Column<T> {
 interface CustomTableProps<T> {
   data: T[];
   columns: Column<T>[];
-  onRowAction?: (item: T) => void;
   rowsPerPage?: number;
   tableName?: string;
+  onPrimaryAction?: (item: T) => void;
+  onView?: (item: T) => void;
+  onBook?: (item: T) => void;
+  onDelete?: (item: T) => void;
 }
 
 export default function CustomTable<T>({
   data,
   columns,
-  onRowAction,
   rowsPerPage = 10,
   tableName,
+  onPrimaryAction,
+  onView,
+  onBook,
+  onDelete,
 }: CustomTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
-
   const totalPages = Math.ceil(data.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const currentData = data.slice(startIndex, startIndex + rowsPerPage);
+  const currentData = data.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const changePage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+    <div className="bg-white border border-gray-200 rounded-lg shadow p-4">
       <div className="table-responsive">
-        <Table className="mt-2 mb-0">
+        <Table className="mt-2 mb-0" bordered hover responsive>
           <thead>
             <tr className="bg-gray-100 text-gray-700 text-sm">
               {columns.map((col) => (
-                <th key={col.label} className="px-4 py-3 font-medium">
+                <th key={col.label} className="px-4 py-auto font-medium">
                   {col.label}
                 </th>
               ))}
-              {onRowAction && (
-                <th className="px-4 py-3 font-medium text-center">Actions</th>
+              {(onPrimaryAction || onView || onBook || onDelete) && (
+                <th className="px-4 py-auto font-medium text-center">
+                  Actions
+                </th>
               )}
             </tr>
           </thead>
           <tbody>
             {currentData.length > 0 ? (
               currentData.map((item, index) => (
-                <tr key={index} className="text-sm hover:bg-gray-50 transition">
+                <tr
+                  key={index}
+                  className="text-sm hover:bg-gray-50 transition-all duration-150">
                   {columns.map((col) => (
                     <td
                       key={String(col.accessor)}
@@ -63,69 +76,66 @@ export default function CustomTable<T>({
                         : (item[col.accessor] as React.ReactNode)}
                     </td>
                   ))}
-                  {onRowAction && (
-                    <td className="py-auto px-auto">
-                      <div className="flex justify-center items-center">
-                        <Button
-                          variant="primary"
-                          className="text-white font-medium py-1 px-3 text-sm"
-                          onClick={() => {
-                            tableName === 'Search Results'
-                              ? console.log(item)
-                              : onRowAction(item);
-                          }}>
-                          {tableName === 'Search Results'
-                            ? 'Modify'
-                            : 'continue'}
-                        </Button>
-                        {tableName === 'Search Results' && (
-                          <>
+                  {(onPrimaryAction || onView || onBook || onDelete) && (
+                    <td className="px-4 py-2">
+                      <div className="flex justify-center items-center gap-2 flex-wrap">
+                        {onPrimaryAction && (
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => onPrimaryAction(item)}>
+                            {tableName === 'Search Results'
+                              ? 'Modify'
+                              : 'Continue'}
+                          </Button>
+                        )}
+                        <div className="flex justify-center items-center gap-x-1">
+                          {onView && (
                             <TruncatedText
+                              as="div"
+                              tooltipText="View Record"
+                              alwaysShowTooltip
                               text={
                                 <Button
                                   variant="outline-primary"
-                                  className="text-blue-600 font-medium py-1 px-2 text-sm hover:text-blue-100"
-                                  onClick={() => console.log('view')}>
+                                  size="sm"
+                                  onClick={() => onView(item)}>
                                   <Eye size={17} />
                                 </Button>
                               }
-                              as={'div'}
-                              alwaysShowTooltip
-                              tooltipText={'View Record'}
-                              className="mr-1"
                             />
+                          )}
+                          {onBook && (
                             <TruncatedText
+                              as="div"
+                              tooltipText="Book Appointment"
+                              alwaysShowTooltip
                               text={
                                 <Button
                                   variant="outline-primary"
-                                  className="text-blue-600 font-medium py-1 px-2 text-sm hover:text-blue-100"
-                                  onClick={() =>
-                                    console.log('book appointment')
-                                  }>
+                                  size="sm"
+                                  onClick={() => onBook(item)}>
                                   <BookA size={17} />
                                 </Button>
                               }
-                              as={'div'}
-                              alwaysShowTooltip
-                              tooltipText={'Book Appointment'}
                             />
-                          </>
-                        )}
-                        {tableName === 'Inprogress Registration' && (
-                          <TruncatedText
-                            text={
-                              <Button
-                                variant="outline-danger"
-                                className="font-medium py-1 px-2 text-sm text-rose-700 hover:text-rose-100"
-                                onClick={() => console.log('remove')}>
-                                <TrashIcon size={17} />
-                              </Button>
-                            }
-                            as={'div'}
-                            alwaysShowTooltip
-                            tooltipText={'Remove patient from my bin'}
-                          />
-                        )}
+                          )}
+                          {onDelete && (
+                            <TruncatedText
+                              as="div"
+                              tooltipText="Remove record"
+                              alwaysShowTooltip
+                              text={
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  onClick={() => onDelete(item)}>
+                                  <TrashIcon size={17} />
+                                </Button>
+                              }
+                            />
+                          )}
+                        </div>
                       </div>
                     </td>
                   )}
@@ -134,7 +144,7 @@ export default function CustomTable<T>({
             ) : (
               <tr>
                 <td
-                  colSpan={columns.length + (onRowAction ? 1 : 0)}
+                  colSpan={columns.length + 1}
                   className="px-4 py-6 text-center text-gray-500 text-sm italic">
                   No records found
                 </td>
@@ -144,49 +154,44 @@ export default function CustomTable<T>({
         </Table>
       </div>
 
-      {/* Pagination bottom right */}
+      {/* Pagination */}
       <div className="flex justify-end mt-4">
         <div className="flex items-center gap-2">
-          {/* Previous Button */}
           <button
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={() => changePage(currentPage - 1)}
             disabled={currentPage === 1}
             className={`px-3 py-1 text-sm rounded-md border ${
               currentPage === 1
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
-            } transition`}>
+            }`}>
             Prev
           </button>
 
-          {/* Page Numbers */}
-          {[...Array(totalPages).keys()].map((page) => {
-            const pageNum = page + 1;
-            const isActive = pageNum === currentPage;
-
+          {Array.from({length: totalPages}, (_, idx) => {
+            const page = idx + 1;
             return (
               <button
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                className={`px-3 py-1 text-sm rounded-md border transition ${
-                  isActive
+                key={page}
+                onClick={() => changePage(page)}
+                className={`px-3 py-1 text-sm rounded-md border ${
+                  page === currentPage
                     ? 'bg-blue-600 text-white border-blue-600'
                     : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
                 }`}>
-                {pageNum}
+                {page}
               </button>
             );
           })}
 
-          {/* Next Button */}
           <button
-            onClick={() => handlePageChange(currentPage + 1)}
+            onClick={() => changePage(currentPage + 1)}
             disabled={currentPage === totalPages}
             className={`px-3 py-1 text-sm rounded-md border ${
               currentPage === totalPages
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
-            } transition`}>
+            }`}>
             Next
           </button>
         </div>

@@ -5,6 +5,8 @@ import ErrorBoundary from '../ErrorBoundary';
 import CustomContainer from '../../common/CustomContainer';
 import {OPModuleAgent} from '../../agent/agent';
 import LoadingSpinner from '../../common/LoadingSpinner';
+import {toast} from 'react-toastify';
+import {useConfirmDialog} from '../../hooks/useConfirmDialog';
 
 const Home = () => {
   const [showCreate, setShowCreate] = useState(false);
@@ -12,8 +14,9 @@ const Home = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [defaultData, setDefaultData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isNeedRefresh, setIsNeedRefresh] = useState(false);
+  const [isNeedRefresh, setIsNeedRefresh] = useState(true);
   const UserId = localStorage.getItem('userName');
+  const {confirm, ConfirmDialogComponent} = useConfirmDialog();
 
   useEffect(() => {
     setLoading(true);
@@ -38,13 +41,63 @@ const Home = () => {
         setLoading(false);
       }
     };
-    fetchData();
-  }, [UserId, defaultData, isNeedRefresh]);
+    if (isNeedRefresh) {
+      fetchData();
+      setIsNeedRefresh(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [UserId, isNeedRefresh]);
+
+  const handleResetLocalData = () => {
+    localStorage.removeItem('formStatus');
+    localStorage.removeItem('activeAccordions');
+    localStorage.removeItem('personalDetails');
+    localStorage.removeItem('additionalDetails');
+    localStorage.removeItem('nextOfKinDetails');
+    localStorage.removeItem('evaluationDetails');
+    localStorage.removeItem('appointmentDetails');
+    localStorage.removeItem('paymentDetails');
+    localStorage.removeItem('serviceDetails');
+  };
 
   const handleEditPatient = useCallback((patient) => {
     setSelectedPatient(patient);
     setShowEdit(true);
   }, []);
+
+  const handleDeletePatientAtTemp = useCallback(
+    async (patient) => {
+      setLoading(true);
+      const payload = {
+        ID: patient.id,
+        UserId,
+      };
+
+      const confirmed = await confirm(
+        'Delete Confirmation',
+        'Are you sure you want to delete this record?'
+      );
+
+      try {
+        if (confirmed) {
+          const res = await OPModuleAgent.deleteTemporaryOPDPatient(payload);
+          if (res.status === 'success') {
+            handleResetLocalData();
+            toast.success('Patient deleted successfully');
+          }
+          setIsNeedRefresh(true);
+          handleResetLocalData();
+        } else {
+          console.log('Delete cancelled.');
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [UserId, confirm]
+  );
 
   return (
     <CustomContainer
@@ -63,12 +116,14 @@ const Home = () => {
               setShowPatientCreation={setShowCreate}
               onEditPatient={handleEditPatient}
               defaultData={defaultData}
+              handleDeletePatientAtTemp={handleDeletePatientAtTemp}
             />
           )}
           {showCreate && (
             <PatientCreation
               UserId={UserId}
               onClose={() => setShowCreate(false)}
+              onRefresh={() => setIsNeedRefresh(!isNeedRefresh)}
             />
           )}
           {showEdit && selectedPatient && (
@@ -80,6 +135,7 @@ const Home = () => {
               onRefresh={() => setIsNeedRefresh(!isNeedRefresh)}
             />
           )}
+          <ConfirmDialogComponent />
         </>
       </ErrorBoundary>
     </CustomContainer>

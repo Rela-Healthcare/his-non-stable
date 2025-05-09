@@ -7,21 +7,29 @@ import LoadingSpinner from '../../../common/LoadingSpinner';
 import {OPModuleAgent} from '../../../agent/agent';
 import {getFormattedShortDate} from '../../../utils/utils';
 import {toast} from 'react-toastify';
+import ReusableModal from '../../../common/ui/ReusableModal';
 
 type Props = {
   setShowPatientCreation: (val: boolean) => void;
   onEditPatient?: (patient: any) => void;
   defaultData?: any;
+  handleDeletePatientAtTemp?: (patient: any) => void;
 };
 
 const PatientSearch: React.FC<Props> = ({
   setShowPatientCreation,
   onEditPatient,
   defaultData,
+  handleDeletePatientAtTemp,
 }) => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [isBookAppointment, setIsBookAppointment] = useState(false);
+
+  const handleBookAppointment = (patient: any) => {
+    setIsBookAppointment(true);
+  };
 
   const handleSearch = async () => {
     setLoading(true);
@@ -72,7 +80,7 @@ const PatientSearch: React.FC<Props> = ({
           </Button>
         </div>
         <div>
-          {defaultData && defaultData.length > 0 && (
+          {defaultData && defaultData.length > 0 && results?.length !== 0 && (
             <Button
               variant="link"
               className="text-decoration-none hover:border-[#3c4b64] text-[#3c4b64] hover:text-[#3c4b64] font-semibold transition duration-150"
@@ -96,8 +104,6 @@ const PatientSearch: React.FC<Props> = ({
 
       {!loading && results.length > 0 ? (
         <CustomTable
-          tableName="Search Results"
-          rowsPerPage={5}
           data={results}
           columns={[
             {label: 'UHID', accessor: 'uhid'},
@@ -106,7 +112,11 @@ const PatientSearch: React.FC<Props> = ({
             {label: 'Date of Birth', accessor: 'dob'},
             {label: 'Mobile No', accessor: 'mobileNo'},
           ]}
-          onRowAction={onEditPatient}
+          tableName="Search Results"
+          rowsPerPage={5}
+          onPrimaryAction={onEditPatient}
+          onView={handleBookAppointment}
+          onBook={handleBookAppointment}
         />
       ) : (
         !loading &&
@@ -134,10 +144,17 @@ const PatientSearch: React.FC<Props> = ({
               },
               {label: 'Mobile No', accessor: 'mobile_No'},
             ]}
-            onRowAction={onEditPatient}
+            onPrimaryAction={onEditPatient}
+            onDelete={handleDeletePatientAtTemp}
           />
         )
       )}
+      <ReusableModal
+        isOpen={isBookAppointment}
+        onClose={() => setIsBookAppointment(false)}
+        title="Book Appoinment">
+        <div>Appoinment content</div>
+      </ReusableModal>
     </div>
   );
 };
