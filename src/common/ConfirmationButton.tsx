@@ -10,6 +10,7 @@ interface ConfirmationButtonProps {
   cancelText?: string;
   onConfirm: () => Promise<void> | void;
   className?: string;
+  disabled?: boolean;
   variant?:
     | 'primary'
     | 'secondary'

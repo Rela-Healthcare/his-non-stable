@@ -7,6 +7,8 @@ import {OPModuleAgent} from '../../agent/agent';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import {toast} from 'react-toastify';
 import {useConfirmDialog} from '../../hooks/useConfirmDialog';
+import ReusableModal from '../../common/ui/ReusableModal';
+import BookAppointment from '../OPDModule/NewPatient/PatientCreation/BookAppointment';
 
 const Home = () => {
   const [showCreate, setShowCreate] = useState(false);
@@ -17,6 +19,7 @@ const Home = () => {
   const [isNeedRefresh, setIsNeedRefresh] = useState(true);
   const UserId = localStorage.getItem('userName');
   const {confirm, ConfirmDialogComponent} = useConfirmDialog();
+  const [isBookAppointment, setIsBookAppointment] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -99,6 +102,11 @@ const Home = () => {
     [UserId, confirm]
   );
 
+  const handleBookAppointment = (patient) => {
+    setSelectedPatient(patient);
+    setIsBookAppointment(true);
+  };
+
   return (
     <CustomContainer
       as="main"
@@ -117,6 +125,7 @@ const Home = () => {
               onEditPatient={handleEditPatient}
               defaultData={defaultData}
               handleDeletePatientAtTemp={handleDeletePatientAtTemp}
+              handleBookAppointment={handleBookAppointment}
             />
           )}
           {showCreate && (
@@ -136,6 +145,15 @@ const Home = () => {
             />
           )}
           <ConfirmDialogComponent />
+          <ReusableModal
+            isOpen={isBookAppointment}
+            onClose={() => setIsBookAppointment(false)}
+            height="h-[58%]"
+            maxWidth="max-w-[80vw]"
+            zIndex="99"
+            title="Book Appoinment">
+            <BookAppointment patient={selectedPatient} />
+          </ReusableModal>
         </>
       </ErrorBoundary>
     </CustomContainer>

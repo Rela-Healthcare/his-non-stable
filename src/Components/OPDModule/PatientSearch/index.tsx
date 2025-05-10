@@ -7,13 +7,13 @@ import LoadingSpinner from '../../../common/LoadingSpinner';
 import {OPModuleAgent} from '../../../agent/agent';
 import {getFormattedShortDate} from '../../../utils/utils';
 import {toast} from 'react-toastify';
-import ReusableModal from '../../../common/ui/ReusableModal';
 
 type Props = {
   setShowPatientCreation: (val: boolean) => void;
   onEditPatient?: (patient: any) => void;
   defaultData?: any;
   handleDeletePatientAtTemp?: (patient: any) => void;
+  handleBookAppointment?: (patient: any) => void;
 };
 
 const PatientSearch: React.FC<Props> = ({
@@ -21,15 +21,11 @@ const PatientSearch: React.FC<Props> = ({
   onEditPatient,
   defaultData,
   handleDeletePatientAtTemp,
+  handleBookAppointment,
 }) => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [isBookAppointment, setIsBookAppointment] = useState(false);
-
-  const handleBookAppointment = (patient: any) => {
-    setIsBookAppointment(true);
-  };
 
   const handleSearch = async () => {
     setLoading(true);
@@ -115,7 +111,7 @@ const PatientSearch: React.FC<Props> = ({
           tableName="Search Results"
           rowsPerPage={5}
           onPrimaryAction={onEditPatient}
-          onView={handleBookAppointment}
+          onView={() => console.log('view')}
           onBook={handleBookAppointment}
         />
       ) : (
@@ -149,12 +145,6 @@ const PatientSearch: React.FC<Props> = ({
           />
         )
       )}
-      <ReusableModal
-        isOpen={isBookAppointment}
-        onClose={() => setIsBookAppointment(false)}
-        title="Book Appoinment">
-        <div>Appoinment content</div>
-      </ReusableModal>
     </div>
   );
 };

@@ -74,10 +74,13 @@ import TruncatedText from '../../../../common/TruncatedText';
 import LoadingSpinner from '../../../../common/LoadingSpinner';
 import {transformApiToFormState} from './transformApiToFormState';
 
-const PatientCreation = (
-  {UserId, onClose, patient, isEditMode = false, onRefresh},
-  ref
-) => {
+const PatientCreation = ({
+  UserId,
+  onClose,
+  patient,
+  isEditMode = false,
+  onRefresh,
+}) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const opServices = useSelector(
